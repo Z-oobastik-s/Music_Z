@@ -312,6 +312,7 @@ function render(tracks: Track[]): void {
 
   function openModal(title: string, text: string): void {
     modalMode = "text";
+    modal.querySelector(".modal-card")?.classList.remove("modal-card--queue");
     modalTitle.textContent = title;
     modalBody.className = "modal-body";
     modalBody.textContent = text;
@@ -323,11 +324,13 @@ function render(tracks: Track[]): void {
   function openQueueModal(): void {
     modalMode = "queue";
     const q = player.getQueue();
-    modalTitle.textContent = "Очередь";
+    const card = modal.querySelector(".modal-card");
+    card?.classList.add("modal-card--queue");
+    modalTitle.innerHTML = `Очередь <span class="modal-count">${q.length}</span>`;
     modalCopy.hidden = true;
     if (!q.length) {
-      modalBody.className = "modal-body";
-      modalBody.textContent = "Очередь пуста — выбери трек.";
+      modalBody.className = "modal-body modal-queue";
+      modalBody.innerHTML = `<p class="queue-empty">Очередь пуста — выбери трек.</p>`;
       modal.hidden = false;
       return;
     }
@@ -335,13 +338,18 @@ function render(tracks: Track[]): void {
     modalBody.innerHTML = q
       .map((t, i) => {
         const on = t.id === (activeId ?? focusId);
-        return `<button type="button" class="queue-item${on ? " is-on" : ""}" data-qid="${escapeHtml(t.id)}">
+        const live = on && playing;
+        return `<button type="button" class="queue-item${on ? " is-on" : ""}${live ? " is-live" : ""}" data-qid="${escapeHtml(t.id)}">
           <span class="queue-num">${String(i + 1).padStart(2, "0")}</span>
+          <img class="queue-cover" src="${assetUrl(t.cover)}" alt="" width="40" height="40" loading="lazy" draggable="false" />
           <span class="queue-meta">
             <strong>${escapeHtml(t.title)}</strong>
             <em>${escapeHtml(t.artist)}</em>
           </span>
-          <span class="queue-dur">${formatDuration(t.durationSec)}</span>
+          <span class="queue-side">
+            ${live ? `<span class="queue-eq" aria-hidden="true"><i></i><i></i><i></i></span>` : ""}
+            <span class="queue-dur">${formatDuration(t.durationSec)}</span>
+          </span>
         </button>`;
       })
       .join("");
@@ -361,6 +369,7 @@ function render(tracks: Track[]): void {
   function closeModal(): void {
     modal.hidden = true;
     modalMode = "text";
+    modal.querySelector(".modal-card")?.classList.remove("modal-card--queue");
   }
 
   app.querySelectorAll("[data-modal-close], [data-modal-close2]").forEach((el) => {

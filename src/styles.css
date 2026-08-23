@@ -1125,62 +1125,124 @@ button img, a img {
   font-family: "IBM Plex Sans", system-ui, sans-serif;
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
-  padding: 0.45rem;
+  gap: 0.2rem;
+  padding: 0.4rem;
+  color: var(--ink);
+}
+.queue-empty {
+  margin: 1.5rem 0.75rem;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.8rem;
 }
 .queue-item {
   display: grid;
-  grid-template-columns: 2rem minmax(0, 1fr) auto;
+  grid-template-columns: 1.6rem 40px minmax(0, 1fr) auto;
   gap: 0.55rem;
   align-items: center;
   width: 100%;
-  border: 0;
-  border-bottom: 1px solid var(--line-soft);
+  border: 1px solid transparent;
+  border-radius: 2px;
   background: transparent;
   color: inherit;
   text-align: left;
   cursor: pointer;
-  padding: 0.55rem 0.45rem;
+  padding: 0.35rem 0.4rem;
+  min-height: 0;
 }
-.queue-item:last-child { border-bottom: 0; }
-.queue-item:hover { background: rgba(225, 6, 0, 0.08); }
-.queue-item.is-on { background: rgba(225, 6, 0, 0.12); }
+.queue-item:hover {
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  border-color: var(--line-soft);
+}
+.queue-item.is-on {
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  border-color: var(--line);
+}
+.queue-item.is-live {
+  box-shadow: inset 2px 0 0 var(--accent);
+}
 .queue-num {
   font-family: "Bebas Neue", sans-serif;
   color: var(--muted);
-  font-size: 0.95rem;
+  font-size: 0.9rem;
+  letter-spacing: 0.04em;
+  text-align: center;
 }
 .queue-item.is-on .queue-num { color: var(--accent); }
-.queue-meta { min-width: 0; }
+.queue-cover {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border: 1px solid var(--line);
+  background: #000;
+  flex-shrink: 0;
+}
+.queue-meta {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  justify-content: center;
+}
 .queue-meta strong,
 .queue-meta em {
   display: block;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  line-height: 1.2;
 }
 .queue-meta strong {
-  font-size: 0.82rem;
-  font-weight: 500;
+  font-size: 0.78rem;
+  font-weight: 600;
   color: var(--ink);
 }
 .queue-item.is-on .queue-meta strong { color: var(--accent); }
 .queue-meta em {
   font-style: normal;
-  font-size: 0.68rem;
+  font-size: 0.65rem;
   color: var(--muted);
 }
+.queue-side {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-shrink: 0;
+}
 .queue-dur {
-  font-size: 0.68rem;
+  font-size: 0.65rem;
   color: var(--muted);
   font-variant-numeric: tabular-nums;
+  min-width: 2.2rem;
+  text-align: right;
+}
+.queue-eq {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 12px;
+  width: 12px;
+}
+.queue-eq i {
+  display: block;
+  width: 2px;
+  background: var(--accent);
+  border-radius: 1px;
+  animation: queue-eq 0.85s ease-in-out infinite;
+  height: 40%;
+}
+.queue-eq i:nth-child(2) { animation-delay: 0.15s; height: 70%; }
+.queue-eq i:nth-child(3) { animation-delay: 0.3s; height: 55%; }
+@keyframes queue-eq {
+  0%, 100% { transform: scaleY(0.45); }
+  50% { transform: scaleY(1); }
 }
 
 .modal {
   position: fixed;
   inset: 0;
   z-index: 80;
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.82);
   display: grid;
   place-items: center;
   padding: 1rem;
@@ -1193,6 +1255,12 @@ button img, a img {
   background: var(--panel);
   display: flex;
   flex-direction: column;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
+}
+.modal-card--queue {
+  width: min(480px, 100%);
+  max-height: min(72vh, 560px);
+  background: #050505;
 }
 .modal-head {
   display: flex;
@@ -1204,6 +1272,33 @@ button img, a img {
   font-size: 0.72rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+  color: var(--ink);
+}
+.modal-card--queue .modal-head {
+  padding: 0.65rem 0.75rem;
+  background: linear-gradient(180deg, rgba(225, 6, 0, 0.08), transparent);
+}
+.modal-head strong {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 1.05rem;
+  letter-spacing: 0.1em;
+  font-weight: 400;
+}
+.modal-count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.4rem;
+  height: 1.15rem;
+  padding: 0 0.35rem;
+  border: 1px solid var(--line);
+  color: var(--accent);
+  font-family: "IBM Plex Sans", system-ui, sans-serif;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
 }
 .modal-body {
   margin: 0;
@@ -1217,12 +1312,25 @@ button img, a img {
   line-height: 1.5;
   color: var(--muted);
 }
+.modal-card--queue .modal-body {
+  padding: 0.35rem 0.4rem 0.5rem;
+  font-family: "IBM Plex Sans", system-ui, sans-serif;
+}
 .modal-actions {
   display: flex;
   justify-content: flex-end;
   gap: 0.45rem;
   padding: 0.65rem 0.85rem;
   border-top: 1px solid var(--line);
+}
+.modal-card--queue .modal-actions {
+  padding: 0.5rem 0.65rem;
+  background: #030303;
+}
+.modal-card--queue .modal-actions [data-modal-copy][hidden] + .btn-fill,
+.modal-card--queue .modal-actions .btn-fill {
+  min-width: 7rem;
+  justify-content: center;
 }
 
 .backdrop {
