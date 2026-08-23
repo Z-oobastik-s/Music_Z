@@ -507,17 +507,27 @@ button img, a img {
     translate3d(0, calc(var(--beat-y, 0) * 1px), 0)
     scale(calc(1 + var(--beat-scale, 0)))
     rotate(calc(var(--beat-tilt, 0) * 1deg));
-  /* no CSS transition — envelopes in JS keep motion locked to the beat */
 }
-.deco-panel .char-art {
+.char-puppet {
+  position: absolute;
+  inset: 0;
+}
+.char-body {
+  position: absolute;
+  inset: 0;
+}
+.deco-panel .char-art,
+.deco-panel .char-fx {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
   object-position: 48% 10%;
-  opacity: 0;
   pointer-events: none;
+}
+.deco-panel .char-art {
+  opacity: 0;
   z-index: 0;
 }
 .deco-panel .char-art.is-front {
@@ -530,6 +540,105 @@ button img, a img {
 }
 .deco-panel .char-art.is-incoming {
   z-index: 2;
+}
+
+/* Live body layers — only while music plays */
+.deco-panel .char-fx {
+  opacity: 0;
+  z-index: 3;
+  will-change: transform;
+}
+.char-stage.is-animating .char-fx {
+  opacity: 1;
+}
+.char-fx--hair {
+  /* top hair / bangs */
+  clip-path: inset(0 0 52% 0);
+  -webkit-clip-path: inset(0 0 52% 0);
+  transform-origin: 48% 8%;
+  mix-blend-mode: normal;
+}
+.char-fx--chest {
+  /* torso / chest band */
+  clip-path: inset(38% 18% 28% 22%);
+  -webkit-clip-path: inset(38% 18% 28% 22%);
+  transform-origin: 50% 48%;
+}
+.char-fx--arm {
+  /* tattooed shoulder / arm side */
+  clip-path: inset(28% 0 18% 58%);
+  -webkit-clip-path: inset(28% 0 18% 58%);
+  transform-origin: 72% 36%;
+}
+
+.char-stage.is-animating .char-fx--hair {
+  animation: char-hair-wind 2.4s ease-in-out infinite;
+}
+.char-stage.is-animating .char-fx--chest {
+  animation: char-chest-breath 2.05s ease-in-out infinite;
+}
+.char-stage.is-animating .char-fx--arm {
+  animation: char-arm-sway 3.2s ease-in-out infinite;
+}
+
+@keyframes char-hair-wind {
+  0%, 100% {
+    transform:
+      translate3d(calc(var(--energy, 0) * -0.6px), calc(var(--kick, 0) * -0.4px), 0)
+      rotate(calc(-0.4deg + var(--energy, 0) * -0.35deg));
+  }
+  25% {
+    transform:
+      translate3d(calc(1.6px + var(--energy, 0) * 1.4px), -0.8px, 0)
+      rotate(calc(0.65deg + var(--energy, 0) * 0.45deg));
+  }
+  50% {
+    transform:
+      translate3d(calc(-1px + var(--bass, 0) * -0.5px), 0.5px, 0)
+      rotate(calc(-0.8deg + var(--kick, 0) * 0.3deg));
+  }
+  75% {
+    transform:
+      translate3d(calc(1.1px + var(--energy, 0) * 0.8px), 0.15px, 0)
+      rotate(0.4deg);
+  }
+}
+@keyframes char-chest-breath {
+  0%, 100% {
+    transform:
+      translate3d(0, calc(var(--bass, 0) * -0.8px), 0)
+      scale(
+        calc(1 + var(--bass, 0) * 0.008),
+        calc(1 + var(--bass, 0) * 0.014)
+      );
+  }
+  50% {
+    transform:
+      translate3d(0, calc(-2.2px + var(--kick, 0) * -2.4px + var(--bass, 0) * -1.4px), 0)
+      scale(
+        calc(1.014 + var(--bass, 0) * 0.012),
+        calc(1.038 + var(--bass, 0) * 0.03 + var(--kick, 0) * 0.04)
+      );
+  }
+}
+@keyframes char-arm-sway {
+  0%, 100% {
+    transform:
+      translate3d(calc(var(--kick, 0) * -0.3px), 0, 0)
+      rotate(calc(-0.55deg + var(--voice, 0) * -0.25deg));
+  }
+  50% {
+    transform:
+      translate3d(calc(0.8px + var(--kick, 0) * 0.7px), calc(0.5px + var(--bass, 0) * 0.4px), 0)
+      rotate(calc(0.85deg + var(--voice, 0) * 0.55deg + var(--energy, 0) * 0.3deg));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .char-stage.is-animating .char-fx {
+    animation: none !important;
+    opacity: 0 !important;
+  }
 }
 .deco-mark {
   position: absolute;
