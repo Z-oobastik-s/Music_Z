@@ -394,6 +394,58 @@ button img, a img {
   border-radius: 0.35rem;
 }
 
+.share-wrap {
+  position: relative;
+  display: flex;
+  justify-content: stretch;
+}
+.share-wrap > .btn-icon {
+  width: 100%;
+}
+.share-menu {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 0.35rem);
+  z-index: 40;
+  min-width: 12.5rem;
+  padding: 0.3rem;
+  border: 1px solid var(--line);
+  border-radius: 0.4rem;
+  background: color-mix(in srgb, var(--panel) 92%, #000);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+.share-menu[hidden] {
+  display: none;
+}
+.share-menu button {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  width: 100%;
+  border: 0;
+  border-radius: 0.28rem;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-align: left;
+  padding: 0.55rem 0.55rem;
+  cursor: pointer;
+}
+.share-menu button:hover {
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  color: var(--accent);
+}
+.share-menu button svg {
+  flex-shrink: 0;
+  opacity: 0.9;
+}
+
 .btn {
   border-radius: 999px;
   padding: 0.5rem 1rem;

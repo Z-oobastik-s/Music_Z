@@ -1,6 +1,12 @@
 import "./styles.css";
 import { BeatMotion } from "./lib/beat";
 import { AudioPlayer, type RepeatMode } from "./lib/player";
+import {
+  readDeepLink,
+  syncTrackInUrl,
+  trackEmbedSnippet,
+  trackShareUrl,
+} from "./lib/share";
 import { applyTheme, getTheme, setTheme, toggleTheme } from "./lib/theme";
 import {
   assetUrl,
@@ -65,6 +71,10 @@ const ICONS = {
   pauseBig: `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>`,
   queue: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg>`,
   vol: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5zM15 9a4 4 0 010 6M17 7a7 7 0 010 10"/></svg>`,
+  share: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>`,
+  copy: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>`,
+  code: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg>`,
+  more: `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>`,
 };
 
 function waveBars(n = 120): string {
@@ -351,6 +361,7 @@ function render(tracks: Track[]): void {
       toggleEl.innerHTML = isPlaying ? ICONS.pauseBig : ICONS.playBig;
       miniWave.classList.toggle("is-paused", !isPlaying);
       app.classList.toggle("is-playing", isPlaying);
+      if (track) syncTrackInUrl(track.id);
       paintHero();
       paintList();
       paintLyrics();
@@ -393,6 +404,7 @@ function render(tracks: Track[]): void {
       return;
     }
     const on = activeId === track.id && playing;
+    const canNativeShare = typeof navigator.share === "function";
     heroEl.innerHTML = `
       <div class="hero-art">
         <img class="brand-hero" src="${assetUrl("hero-banner.png")}" alt="Music_Z" />
@@ -401,7 +413,14 @@ function render(tracks: Track[]): void {
         <div class="hero-actions">
           <button type="button" class="btn btn-fill" data-hero-play>${ICONS.play} ${on ? "Пауза" : "Воспроизвести"}</button>
           <a class="btn btn-line" href="${assetUrl(track.src)}" download="${escapeHtml(track.title)}.mp3">${ICONS.dl} Скачать</a>
-          <button type="button" class="btn btn-line btn-icon" data-hero-next title="Следующий">⋯</button>
+          <div class="share-wrap">
+            <button type="button" class="btn btn-line btn-icon" data-hero-share title="Поделиться" aria-haspopup="menu" aria-expanded="false">${ICONS.more}</button>
+            <div class="share-menu" data-share-menu hidden role="menu">
+              <button type="button" role="menuitem" data-share-copy>${ICONS.copy} Копировать ссылку</button>
+              ${canNativeShare ? `<button type="button" role="menuitem" data-share-native>${ICONS.share} Поделиться…</button>` : ""}
+              <button type="button" role="menuitem" data-share-embed>${ICONS.code} Код для сайта</button>
+            </div>
+          </div>
         </div>
       </div>
     `;
@@ -409,9 +428,57 @@ function render(tracks: Track[]): void {
       player.setQueue(filtered().length ? filtered() : tracks);
       void armBeat().then(() => player.toggle(track));
     };
-    heroEl.querySelector<HTMLButtonElement>("[data-hero-next]")!.onclick = () => {
-      player.setQueue(filtered().length ? filtered() : tracks);
-      player.next();
+
+    const shareBtn = heroEl.querySelector<HTMLButtonElement>("[data-hero-share]")!;
+    const shareMenu = heroEl.querySelector<HTMLElement>("[data-share-menu]")!;
+
+    const closeShareMenu = () => {
+      shareMenu.hidden = true;
+      shareBtn.setAttribute("aria-expanded", "false");
+    };
+
+    shareBtn.onclick = (e) => {
+      e.stopPropagation();
+      const open = shareMenu.hidden;
+      shareMenu.hidden = !open;
+      shareBtn.setAttribute("aria-expanded", String(open));
+    };
+
+    heroEl.querySelector<HTMLButtonElement>("[data-share-copy]")!.onclick = async (e) => {
+      e.stopPropagation();
+      const url = trackShareUrl(track.id, true);
+      try {
+        await navigator.clipboard.writeText(url);
+        const btn = e.currentTarget as HTMLButtonElement;
+        const prev = btn.innerHTML;
+        btn.innerHTML = `${ICONS.copy} Скопировано`;
+        setTimeout(() => {
+          btn.innerHTML = prev;
+        }, 1200);
+      } catch {
+        openModal(`Ссылка · ${track.title}`, url);
+      }
+    };
+
+    heroEl.querySelector<HTMLButtonElement>("[data-share-native]")?.addEventListener("click", async (e) => {
+      e.stopPropagation();
+      const url = trackShareUrl(track.id, true);
+      try {
+        await navigator.share({
+          title: `${track.title} — Music_Z`,
+          text: `${track.artist} — ${track.title}`,
+          url,
+        });
+        closeShareMenu();
+      } catch {
+        /* user cancel / unsupported */
+      }
+    });
+
+    heroEl.querySelector<HTMLButtonElement>("[data-share-embed]")!.onclick = (e) => {
+      e.stopPropagation();
+      closeShareMenu();
+      openModal(`Встроить · ${track.title}`, trackEmbedSnippet(track.id, track.title));
     };
   }
 
@@ -594,6 +661,34 @@ function render(tracks: Track[]): void {
     side.classList.remove("is-open");
     backdrop.classList.remove("is-open");
   });
+
+  document.addEventListener("click", (e) => {
+    const menu = heroEl.querySelector<HTMLElement>("[data-share-menu]");
+    const btn = heroEl.querySelector<HTMLButtonElement>("[data-hero-share]");
+    if (!menu || menu.hidden) return;
+    const wrap = heroEl.querySelector(".share-wrap");
+    if (e.target instanceof Node && wrap?.contains(e.target)) return;
+    menu.hidden = true;
+    btn?.setAttribute("aria-expanded", "false");
+  });
+
+  const deep = readDeepLink();
+  if (deep) {
+    const deepTrack = tracks.find((t) => t.id === deep.id);
+    if (deepTrack) {
+      focusId = deepTrack.id;
+      player.setQueue(tracks);
+      if (deep.play) {
+        void armBeat()
+          .then(() => player.play(deepTrack))
+          .catch(() => {
+            syncTrackInUrl(deepTrack.id);
+          });
+      } else {
+        syncTrackInUrl(deepTrack.id);
+      }
+    }
+  }
 
   paintHero();
   paintList();
