@@ -271,14 +271,15 @@ function render(tracks: Track[]): void {
     }
     const on = activeId === track.id && playing;
     heroEl.innerHTML = `
-      <img class="brand-hero" src="${assetUrl("logo.png")}" alt="Music_Z" />
-      <p class="hero-track">
-        Сейчас: <strong>${escapeHtml(track.title)}</strong> · <em>${escapeHtml(track.artist)}</em> · ${formatDuration(track.durationSec)}
-      </p>
-      <div class="hero-actions">
-        <button type="button" class="btn btn-fill" data-hero-play>${on ? "Пауза" : "Воспроизвести"}</button>
-        <a class="btn btn-line" href="${assetUrl(track.src)}" download="${escapeHtml(track.title)}.mp3">${ICONS.dl} Скачать</a>
-        <button type="button" class="btn btn-line btn-icon" data-hero-next title="Следующий">⋯</button>
+      <div class="hero-art">
+        <img class="brand-hero" src="${assetUrl("logo.png")}" alt="Music_Z" />
+      </div>
+      <div class="hero-foot">
+        <div class="hero-actions">
+          <button type="button" class="btn btn-fill" data-hero-play>${ICONS.play} ${on ? "Пауза" : "Воспроизвести"}</button>
+          <a class="btn btn-line" href="${assetUrl(track.src)}" download="${escapeHtml(track.title)}.mp3">${ICONS.dl} Скачать</a>
+          <button type="button" class="btn btn-line btn-icon" data-hero-next title="Следующий">⋯</button>
+        </div>
       </div>
     `;
     heroEl.querySelector<HTMLButtonElement>("[data-hero-play]")!.onclick = () => {
