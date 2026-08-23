@@ -1,7 +1,7 @@
 # Local push / secrets (never publish)
 .push-token
 push.bat
-push.ps1
+push_core.py
 *.bat
 .env
 .env.*

@@ -5,21 +5,22 @@ export type Track = {
   description: string;
   durationSec: number;
   tags: string[];
-  /** Path relative to site base, e.g. covers/x.svg or tracks/song.mp3 */
   cover: string;
   src: string;
 };
 
 export function formatDuration(totalSec: number): string {
+  if (!Number.isFinite(totalSec) || totalSec < 0) return "0:00";
   const m = Math.floor(totalSec / 60);
   const s = Math.floor(totalSec % 60);
   return `${m}:${s.toString().padStart(2, "0")}`;
 }
 
-export function assetUrl(path: string): string {
+export function assetUrl(path: string, bust?: string): string {
   const base = import.meta.env.BASE_URL;
   const clean = path.replace(/^\/+/, "");
-  return `${base}${clean}`;
+  const url = `${base}${clean}`;
+  return bust ? `${url}?v=${encodeURIComponent(bust)}` : url;
 }
 
 export function matchesQuery(track: Track, query: string): boolean {
@@ -29,4 +30,12 @@ export function matchesQuery(track: Track, query: string): boolean {
     .join(" ")
     .toLowerCase();
   return q.split(/\s+/).every((token) => hay.includes(token));
+}
+
+export function escapeHtml(value: string): string {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
 }
