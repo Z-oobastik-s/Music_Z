@@ -37,14 +37,21 @@ const ICONS = {
   prev: `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>`,
   next: `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M16 18h2V6h-2zM6 18l8.5-6L6 6z"/></svg>`,
   repeat: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 1l4 4-4 4M3 11V9a4 4 0 014-4h14M7 23l-4-4 4-4M21 13v2a4 4 0 01-4 4H3"/></svg>`,
+  playBig: `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`,
+  pauseBig: `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>`,
+  queue: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg>`,
   vol: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5zM15 9a4 4 0 010 6M17 7a7 7 0 010 10"/></svg>`,
 };
 
-function waveBars(n = 48): string {
+function waveBars(n = 64): string {
   let s = "";
   for (let i = 0; i < n; i++) {
-    const h = 4 + Math.round(Math.abs(Math.sin(i * 0.55)) * 22);
-    s += `<i style="height:${h}px"></i>`;
+    const h = 6 + Math.round(
+      Math.abs(Math.sin(i * 0.37)) * 18 +
+      Math.abs(Math.sin(i * 0.91)) * 14 +
+      Math.abs(Math.cos(i * 0.23)) * 8,
+    );
+    s += `<i style="height:${Math.min(42, h)}px"></i>`;
   }
   return s;
 }
@@ -137,22 +144,22 @@ function render(tracks: Track[]): void {
         <div class="player-ctrl">
           <button type="button" data-shuffle title="Shuffle">${ICONS.shuffle}</button>
           <button type="button" data-prev title="Назад">${ICONS.prev}</button>
-          <button type="button" class="play-main" data-toggle title="Play">${ICONS.play}</button>
+          <button type="button" class="play-main" data-toggle title="Play">${ICONS.playBig}</button>
           <button type="button" data-next title="Вперёд">${ICONS.next}</button>
           <button type="button" data-repeat title="Repeat">${ICONS.repeat}</button>
         </div>
         <div class="wave-seek">
-          <time data-t0>0:00</time>
           <div class="wave-wrap">
-            <div class="wave-bars">${waveBars(36)}</div>
-            <div class="wave-fill" data-wave-fill style="width:0"><div class="wave-bars">${waveBars(36)}</div></div>
+            <div class="wave-bars">${waveBars(56)}</div>
+            <div class="wave-fill" data-wave-fill style="width:0"><div class="wave-bars">${waveBars(56)}</div></div>
             <input class="wave-input" type="range" min="0" max="1000" value="0" data-seek aria-label="Прогресс" />
           </div>
-          <time data-t1>0:00</time>
         </div>
+        <div class="player-time"><time data-t0>0:00</time><span>/</span><time data-t1>0:00</time></div>
         <div class="player-side">
           ${ICONS.vol}
           <input type="range" min="0" max="100" value="88" data-vol aria-label="Громкость" />
+          <button type="button" class="queue-btn" data-queue title="Очередь">${ICONS.queue}</button>
         </div>
       </div>
     </footer>
@@ -243,7 +250,7 @@ function render(tracks: Track[]): void {
       } else {
         nowCover.hidden = true;
       }
-      toggleEl.innerHTML = isPlaying ? ICONS.pause : ICONS.play;
+      toggleEl.innerHTML = isPlaying ? ICONS.pauseBig : ICONS.playBig;
       miniWave.classList.toggle("is-paused", !isPlaying);
       paintHero();
       paintList();
@@ -276,7 +283,7 @@ function render(tracks: Track[]): void {
     const on = activeId === track.id && playing;
     heroEl.innerHTML = `
       <div class="hero-art">
-        <img class="brand-hero" src="${assetUrl("logo.png")}" alt="Music_Z" />
+        <img class="brand-hero" src="${assetUrl("hero-banner.png")}" alt="Music_Z" />
       </div>
       <div class="hero-foot">
         <div class="hero-actions">
@@ -434,6 +441,9 @@ function render(tracks: Track[]): void {
   });
   app.querySelector<HTMLButtonElement>("[data-prev]")!.addEventListener("click", () => player.prev());
   app.querySelector<HTMLButtonElement>("[data-next]")!.addEventListener("click", () => player.next());
+  app.querySelector<HTMLButtonElement>("[data-queue]")!.addEventListener("click", () => {
+    document.getElementById("tracks")?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  });
 
   volEl.addEventListener("input", () => player.setVolume(Number(volEl.value) / 100));
 
