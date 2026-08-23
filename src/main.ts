@@ -436,6 +436,29 @@ function render(tracks: Track[]): void {
     const shareBtn = heroEl.querySelector<HTMLButtonElement>("[data-hero-share]")!;
     const shareMenu = heroEl.querySelector<HTMLElement>("[data-share-menu]")!;
 
+    const placeShareMenu = () => {
+      const r = shareBtn.getBoundingClientRect();
+      const gap = 6;
+      const menuW = Math.max(shareMenu.offsetWidth || 208, 208);
+      const menuH = shareMenu.offsetHeight || 220;
+      let left = Math.min(r.right - menuW, window.innerWidth - menuW - 8);
+      left = Math.max(8, left);
+      // Prefer below the button; flip above if not enough room
+      const spaceBelow = window.innerHeight - r.bottom - gap;
+      const spaceAbove = r.top - gap;
+      if (spaceBelow >= Math.min(menuH, 160) || spaceBelow >= spaceAbove) {
+        shareMenu.style.top = `${Math.min(r.bottom + gap, window.innerHeight - 8)}px`;
+        shareMenu.style.bottom = "auto";
+        shareMenu.style.maxHeight = `${Math.max(120, spaceBelow - 8)}px`;
+      } else {
+        shareMenu.style.bottom = `${window.innerHeight - r.top + gap}px`;
+        shareMenu.style.top = "auto";
+        shareMenu.style.maxHeight = `${Math.max(120, spaceAbove - 8)}px`;
+      }
+      shareMenu.style.left = `${left}px`;
+      shareMenu.style.right = "auto";
+    };
+
     const closeShareMenu = () => {
       shareMenu.hidden = true;
       shareBtn.setAttribute("aria-expanded", "false");
@@ -443,9 +466,13 @@ function render(tracks: Track[]): void {
 
     shareBtn.onclick = (e) => {
       e.stopPropagation();
-      const open = shareMenu.hidden;
-      shareMenu.hidden = !open;
-      shareBtn.setAttribute("aria-expanded", String(open));
+      if (!shareMenu.hidden) {
+        closeShareMenu();
+        return;
+      }
+      shareMenu.hidden = false;
+      shareBtn.setAttribute("aria-expanded", "true");
+      placeShareMenu();
     };
 
     heroEl.querySelector<HTMLButtonElement>("[data-share-copy]")!.onclick = async (e) => {
@@ -664,6 +691,22 @@ function render(tracks: Track[]): void {
     menu.hidden = true;
     btn?.setAttribute("aria-expanded", "false");
   });
+  window.addEventListener(
+    "resize",
+    () => {
+      const menu = heroEl.querySelector<HTMLElement>("[data-share-menu]");
+      if (menu && !menu.hidden) menu.hidden = true;
+    },
+    { passive: true },
+  );
+  app.querySelector(".stage-mid")?.addEventListener(
+    "scroll",
+    () => {
+      const menu = heroEl.querySelector<HTMLElement>("[data-share-menu]");
+      if (menu && !menu.hidden) menu.hidden = true;
+    },
+    { passive: true },
+  );
 
   const deep = readDeepLink();
   if (deep) {
