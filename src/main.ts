@@ -299,22 +299,23 @@ function render(tracks: Track[]): void {
       return;
     }
     const lines = defaultLyrics(track);
-    let html = "";
-    let block = 0;
-    lines.forEach((line, i) => {
-      if (!line) {
-        if (block > 0) html += `<div class="sep"></div>`;
-        block = 0;
-        return;
+    const stanzas: string[][] = [[]];
+    for (const line of lines) {
+      if (!line.trim()) {
+        if (stanzas[stanzas.length - 1].length) stanzas.push([]);
+        continue;
       }
-      html += `<p>${escapeHtml(line)}</p>`;
-      block++;
-      if (block >= 4 && i < lines.length - 1) {
-        html += `<div class="sep"></div>`;
-        block = 0;
-      }
-    });
-    lyricsEl.innerHTML = html || `<p>${escapeHtml(track.description)}</p>`;
+      stanzas[stanzas.length - 1].push(line);
+    }
+    while (stanzas.length && !stanzas[stanzas.length - 1].length) stanzas.pop();
+
+    lyricsEl.innerHTML = stanzas
+      .map((stanza, i) => {
+        const body = stanza.map((l) => `<p>${escapeHtml(l)}</p>`).join("");
+        const sep = i < stanzas.length - 1 ? `<div class="sep" aria-hidden="true"></div>` : "";
+        return `<div class="stanza">${body}</div>${sep}`;
+      })
+      .join("");
   }
 
   function paintDeco(): void {
