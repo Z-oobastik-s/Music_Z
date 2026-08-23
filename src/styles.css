@@ -507,7 +507,7 @@ button img, a img {
     translate3d(0, calc(var(--beat-y, 0) * 1px), 0)
     scale(calc(1 + var(--beat-scale, 0)))
     rotate(calc(var(--beat-tilt, 0) * 1deg));
-  transition: transform 0.12s ease-out;
+  /* no CSS transition — envelopes in JS keep motion locked to the beat */
 }
 .deco-panel .char-art {
   position: absolute;
@@ -529,9 +529,10 @@ button img, a img {
   inset: 0;
   pointer-events: none;
   z-index: 1;
-  opacity: calc(0.04 + var(--bass, 0) * 0.16);
-  background: radial-gradient(ellipse at 50% 42%, transparent 40%, rgba(0, 0, 0, 0.4) 100%);
-  transition: opacity 0.15s ease-out;
+  opacity: calc(0.03 + var(--kick, 0) * 0.2 + var(--bass, 0) * 0.1);
+  background:
+    radial-gradient(ellipse at 50% 55%, rgba(225, 6, 0, calc(var(--kick, 0) * 0.12)) 0%, transparent 55%),
+    radial-gradient(ellipse at 50% 42%, transparent 40%, rgba(0, 0, 0, 0.4) 100%);
 }
 .deco-tag {
   position: absolute;
@@ -550,26 +551,24 @@ button img, a img {
 }
 
 #app.is-alive .wave-bars {
-  opacity: calc(0.22 + var(--beat, 0) * 0.2);
+  opacity: calc(0.22 + var(--beat, 0) * 0.22);
 }
 #app.is-alive .wave-fill .wave-bars {
-  opacity: calc(0.85 + var(--beat, 0) * 0.15);
+  opacity: calc(0.85 + var(--kick, 0) * 0.15);
 }
 #app.is-alive .mini-wave i {
   animation: none;
   height: 14px !important;
   transform-origin: bottom center;
-  transform: scaleY(calc(0.45 + var(--bass, 0) * 0.95));
+  transform: scaleY(calc(0.4 + var(--bass, 0) * 0.7 + var(--kick, 0) * 0.55));
 }
 #app.is-alive .player-ctrl .play-main {
-  transform: scale(calc(1 + var(--bass, 0) * 0.045));
-  transition: transform 0.12s ease-out;
+  transform: scale(calc(1 + var(--kick, 0) * 0.07 + var(--bass, 0) * 0.02));
 }
 
 @media (prefers-reduced-motion: reduce) {
   .char-stage {
-    transition: none;
-    transform: scale(calc(1 + var(--beat-scale, 0) * 0.5));
+    transform: scale(calc(1 + var(--beat-scale, 0) * 0.4));
   }
 }
 
@@ -759,7 +758,7 @@ button img, a img {
 
 .player-row {
   display: grid;
-  grid-template-columns: minmax(160px, 220px) auto minmax(280px, 1.4fr) auto auto;
+  grid-template-columns: minmax(0, 220px) auto minmax(280px, 1.4fr) auto auto;
   gap: 0.85rem 1.1rem;
   align-items: center;
   width: 100%;
@@ -770,6 +769,8 @@ button img, a img {
   align-items: center;
   gap: 0.55rem;
   min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
 }
 .now-play img {
   width: 48px;
@@ -778,8 +779,15 @@ button img, a img {
   border: 1px solid var(--line);
   flex-shrink: 0;
 }
-.now-play strong, .now-play span {
+.now-play > div {
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+.now-play strong,
+.now-play span {
   display: block;
+  max-width: 100%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -792,6 +800,9 @@ button img, a img {
   align-items: center;
   justify-content: center;
   gap: 0.2rem;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
 }
 .player-ctrl button {
   width: 2rem;
