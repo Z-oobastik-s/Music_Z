@@ -43,15 +43,20 @@ const ICONS = {
   vol: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5zM15 9a4 4 0 010 6M17 7a7 7 0 010 10"/></svg>`,
 };
 
-function waveBars(n = 64): string {
+function waveBars(n = 120): string {
   let s = "";
   for (let i = 0; i < n; i++) {
-    const h = 6 + Math.round(
-      Math.abs(Math.sin(i * 0.37)) * 18 +
-      Math.abs(Math.sin(i * 0.91)) * 14 +
-      Math.abs(Math.cos(i * 0.23)) * 8,
-    );
-    s += `<i style="height:${Math.min(42, h)}px"></i>`;
+    const t = i / Math.max(1, n - 1);
+    // SoundCloud-like envelope: soft edges, dense mid energy
+    const env =
+      Math.sin(Math.PI * t) * 0.72 +
+      Math.sin(Math.PI * t * 2.4) * 0.18 +
+      Math.sin(Math.PI * t * 5.1 + 0.7) * 0.1;
+    const noise =
+      Math.abs(Math.sin(i * 1.7 + 0.3)) * 0.22 +
+      Math.abs(Math.cos(i * 2.9)) * 0.14;
+    const h = Math.max(0.08, Math.min(1, Math.abs(env) * 0.85 + noise * 0.55));
+    s += `<i style="--h:${(h * 100).toFixed(1)}%"></i>`;
   }
   return s;
 }
@@ -150,8 +155,10 @@ function render(tracks: Track[]): void {
         </div>
         <div class="wave-seek">
           <div class="wave-wrap">
-            <div class="wave-bars">${waveBars(56)}</div>
-            <div class="wave-fill" data-wave-fill style="width:0"><div class="wave-bars">${waveBars(56)}</div></div>
+            <div class="wave-bars" aria-hidden="true">${waveBars(140)}</div>
+            <div class="wave-fill" data-wave-fill style="width:0">
+              <div class="wave-bars" aria-hidden="true">${waveBars(140)}</div>
+            </div>
             <input class="wave-input" type="range" min="0" max="1000" value="0" data-seek aria-label="Прогресс" />
           </div>
         </div>
