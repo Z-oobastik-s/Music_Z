@@ -1,6 +1,6 @@
 import { assetUrl } from "./tracks";
 
-/** Expression frames for the side character (same pose, different face). */
+/** Expression frames (same base pose, different face). */
 export const CHAR_FRAMES = [
   "characters/01-open.png",
   "characters/02-blink.png",
@@ -9,40 +9,117 @@ export const CHAR_FRAMES = [
   "characters/05-smirk.png",
 ] as const;
 
-/** Occasional body/hair morphs (used sparingly — framing differs a bit). */
-const MOTION_FRAMES = ["characters/06-wind.png", "characters/07-breath.png"] as const;
+/** Hair wind loop — ping-pong for smoother motion. */
+const HAIR_FRAMES = [
+  "characters/hair-00.png",
+  "characters/hair-01.png",
+  "characters/hair-02.png",
+  "characters/hair-03.png",
+  "characters/hair-02.png",
+  "characters/hair-01.png",
+] as const;
 
-/** How long each expression stays visible (ms). Blink/closed are short beats. */
+/** Occasional head / body life. */
+const LIFE_FRAMES = [
+  "characters/head-turn.png",
+  "characters/body-sway.png",
+  "characters/06-wind.png",
+  "characters/07-breath.png",
+] as const;
+
 const HOLD_MS = [4200, 220, 3800, 720, 4000];
-
 const FADE_MS = 520;
 const FADE_BLINK_MS = 280;
+const HAIR_FADE_MS = 380;
+const HAIR_STEP_MS = 420;
+
+function makeImg(className: string): HTMLImageElement {
+  const img = document.createElement("img");
+  img.className = className;
+  img.alt = "";
+  img.draggable = false;
+  img.decoding = "async";
+  return img;
+}
+
+function waitDecode(img: HTMLImageElement): Promise<void> {
+  if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+  return new Promise((resolve) => {
+    const done = () => {
+      img.removeEventListener("load", done);
+      img.removeEventListener("error", done);
+      resolve();
+    };
+    img.addEventListener("load", done);
+    img.addEventListener("error", done);
+  });
+}
+
+/** Dual-buffer fade-in crossfade (no black dip). */
+async function fadeSwap(
+  a: HTMLImageElement,
+  b: HTMLImageElement,
+  frontIsA: boolean,
+  src: string,
+  ms: number,
+): Promise<boolean> {
+  const incoming = frontIsA ? b : a;
+  const outgoing = frontIsA ? a : b;
+  incoming.src = src;
+  await waitDecode(incoming);
+
+  outgoing.classList.add("is-front");
+  outgoing.classList.remove("is-back");
+  incoming.classList.remove("is-front");
+  incoming.classList.add("is-back", "is-incoming");
+  incoming.style.opacity = "0";
+  incoming.style.transition = "none";
+
+  await new Promise<void>((r) => requestAnimationFrame(() => requestAnimationFrame(() => r())));
+
+  incoming.style.transition = `opacity ${ms}ms ease-out`;
+  incoming.style.opacity = "1";
+  await new Promise<void>((r) => window.setTimeout(r, ms + 16));
+
+  outgoing.classList.remove("is-front");
+  outgoing.classList.add("is-back");
+  incoming.classList.remove("is-incoming", "is-back");
+  incoming.classList.add("is-front");
+  incoming.style.transition = "";
+  incoming.style.opacity = "";
+  return !frontIsA;
+}
 
 /**
- * Soft expression morph + live body layers (hair / chest / arm).
- * New frame fades in on top — no dip to black.
+ * Soft expression morph + multi-frame hair loop + head/body life.
  */
 export class CharacterCycle {
   private readonly stage: HTMLElement;
-  private readonly body: HTMLElement;
-  private readonly a: HTMLImageElement;
-  private readonly b: HTMLImageElement;
-  private readonly fxHair: HTMLImageElement;
+  private readonly faceA: HTMLImageElement;
+  private readonly faceB: HTMLImageElement;
+  private readonly hairA: HTMLImageElement;
+  private readonly hairB: HTMLImageElement;
   private readonly fxChest: HTMLImageElement;
   private readonly fxArm: HTMLImageElement;
-  private readonly urls: string[];
-  private readonly motionUrls: string[];
-  private idx = 0;
-  private frontIsA = true;
-  private timer: ReturnType<typeof setTimeout> | null = null;
+  private readonly faceUrls: string[];
+  private readonly hairUrls: string[];
+  private readonly lifeUrls: string[];
+  private faceIdx = 0;
+  private hairIdx = 0;
+  private faceFrontA = true;
+  private hairFrontA = true;
+  private faceTimer: ReturnType<typeof setTimeout> | null = null;
+  private hairTimer: ReturnType<typeof setTimeout> | null = null;
   private playing = false;
-  private switching = false;
-  private onMotionFrame = false;
+  private faceBusy = false;
+  private hairBusy = false;
+  private onLifeFrame = false;
 
-  constructor(stage: HTMLElement, frames: readonly string[] = CHAR_FRAMES) {
+  constructor(stage: HTMLElement) {
     this.stage = stage;
-    this.urls = frames.map((f) => assetUrl(f));
-    this.motionUrls = MOTION_FRAMES.map((f) => assetUrl(f));
+    this.faceUrls = CHAR_FRAMES.map((f) => assetUrl(f));
+    this.hairUrls = HAIR_FRAMES.map((f) => assetUrl(f));
+    this.lifeUrls = LIFE_FRAMES.map((f) => assetUrl(f));
 
     stage.replaceChildren();
     stage.classList.add("has-puppet");
@@ -50,82 +127,109 @@ export class CharacterCycle {
     const puppet = document.createElement("div");
     puppet.className = "char-puppet";
 
-    this.body = document.createElement("div");
-    this.body.className = "char-body";
+    const body = document.createElement("div");
+    body.className = "char-body";
+    this.faceA = makeImg("char-art");
+    this.faceB = makeImg("char-art");
+    body.append(this.faceA, this.faceB);
 
-    this.a = this.makeImg("char-art");
-    this.b = this.makeImg("char-art");
-    this.body.append(this.a, this.b);
+    const hair = document.createElement("div");
+    hair.className = "char-hair";
+    this.hairA = makeImg("char-hair-frame");
+    this.hairB = makeImg("char-hair-frame");
+    hair.append(this.hairA, this.hairB);
 
-    this.fxHair = this.makeImg("char-fx char-fx--hair");
-    this.fxChest = this.makeImg("char-fx char-fx--chest");
-    this.fxArm = this.makeImg("char-fx char-fx--arm");
+    this.fxChest = makeImg("char-fx char-fx--chest");
+    this.fxArm = makeImg("char-fx char-fx--arm");
 
-    puppet.append(this.body, this.fxHair, this.fxChest, this.fxArm);
+    puppet.append(body, hair, this.fxChest, this.fxArm);
     stage.appendChild(puppet);
 
-    this.a.src = this.urls[0];
-    this.b.src = this.urls[1] ?? this.urls[0];
-    this.a.classList.add("is-front");
-    this.b.classList.add("is-back");
-    this.syncFx(this.urls[0]);
+    this.faceA.src = this.faceUrls[0];
+    this.faceB.src = this.faceUrls[1] ?? this.faceUrls[0];
+    this.faceA.classList.add("is-front");
+    this.faceB.classList.add("is-back");
 
-    for (const u of [...this.urls, ...this.motionUrls]) {
+    this.hairA.src = this.hairUrls[0];
+    this.hairB.src = this.hairUrls[1] ?? this.hairUrls[0];
+    this.hairA.classList.add("is-front");
+    this.hairB.classList.add("is-back");
+
+    this.syncBodyFx(this.faceUrls[0]);
+
+    for (const u of [...this.faceUrls, ...this.hairUrls, ...this.lifeUrls]) {
       const pre = new Image();
       pre.src = u;
     }
 
-    this.arm();
+    this.armFace();
+    this.armHair();
   }
 
   setPlaying(on: boolean): void {
     this.stage.classList.toggle("is-animating", on);
     if (this.playing === on) return;
     this.playing = on;
-    this.clearTimer();
-    if (on) this.arm();
-    else {
-      this.onMotionFrame = false;
-      void this.goTo(0, false);
+    this.clearFaceTimer();
+    this.clearHairTimer();
+    if (on) {
+      this.armFace();
+      this.armHair();
+    } else {
+      this.onLifeFrame = false;
+      void this.setFace(0, false);
+      void this.setHair(0, false);
     }
   }
 
   destroy(): void {
-    this.clearTimer();
+    this.clearFaceTimer();
+    this.clearHairTimer();
     this.stage.classList.remove("is-animating", "has-puppet");
   }
 
-  private makeImg(className: string): HTMLImageElement {
-    const img = document.createElement("img");
-    img.className = className;
-    img.alt = "";
-    img.draggable = false;
-    img.decoding = "async";
-    return img;
-  }
-
-  private syncFx(src: string): void {
-    this.fxHair.src = src;
+  private syncBodyFx(src: string): void {
     this.fxChest.src = src;
     this.fxArm.src = src;
   }
 
-  private clearTimer(): void {
-    if (this.timer != null) {
-      clearTimeout(this.timer);
-      this.timer = null;
+  private clearFaceTimer(): void {
+    if (this.faceTimer != null) {
+      clearTimeout(this.faceTimer);
+      this.faceTimer = null;
     }
   }
 
-  private arm(): void {
-    this.clearTimer();
-    if (!this.playing) return;
-    const hold = this.onMotionFrame ? 1600 : (HOLD_MS[this.idx] ?? 3500);
-    const jitter = hold * (0.85 + Math.random() * 0.35);
-    this.timer = setTimeout(() => void this.next(), jitter);
+  private clearHairTimer(): void {
+    if (this.hairTimer != null) {
+      clearTimeout(this.hairTimer);
+      this.hairTimer = null;
+    }
   }
 
-  private nextIndex(from: number): number {
+  private armFace(): void {
+    this.clearFaceTimer();
+    if (!this.playing) return;
+    const hold = this.onLifeFrame ? 1500 : (HOLD_MS[this.faceIdx] ?? 3500);
+    const jitter = hold * (0.85 + Math.random() * 0.35);
+    this.faceTimer = setTimeout(() => void this.nextFace(), jitter);
+  }
+
+  private armHair(): void {
+    this.clearHairTimer();
+    if (!this.playing) return;
+    // Faster hair steps when energy/kick high — read CSS vars from root
+    const energy = Number.parseFloat(
+      getComputedStyle(this.stage.closest("#app") ?? this.stage).getPropertyValue("--energy") || "0",
+    );
+    const kick = Number.parseFloat(
+      getComputedStyle(this.stage.closest("#app") ?? this.stage).getPropertyValue("--kick") || "0",
+    );
+    const step = Math.max(260, HAIR_STEP_MS - energy * 120 - kick * 80);
+    this.hairTimer = setTimeout(() => void this.nextHair(), step);
+  }
+
+  private nextFaceIndex(from: number): number {
     const isHoldFace = from === 0 || from === 2 || from === 4;
     if (isHoldFace && Math.random() < 0.55) return 1;
     if (from === 1) {
@@ -141,105 +245,102 @@ export class CharacterCycle {
     return pool[Math.floor(Math.random() * pool.length)] ?? 0;
   }
 
-  private async next(): Promise<void> {
-    if (!this.playing || this.switching) {
-      this.arm();
+  private async nextFace(): Promise<void> {
+    if (!this.playing || this.faceBusy) {
+      this.armFace();
       return;
     }
 
-    // Rare wind / breath morph from a calm face
     if (
-      !this.onMotionFrame &&
-      (this.idx === 0 || this.idx === 2 || this.idx === 4) &&
-      Math.random() < 0.18
+      !this.onLifeFrame &&
+      (this.faceIdx === 0 || this.faceIdx === 2 || this.faceIdx === 4) &&
+      Math.random() < 0.28
     ) {
-      const motion = this.motionUrls[Math.floor(Math.random() * this.motionUrls.length)];
-      await this.goToSrc(motion, true, true);
-      this.arm();
+      const life = this.lifeUrls[Math.floor(Math.random() * this.lifeUrls.length)];
+      await this.setFaceSrc(life, true, true);
+      this.armFace();
       return;
     }
 
-    if (this.onMotionFrame) {
-      await this.goTo(this.idx, true);
-      this.arm();
+    if (this.onLifeFrame) {
+      await this.setFace(this.faceIdx, true);
+      this.armFace();
       return;
     }
 
-    const to = this.nextIndex(this.idx);
-    await this.goTo(to, true);
-    this.arm();
+    await this.setFace(this.nextFaceIndex(this.faceIdx), true);
+    this.armFace();
   }
 
-  private waitDecode(img: HTMLImageElement): Promise<void> {
-    if (img.complete && img.naturalWidth > 0) return Promise.resolve();
-    return new Promise((resolve) => {
-      const done = () => {
-        img.removeEventListener("load", done);
-        img.removeEventListener("error", done);
-        resolve();
-      };
-      img.addEventListener("load", done);
-      img.addEventListener("error", done);
-    });
+  private async nextHair(): Promise<void> {
+    if (!this.playing || this.hairBusy) {
+      this.armHair();
+      return;
+    }
+    const next = (this.hairIdx + 1) % this.hairUrls.length;
+    await this.setHair(next, true);
+    this.armHair();
   }
 
-  private async goTo(to: number, animate: boolean): Promise<void> {
-    await this.goToSrc(this.urls[to], animate, false, to);
+  private async setFace(to: number, animate: boolean): Promise<void> {
+    await this.setFaceSrc(this.faceUrls[to], animate, false, to);
   }
 
-  private async goToSrc(
+  private async setFaceSrc(
     src: string,
     animate: boolean,
-    motion: boolean,
-    faceIdx = this.idx,
+    life: boolean,
+    faceIdx = this.faceIdx,
   ): Promise<void> {
-    this.switching = true;
-
-    const incoming = this.frontIsA ? this.b : this.a;
-    const outgoing = this.frontIsA ? this.a : this.b;
-
-    incoming.src = src;
-    await this.waitDecode(incoming);
-
-    const finish = () => {
-      outgoing.classList.remove("is-front");
-      outgoing.classList.add("is-back");
-      incoming.classList.remove("is-incoming", "is-back");
-      incoming.classList.add("is-front");
-      incoming.style.transition = "";
-      incoming.style.opacity = "";
-      this.frontIsA = !this.frontIsA;
-      if (!motion) this.idx = faceIdx;
-      this.onMotionFrame = motion;
-      this.syncFx(src);
-      this.switching = false;
-    };
-
-    if (!animate) {
-      finish();
-      return;
+    this.faceBusy = true;
+    try {
+      if (!animate) {
+        const front = this.faceFrontA ? this.faceA : this.faceB;
+        const back = this.faceFrontA ? this.faceB : this.faceA;
+        front.src = src;
+        front.classList.add("is-front");
+        front.classList.remove("is-back");
+        back.classList.add("is-back");
+        back.classList.remove("is-front");
+        if (!life) this.faceIdx = faceIdx;
+        this.onLifeFrame = life;
+        this.syncBodyFx(src);
+        return;
+      }
+      const ms =
+        !life && (faceIdx === 1 || this.faceIdx === 1 || faceIdx === 3 || this.faceIdx === 3)
+          ? FADE_BLINK_MS
+          : life
+            ? 700
+            : FADE_MS;
+      this.faceFrontA = await fadeSwap(this.faceA, this.faceB, this.faceFrontA, src, ms);
+      if (!life) this.faceIdx = faceIdx;
+      this.onLifeFrame = life;
+      this.syncBodyFx(src);
+    } finally {
+      this.faceBusy = false;
     }
+  }
 
-    const ms =
-      !motion && (faceIdx === 1 || this.idx === 1 || faceIdx === 3 || this.idx === 3)
-        ? FADE_BLINK_MS
-        : motion
-          ? 640
-          : FADE_MS;
-
-    outgoing.classList.add("is-front");
-    outgoing.classList.remove("is-back");
-    incoming.classList.remove("is-front");
-    incoming.classList.add("is-back", "is-incoming");
-    incoming.style.opacity = "0";
-    incoming.style.transition = "none";
-
-    await new Promise<void>((r) => requestAnimationFrame(() => requestAnimationFrame(() => r())));
-
-    incoming.style.transition = `opacity ${ms}ms ease-out`;
-    incoming.style.opacity = "1";
-
-    await new Promise<void>((r) => window.setTimeout(r, ms + 20));
-    finish();
+  private async setHair(to: number, animate: boolean): Promise<void> {
+    this.hairBusy = true;
+    try {
+      const src = this.hairUrls[to];
+      if (!animate) {
+        const front = this.hairFrontA ? this.hairA : this.hairB;
+        const back = this.hairFrontA ? this.hairB : this.hairA;
+        front.src = src;
+        front.classList.add("is-front");
+        front.classList.remove("is-back");
+        back.classList.add("is-back");
+        back.classList.remove("is-front");
+        this.hairIdx = to;
+        return;
+      }
+      this.hairFrontA = await fadeSwap(this.hairA, this.hairB, this.hairFrontA, src, HAIR_FADE_MS);
+      this.hairIdx = to;
+    } finally {
+      this.hairBusy = false;
+    }
   }
 }

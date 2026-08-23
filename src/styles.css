@@ -511,12 +511,22 @@ button img, a img {
 .char-puppet {
   position: absolute;
   inset: 0;
+  transform-origin: 50% 62%;
+}
+.char-stage.is-animating .char-puppet {
+  animation: char-body-sway 4.2s ease-in-out infinite;
 }
 .char-body {
   position: absolute;
   inset: 0;
+  transform-origin: 50% 28%;
 }
+.char-stage.is-animating .char-body {
+  animation: char-head-tilt 5.1s ease-in-out infinite;
+}
+
 .deco-panel .char-art,
+.deco-panel .char-hair-frame,
 .deco-panel .char-fx {
   position: absolute;
   inset: 0;
@@ -526,54 +536,76 @@ button img, a img {
   object-position: 48% 10%;
   pointer-events: none;
 }
-.deco-panel .char-art {
+.deco-panel .char-art,
+.deco-panel .char-hair-frame {
   opacity: 0;
   z-index: 0;
 }
-.deco-panel .char-art.is-front {
+.deco-panel .char-art.is-front,
+.deco-panel .char-hair-frame.is-front {
   opacity: 1;
   z-index: 1;
 }
-.deco-panel .char-art.is-back {
+.deco-panel .char-art.is-back,
+.deco-panel .char-hair-frame.is-back {
   opacity: 0;
   z-index: 0;
 }
-.deco-panel .char-art.is-incoming {
+.deco-panel .char-art.is-incoming,
+.deco-panel .char-hair-frame.is-incoming {
   z-index: 2;
 }
 
-/* Live body layers — only while music plays */
+/* Multi-frame hair overlay — soft mask so only hair/upper silhouette morphs */
+.char-hair {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 34%,
+    rgba(0, 0, 0, 0.55) 48%,
+    transparent 68%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 34%,
+    rgba(0, 0, 0, 0.55) 48%,
+    transparent 68%
+  );
+}
+.char-stage.is-animating .char-hair {
+  opacity: 1;
+}
+.char-stage.is-animating .char-hair {
+  animation: char-hair-drift 2.8s ease-in-out infinite;
+  transform-origin: 45% 10%;
+}
+
+/* Live body layers — chest / arm */
 .deco-panel .char-fx {
   opacity: 0;
-  z-index: 3;
+  z-index: 4;
   will-change: transform;
 }
 .char-stage.is-animating .char-fx {
   opacity: 1;
 }
-.char-fx--hair {
-  /* top hair / bangs */
-  clip-path: inset(0 0 52% 0);
-  -webkit-clip-path: inset(0 0 52% 0);
-  transform-origin: 48% 8%;
-  mix-blend-mode: normal;
-}
 .char-fx--chest {
-  /* torso / chest band */
   clip-path: inset(38% 18% 28% 22%);
   -webkit-clip-path: inset(38% 18% 28% 22%);
   transform-origin: 50% 48%;
 }
 .char-fx--arm {
-  /* tattooed shoulder / arm side */
   clip-path: inset(28% 0 18% 58%);
   -webkit-clip-path: inset(28% 0 18% 58%);
   transform-origin: 72% 36%;
 }
 
-.char-stage.is-animating .char-fx--hair {
-  animation: char-hair-wind 2.4s ease-in-out infinite;
-}
 .char-stage.is-animating .char-fx--chest {
   animation: char-chest-breath 2.05s ease-in-out infinite;
 }
@@ -581,26 +613,42 @@ button img, a img {
   animation: char-arm-sway 3.2s ease-in-out infinite;
 }
 
-@keyframes char-hair-wind {
+@keyframes char-body-sway {
   0%, 100% {
-    transform:
-      translate3d(calc(var(--energy, 0) * -0.6px), calc(var(--kick, 0) * -0.4px), 0)
-      rotate(calc(-0.4deg + var(--energy, 0) * -0.35deg));
-  }
-  25% {
-    transform:
-      translate3d(calc(1.6px + var(--energy, 0) * 1.4px), -0.8px, 0)
-      rotate(calc(0.65deg + var(--energy, 0) * 0.45deg));
+    transform: rotate(calc(-0.55deg + var(--bass, 0) * -0.25deg)) translate3d(0, 0, 0);
   }
   50% {
     transform:
-      translate3d(calc(-1px + var(--bass, 0) * -0.5px), 0.5px, 0)
-      rotate(calc(-0.8deg + var(--kick, 0) * 0.3deg));
+      rotate(calc(0.7deg + var(--energy, 0) * 0.35deg + var(--kick, 0) * 0.2deg))
+      translate3d(calc(var(--kick, 0) * 0.4px), calc(var(--bass, 0) * -0.6px), 0);
   }
-  75% {
+}
+@keyframes char-head-tilt {
+  0%, 100% {
+    transform: rotate(calc(-0.45deg + var(--voice, 0) * -0.2deg));
+  }
+  40% {
+    transform: rotate(calc(0.55deg + var(--voice, 0) * 0.35deg));
+  }
+  70% {
+    transform: rotate(calc(-0.25deg + var(--energy, 0) * 0.15deg));
+  }
+}
+@keyframes char-hair-drift {
+  0%, 100% {
     transform:
-      translate3d(calc(1.1px + var(--energy, 0) * 0.8px), 0.15px, 0)
-      rotate(0.4deg);
+      translate3d(calc(var(--energy, 0) * -0.5px), 0, 0)
+      rotate(calc(-0.3deg + var(--energy, 0) * -0.25deg));
+  }
+  33% {
+    transform:
+      translate3d(calc(1.2px + var(--energy, 0) * 1.2px), -0.5px, 0)
+      rotate(calc(0.5deg + var(--kick, 0) * 0.25deg));
+  }
+  66% {
+    transform:
+      translate3d(calc(-0.8px + var(--bass, 0) * -0.4px), 0.35px, 0)
+      rotate(-0.55deg);
   }
 }
 @keyframes char-chest-breath {
@@ -635,9 +683,14 @@ button img, a img {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .char-stage.is-animating .char-fx {
+  .char-stage.is-animating .char-fx,
+  .char-stage.is-animating .char-hair {
     animation: none !important;
     opacity: 0 !important;
+  }
+  .char-stage.is-animating .char-puppet,
+  .char-stage.is-animating .char-body {
+    animation: none !important;
   }
 }
 .deco-mark {
