@@ -31,6 +31,8 @@ const ICONS = {
   play: `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`,
   pause: `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>`,
   dl: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16"/></svg>`,
+  style: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h10M4 17h7"/></svg>`,
+  prompt: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 4h9l3 3v13a1 1 0 01-1 1H8a1 1 0 01-1-1V5a1 1 0 011-1z"/><path d="M9 13h6M9 17h4"/></svg>`,
   shuffle: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>`,
   prev: `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>`,
   next: `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M16 18h2V6h-2zM6 18l8.5-6L6 6z"/></svg>`,
@@ -141,6 +143,20 @@ function render(tracks: Track[]): void {
         <time data-t1>0:00</time>
       </div>
     </footer>
+
+    <div class="modal" data-modal hidden>
+      <div class="modal-card">
+        <div class="modal-head">
+          <strong data-modal-title></strong>
+          <button type="button" class="ico-btn" data-modal-close aria-label="Закрыть">✕</button>
+        </div>
+        <pre class="modal-body" data-modal-body></pre>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-line" data-modal-copy>Копировать</button>
+          <button type="button" class="btn btn-fill" data-modal-close2>Закрыть</button>
+        </div>
+      </div>
+    </div>
   `;
 
   applyTheme(getTheme());
@@ -163,8 +179,43 @@ function render(tracks: Track[]): void {
   const volEl = app.querySelector<HTMLInputElement>("[data-vol]")!;
   const t0 = app.querySelector<HTMLElement>("[data-t0]")!;
   const t1 = app.querySelector<HTMLElement>("[data-t1]")!;
+  const modal = app.querySelector<HTMLElement>("[data-modal]")!;
+  const modalTitle = app.querySelector<HTMLElement>("[data-modal-title]")!;
+  const modalBody = app.querySelector<HTMLElement>("[data-modal-body]")!;
 
   let seeking = false;
+  let modalText = "";
+
+  function openModal(title: string, text: string): void {
+    modalTitle.textContent = title;
+    modalBody.textContent = text;
+    modalText = text;
+    modal.hidden = false;
+  }
+
+  function closeModal(): void {
+    modal.hidden = true;
+  }
+
+  app.querySelectorAll("[data-modal-close], [data-modal-close2]").forEach((el) => {
+    el.addEventListener("click", closeModal);
+  });
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) closeModal();
+  });
+  app.querySelector<HTMLButtonElement>("[data-modal-copy]")!.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(modalText);
+      const btn = app.querySelector<HTMLButtonElement>("[data-modal-copy]")!;
+      const prev = btn.textContent;
+      btn.textContent = "Скопировано";
+      setTimeout(() => {
+        btn.textContent = prev;
+      }, 1200);
+    } catch {
+      /* ignore */
+    }
+  });
 
   const player = new AudioPlayer({
     onChange: (track, isPlaying) => {
@@ -259,15 +310,10 @@ function render(tracks: Track[]): void {
 
   function paintDeco(): void {
     const track = currentTrack();
-    if (!track) {
-      decoEl.innerHTML = `<img class="deco-bg" src="${assetUrl("deco-bg.svg")}" alt="" />`;
-      return;
-    }
     decoEl.innerHTML = `
-      <img class="deco-bg" src="${assetUrl("deco-bg.svg")}" alt="" />
-      <img class="deco-cover" src="${assetUrl(track.cover)}" alt="" />
+      <img class="char-art" src="${assetUrl("character.png")}" alt="" />
       <div class="deco-vignette"></div>
-      <div class="deco-tag">${escapeHtml(track.title)}</div>
+      <div class="deco-tag">${escapeHtml(track?.title ?? "Music_Z")}</div>
     `;
   }
 
@@ -285,19 +331,31 @@ function render(tracks: Track[]): void {
       .map((t, i) => {
         const on = t.id === activeId;
         const num = String(i + 1).padStart(2, "0");
+        const styleBtn = t.style
+          ? `<button type="button" class="chip" data-style="${t.id}" title="Стиль">Стиль</button>`
+          : "";
+        const promptBtn = t.prompt
+          ? `<button type="button" class="chip" data-prompt="${t.id}" title="Промпт">Промпт</button>`
+          : "";
         return `
           <li>
-            <button type="button" class="track-item${on ? " is-on" : ""}" data-id="${t.id}">
-              <span class="num">${num}</span>
-              <img src="${assetUrl(t.cover)}" alt="" width="48" height="48" loading="lazy" />
-              <div class="track-meta">
-                <h4>${escapeHtml(t.title)}</h4>
-                <p>${escapeHtml(t.artist)}</p>
+            <div class="track-item${on ? " is-on" : ""}" data-id="${t.id}">
+              <button type="button" class="track-main" data-play-id="${t.id}">
+                <span class="num">${num}</span>
+                <img src="${assetUrl(t.cover)}" alt="" width="48" height="48" loading="lazy" />
+                <div class="track-meta">
+                  <h4>${escapeHtml(t.title)}</h4>
+                  <p>${escapeHtml(t.artist)}</p>
+                </div>
+                <span class="track-dur">${formatDuration(t.durationSec)}</span>
+                <span class="ico-btn" aria-hidden="true">${on && playing ? ICONS.pause : ICONS.play}</span>
+              </button>
+              <div class="track-actions">
+                ${styleBtn}
+                ${promptBtn}
+                <a class="ico-btn" href="${assetUrl(t.src)}" download="${escapeHtml(t.title)}.mp3" data-dl title="Скачать">${ICONS.dl}</a>
               </div>
-              <span class="track-dur">${formatDuration(t.durationSec)}</span>
-              <span class="ico-btn" data-play aria-hidden="true">${on && playing ? ICONS.pause : ICONS.play}</span>
-              <a class="ico-btn" href="${assetUrl(t.src)}" download="${escapeHtml(t.title)}.mp3" data-dl>${ICONS.dl}</a>
-            </button>
+            </div>
           </li>
         `;
       })
@@ -305,14 +363,29 @@ function render(tracks: Track[]): void {
   }
 
   listEl.addEventListener("click", (e) => {
-    const dl = (e.target as HTMLElement).closest("[data-dl]");
-    if (dl) {
-      e.stopPropagation();
+    const target = e.target as HTMLElement;
+    if (target.closest("[data-dl]")) return;
+
+    const styleBtn = target.closest<HTMLButtonElement>("[data-style]");
+    if (styleBtn?.dataset.style) {
+      e.preventDefault();
+      const track = tracks.find((t) => t.id === styleBtn.dataset.style);
+      if (track?.style) openModal(`Стиль · ${track.title}`, track.style);
       return;
     }
-    const row = (e.target as HTMLElement).closest<HTMLButtonElement>(".track-item");
-    if (!row?.dataset.id) return;
-    const track = tracks.find((t) => t.id === row.dataset.id);
+
+    const promptBtn = target.closest<HTMLButtonElement>("[data-prompt]");
+    if (promptBtn?.dataset.prompt) {
+      e.preventDefault();
+      const track = tracks.find((t) => t.id === promptBtn.dataset.prompt);
+      if (track?.prompt) openModal(`Промпт · ${track.title}`, track.prompt);
+      return;
+    }
+
+    const playBtn = target.closest<HTMLButtonElement>("[data-play-id]");
+    const id = playBtn?.dataset.playId ?? target.closest<HTMLElement>(".track-item")?.dataset.id;
+    if (!id) return;
+    const track = tracks.find((t) => t.id === id);
     if (!track) return;
     player.setQueue(filtered().length ? filtered() : tracks);
     player.toggle(track);

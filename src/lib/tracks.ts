@@ -8,6 +8,8 @@ export type Track = {
   cover: string;
   src: string;
   lyrics?: string[];
+  style?: string;
+  prompt?: string;
 };
 
 export function formatDuration(totalSec: number): string {

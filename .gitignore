@@ -1,6 +1,8 @@
-# Local design refs (never publish)
+# Local design refs / drafts (never publish)
 Music_Z UI Kit Pieces.png
 *UI Kit*.png
+/*.mp3
+_write_tracks.py
 
 # Local push / secrets (never publish)
 .push-token
