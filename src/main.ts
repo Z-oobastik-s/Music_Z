@@ -65,7 +65,7 @@ function render(tracks: Track[]): void {
     <div class="backdrop" data-backdrop></div>
     <div class="shell">
       <aside class="side" data-side>
-        <div class="side-logo">Music_Z</div>
+        <div class="side-logo"><img src="${assetUrl("logo.png")}" alt="Music_Z" /></div>
         <ul class="nav">
           <li><button type="button" class="is-on" data-nav="home"><span class="nav-ico">${ICONS.home}</span> Главная</button></li>
           <li><button type="button" data-nav="music"><span class="nav-ico">${ICONS.music}</span> Музыка</button></li>
@@ -137,19 +137,19 @@ function render(tracks: Track[]): void {
           <button type="button" data-next title="Вперёд">${ICONS.next}</button>
           <button type="button" data-repeat title="Repeat">${ICONS.repeat}</button>
         </div>
+        <div class="wave-seek">
+          <time data-t0>0:00</time>
+          <div class="wave-wrap">
+            <div class="wave-bars">${waveBars(36)}</div>
+            <div class="wave-fill" data-wave-fill style="width:0"><div class="wave-bars">${waveBars(36)}</div></div>
+            <input class="wave-input" type="range" min="0" max="1000" value="0" data-seek aria-label="Прогресс" />
+          </div>
+          <time data-t1>0:00</time>
+        </div>
         <div class="player-side">
           ${ICONS.vol}
           <input type="range" min="0" max="100" value="88" data-vol aria-label="Громкость" />
         </div>
-      </div>
-      <div class="wave-seek">
-        <time data-t0>0:00</time>
-        <div class="wave-wrap">
-          <div class="wave-bars">${waveBars()}</div>
-          <div class="wave-fill" data-wave-fill style="width:0"><div class="wave-bars">${waveBars()}</div></div>
-          <input class="wave-input" type="range" min="0" max="1000" value="0" data-seek aria-label="Прогресс" />
-        </div>
-        <time data-t1>0:00</time>
       </div>
     </footer>
 
@@ -271,8 +271,7 @@ function render(tracks: Track[]): void {
     }
     const on = activeId === track.id && playing;
     heroEl.innerHTML = `
-      <div class="hero-splatter" aria-hidden="true"></div>
-      <h1 class="brand-hero">Music_Z</h1>
+      <img class="brand-hero" src="${assetUrl("logo.png")}" alt="Music_Z" />
       <p class="hero-track">
         Сейчас: <strong>${escapeHtml(track.title)}</strong> · <em>${escapeHtml(track.artist)}</em> · ${formatDuration(track.durationSec)}
       </p>
