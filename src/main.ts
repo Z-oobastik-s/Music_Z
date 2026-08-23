@@ -94,9 +94,11 @@ const ICONS = {
   list: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>`,
   user: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>`,
   down: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16"/></svg>`,
+  tags: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.6 13.4L12.7 21.3a2 2 0 01-2.8 0L2.7 14.1a2 2 0 010-2.8L11.4 2.6A2 2 0 0112.8 2H20a2 2 0 012 2v7.2a2 2 0 01-.6 1.4z"/><circle cx="16.5" cy="7.5" r="1.5" fill="currentColor" stroke="none"/></svg>`,
   info: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 10v6M12 7h.01"/></svg>`,
   search: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3-3"/></svg>`,
   play: `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`,
+  tg: `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M9.7 14.5l-.3 4.2c.5 0 .7-.2 1-.5l2.3-2.2 4.8 3.5c.9.5 1.5.2 1.7-.8L21.8 5c.3-1.2-.4-1.7-1.3-1.4L3.3 10c-1.2.4-1.1 1.1-.2 1.4l4.4 1.4 10.2-6.4c.5-.3.9-.1.5.2"/></svg>`,
   pause: `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>`,
   dl: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16"/></svg>`,
   style: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h10M4 17h7"/></svg>`,
@@ -156,7 +158,7 @@ function render(tracks: Track[]): void {
           <li><button type="button" data-nav="music"><span class="nav-ico">${ICONS.music}</span> Музыка</button></li>
           <li><button type="button" data-nav="playlists"><span class="nav-ico">${ICONS.list}</span> Плейлисты</button></li>
           <li><button type="button" data-nav="artists"><span class="nav-ico">${ICONS.user}</span> Артисты</button></li>
-          <li><button type="button" data-nav="downloads"><span class="nav-ico">${ICONS.down}</span> Загрузки</button></li>
+          <li><button type="button" data-nav="genres"><span class="nav-ico">${ICONS.tags}</span> Жанры</button></li>
           <li><button type="button" data-nav="info"><span class="nav-ico">${ICONS.info}</span> Инфо</button></li>
         </ul>
         <div class="side-foot">
@@ -190,18 +192,87 @@ function render(tracks: Track[]): void {
               </div>
             </header>
 
-            <div class="grid">
-              <section class="hero kit-box" data-hero></section>
+            <div class="view-stack" data-views>
+              <div class="grid view is-on" data-view="home">
+                <section class="hero kit-box" data-hero></section>
 
-              <section class="tracks-panel kit-box" id="tracks">
-                <div class="panel-head">Популярные треки <span data-count></span></div>
-                <ul class="track-list" data-list></ul>
-              </section>
+                <section class="tracks-panel kit-box" id="tracks">
+                  <div class="panel-head">Популярные треки <span data-count></span></div>
+                  <ul class="track-list" data-list></ul>
+                </section>
 
-              <aside class="lyrics-panel kit-box">
-                <div class="panel-head">Текст песни</div>
-                <div class="lyrics-body" data-lyrics></div>
-              </aside>
+                <aside class="lyrics-panel kit-box">
+                  <div class="panel-head">Текст песни</div>
+                  <div class="lyrics-body" data-lyrics></div>
+                </aside>
+              </div>
+
+              <div class="view view-page" data-view="music" hidden>
+                <section class="page-panel kit-box">
+                  <div class="panel-head">Вся музыка <span data-count-music></span></div>
+                  <ul class="track-list" data-list-music></ul>
+                </section>
+              </div>
+
+              <div class="view view-page" data-view="playlists" hidden>
+                <section class="page-panel kit-box" data-playlists></section>
+              </div>
+
+              <div class="view view-page" data-view="artists" hidden>
+                <section class="page-panel kit-box" data-artists></section>
+              </div>
+
+              <div class="view view-page" data-view="genres" hidden>
+                <section class="page-panel kit-box" data-genres></section>
+              </div>
+
+              <div class="view view-page" data-view="info" hidden>
+                <section class="page-panel kit-box info-page">
+                  <div class="info-hero">
+                    <p class="info-kicker">Music_Z</p>
+                    <h2>Личная сцена звука</h2>
+                    <p class="info-lead">Тёмный плеер для треков Zoobastiks — без шума ленты, только музыка, текст и атмосфера.</p>
+                  </div>
+
+                  <div class="info-grid">
+                    <article class="info-card">
+                      <h3>Об авторе</h3>
+                      <p class="info-name">Zoobastiks <span>(Владислав)</span></p>
+                      <p>Автор музыки и этого сайта. Здесь собираются релизы, эксперименты и версии треков в одном жёстком визуальном мире.</p>
+                      <a class="btn btn-fill info-tg" href="https://t.me/Zoobastiks" target="_blank" rel="noopener noreferrer">${ICONS.tg} Telegram · @Zoobastiks</a>
+                    </article>
+
+                    <article class="info-card">
+                      <h3>О сайте</h3>
+                      <ul class="info-list">
+                        <li>Каталог треков со стилем, промптом и текстом</li>
+                        <li>Шаринг конкретного трека по ссылке</li>
+                        <li>Очередь, повтор, shuffle и тёмная/светлая тема</li>
+                        <li>Кэш треков и арта для быстрых повторных заходов</li>
+                      </ul>
+                    </article>
+
+                    <article class="info-card info-card--wide">
+                      <h3>Лицензия и права</h3>
+                      <p>Весь контент Music_Z — музыка, тексты, промпты, графика, персонаж и оформление — защищён. Копирование, выкладывание «как своё», парсинг каталога и коммерческое использование без разрешения автора запрещены.</p>
+                      <p>Скачивание треков с сайта допускается только для личного прослушивания. Репосты — с указанием автора <strong>Zoobastiks</strong> и ссылки на Music_Z / Telegram.</p>
+                      <p class="info-note">© ${new Date().getFullYear()} Zoobastiks · Music_Z. All rights reserved.</p>
+                    </article>
+
+                    <article class="info-card">
+                      <h3>Контакты</h3>
+                      <p>Новости, дропы и связь — в Telegram-канале.</p>
+                      <a class="info-link" href="https://t.me/Zoobastiks" target="_blank" rel="noopener noreferrer">t.me/Zoobastiks</a>
+                      <a class="info-link" href="https://zoobastik.me/Music_Z/" target="_blank" rel="noopener noreferrer">zoobastik.me/Music_Z</a>
+                    </article>
+
+                    <article class="info-card">
+                      <h3>Технологии</h3>
+                      <p>Клиентский плеер на Vite. Аудио и изображения кэшируются локально в браузере. Deep-link API: <code>?track=id&amp;play=1</code>.</p>
+                    </article>
+                  </div>
+                </section>
+              </div>
             </div>
           </div>
 
@@ -265,9 +336,14 @@ function render(tracks: Track[]): void {
   const backdrop = app.querySelector<HTMLElement>("[data-backdrop]")!;
   const heroEl = app.querySelector<HTMLElement>("[data-hero]")!;
   const listEl = app.querySelector<HTMLElement>("[data-list]")!;
+  const listMusicEl = app.querySelector<HTMLElement>("[data-list-music]")!;
   const lyricsEl = app.querySelector<HTMLElement>("[data-lyrics]")!;
   const decoEl = app.querySelector<HTMLElement>("[data-deco]")!;
   const countEl = app.querySelector<HTMLElement>("[data-count]")!;
+  const countMusicEl = app.querySelector<HTMLElement>("[data-count-music]")!;
+  const playlistsEl = app.querySelector<HTMLElement>("[data-playlists]")!;
+  const artistsEl = app.querySelector<HTMLElement>("[data-artists]")!;
+  const genresEl = app.querySelector<HTMLElement>("[data-genres]")!;
   const searchEl = app.querySelector<HTMLInputElement>("[data-search]")!;
   const miniWave = app.querySelector<HTMLElement>("[data-mini-wave]")!;
   const nowCover = app.querySelector<HTMLImageElement>("[data-now-cover]")!;
@@ -290,6 +366,189 @@ function render(tracks: Track[]): void {
   let seeking = false;
   let modalText = "";
   let modalMode: "text" | "queue" = "text";
+  type ViewId = "home" | "music" | "playlists" | "artists" | "genres" | "info";
+
+  function closeSide(): void {
+    side.classList.remove("is-open");
+    backdrop.classList.remove("is-open");
+  }
+
+  function setView(id: ViewId): void {
+    app.querySelectorAll<HTMLElement>("[data-view]").forEach((el) => {
+      const on = el.dataset.view === id;
+      el.classList.toggle("is-on", on);
+      el.hidden = !on;
+    });
+    app.querySelectorAll<HTMLButtonElement>("[data-nav]").forEach((btn) => {
+      btn.classList.toggle("is-on", btn.dataset.nav === id);
+    });
+    if (id === "playlists") paintPlaylists();
+    if (id === "artists") paintArtists();
+    if (id === "genres") paintGenres();
+    if (id === "music" || id === "home") paintList();
+    closeSide();
+  }
+
+  function playList(list: Track[], start?: Track): void {
+    if (!list.length) return;
+    player.setQueue(list);
+    const t = start ?? list[0];
+    void armBeat().then(() => player.play(t));
+  }
+
+  function paintPlaylists(): void {
+    const v1 = tracks.filter((t) => !t.id.endsWith("-v2"));
+    const v2 = tracks.filter((t) => t.id.endsWith("-v2"));
+    const tagMap = new Map<string, Track[]>();
+    for (const t of tracks) {
+      for (const tag of t.tags.slice(0, 3)) {
+        const arr = tagMap.get(tag) ?? [];
+        arr.push(t);
+        tagMap.set(tag, arr);
+      }
+    }
+    const tagPlaylists = [...tagMap.entries()]
+      .filter(([, list]) => list.length >= 2)
+      .sort((a, b) => b[1].length - a[1].length)
+      .slice(0, 8);
+
+    const cards: { id: string; title: string; sub: string; list: Track[]; cover: string }[] = [
+      {
+        id: "all",
+        title: "Все треки",
+        sub: `${tracks.length} треков · полный каталог`,
+        list: tracks,
+        cover: tracks[0]?.cover ?? "covers/zhizn.svg",
+      },
+      {
+        id: "v1",
+        title: "Оригиналы",
+        sub: `${v1.length} треков · без v2`,
+        list: v1,
+        cover: v1[0]?.cover ?? "covers/zhizn.svg",
+      },
+      {
+        id: "v2",
+        title: "Версии v2",
+        sub: `${v2.length} треков · альтернативы`,
+        list: v2,
+        cover: v2[0]?.cover ?? "covers/zhizn.svg",
+      },
+      ...tagPlaylists.map(([tag, list]) => ({
+        id: `tag-${tag}`,
+        title: tag,
+        sub: `${list.length} треков · жанр / настроение`,
+        list,
+        cover: list[0]?.cover ?? "covers/zhizn.svg",
+      })),
+    ];
+
+    playlistsEl.innerHTML = `
+      <div class="panel-head">Плейлисты <span>${cards.length}</span></div>
+      <div class="browse-grid">
+        ${cards
+          .map(
+            (c) => `
+          <button type="button" class="browse-card" data-plist="${escapeHtml(c.id)}">
+            <img src="${assetUrl(c.cover)}" alt="" draggable="false" />
+            <div>
+              <strong>${escapeHtml(c.title)}</strong>
+              <em>${escapeHtml(c.sub)}</em>
+            </div>
+            <span class="browse-play">${ICONS.play}</span>
+          </button>`,
+          )
+          .join("")}
+      </div>
+    `;
+
+    playlistsEl.querySelectorAll<HTMLButtonElement>("[data-plist]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const id = btn.dataset.plist;
+        const card = cards.find((c) => c.id === id);
+        if (!card) return;
+        playList(card.list);
+        setView("music");
+      });
+    });
+  }
+
+  function paintArtists(): void {
+    const map = new Map<string, Track[]>();
+    for (const t of tracks) {
+      const arr = map.get(t.artist) ?? [];
+      arr.push(t);
+      map.set(t.artist, arr);
+    }
+    const artists = [...map.entries()].sort((a, b) => b[1].length - a[1].length);
+
+    artistsEl.innerHTML = `
+      <div class="panel-head">Артисты <span>${artists.length}</span></div>
+      <div class="browse-grid browse-grid--artists">
+        ${artists
+          .map(
+            ([name, list]) => `
+          <button type="button" class="browse-card browse-card--artist" data-artist="${escapeHtml(name)}">
+            <img src="${assetUrl(list[0].cover)}" alt="" draggable="false" />
+            <div>
+              <strong>${escapeHtml(name)}</strong>
+              <em>${list.length} ${list.length === 1 ? "трек" : list.length < 5 ? "трека" : "треков"}</em>
+            </div>
+            <span class="browse-play">${ICONS.play}</span>
+          </button>`,
+          )
+          .join("")}
+      </div>
+    `;
+
+    artistsEl.querySelectorAll<HTMLButtonElement>("[data-artist]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const name = btn.dataset.artist;
+        const list = name ? map.get(name) : undefined;
+        if (!list?.length) return;
+        playList(list);
+        setView("music");
+      });
+    });
+  }
+
+  function paintGenres(): void {
+    const map = new Map<string, Track[]>();
+    for (const t of tracks) {
+      for (const tag of t.tags) {
+        const arr = map.get(tag) ?? [];
+        if (!arr.some((x) => x.id === t.id)) arr.push(t);
+        map.set(tag, arr);
+      }
+    }
+    const genres = [...map.entries()].sort((a, b) => b[1].length - a[1].length);
+
+    genresEl.innerHTML = `
+      <div class="panel-head">Жанры и теги <span>${genres.length}</span></div>
+      <div class="genre-cloud">
+        ${genres
+          .map(
+            ([tag, list]) => `
+          <button type="button" class="genre-chip" data-genre="${escapeHtml(tag)}">
+            <strong>${escapeHtml(tag)}</strong>
+            <span>${list.length}</span>
+          </button>`,
+          )
+          .join("")}
+      </div>
+      <p class="page-hint">Нажми жанр — соберём очередь и откроем музыку.</p>
+    `;
+
+    genresEl.querySelectorAll<HTMLButtonElement>("[data-genre]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const tag = btn.dataset.genre;
+        const list = tag ? map.get(tag) : undefined;
+        if (!list?.length) return;
+        playList(list);
+        setView("music");
+      });
+    });
+  }
 
   function paintModes(shuffle: boolean, repeat: RepeatMode): void {
     shuffleBtn.classList.toggle("is-active", shuffle);
@@ -596,52 +855,51 @@ function render(tracks: Track[]): void {
     if (tag) tag.textContent = track?.title ?? "Music_Z";
   }
 
-  function paintList(): void {
-    const items = filtered();
-    player.setQueue(items.length ? items : tracks);
-    countEl.textContent = `${items.length} / ${tracks.length}`;
-
-    if (!items.length) {
-      listEl.innerHTML = `<li class="empty">Ничего не найдено</li>`;
-      return;
-    }
-
-    listEl.innerHTML = items
-      .map((t, i) => {
-        const on = t.id === (activeId ?? focusId);
-        const num = String(i + 1).padStart(2, "0");
-        const styleBtn = t.style
-          ? `<button type="button" class="chip" data-style="${t.id}" title="Стиль">Стиль</button>`
-          : "";
-        const promptBtn = t.prompt
-          ? `<button type="button" class="chip" data-prompt="${t.id}" title="Промпт">Промпт</button>`
-          : "";
-        return `
-          <li>
-            <div class="track-item${on ? " is-on" : ""}" data-id="${t.id}">
-              <button type="button" class="track-main" data-play-id="${t.id}">
-                <span class="num">${num}</span>
-                <img src="${assetUrl(t.cover)}" alt="" width="48" height="48" loading="lazy" />
-                <div class="track-meta">
-                  <h4>${escapeHtml(t.title)}</h4>
-                  <p>${escapeHtml(t.artist)}</p>
-                </div>
-                <span class="track-dur">${formatDuration(t.durationSec)}</span>
-                <span class="ico-btn" aria-hidden="true">${on && playing ? ICONS.pause : ICONS.play}</span>
-              </button>
-              <div class="track-actions">
-                ${styleBtn}
-                ${promptBtn}
-                <a class="ico-btn" href="${assetUrl(t.src)}" download="${escapeHtml(t.title)}.mp3" data-dl title="Скачать">${ICONS.dl}</a>
-              </div>
+  function trackRowHtml(t: Track, i: number): string {
+    const on = t.id === (activeId ?? focusId);
+    const num = String(i + 1).padStart(2, "0");
+    const styleBtn = t.style
+      ? `<button type="button" class="chip" data-style="${t.id}" title="Стиль">Стиль</button>`
+      : "";
+    const promptBtn = t.prompt
+      ? `<button type="button" class="chip" data-prompt="${t.id}" title="Промпт">Промпт</button>`
+      : "";
+    return `
+      <li>
+        <div class="track-item${on ? " is-on" : ""}" data-id="${t.id}">
+          <button type="button" class="track-main" data-play-id="${t.id}">
+            <span class="num">${num}</span>
+            <img src="${assetUrl(t.cover)}" alt="" width="48" height="48" loading="lazy" />
+            <div class="track-meta">
+              <h4>${escapeHtml(t.title)}</h4>
+              <p>${escapeHtml(t.artist)}</p>
             </div>
-          </li>
-        `;
-      })
-      .join("");
+            <span class="track-dur">${formatDuration(t.durationSec)}</span>
+            <span class="ico-btn" aria-hidden="true">${on && playing ? ICONS.pause : ICONS.play}</span>
+          </button>
+          <div class="track-actions">
+            ${styleBtn}
+            ${promptBtn}
+            <a class="ico-btn" href="${assetUrl(t.src)}" download="${escapeHtml(t.title)}.mp3" data-dl title="Скачать">${ICONS.dl}</a>
+          </div>
+        </div>
+      </li>
+    `;
   }
 
-  listEl.addEventListener("click", (e) => {
+  function paintList(): void {
+    const items = filtered();
+    countEl.textContent = `${items.length} / ${tracks.length}`;
+    countMusicEl.textContent = `${items.length} / ${tracks.length}`;
+
+    const html = items.length
+      ? items.map((t, i) => trackRowHtml(t, i)).join("")
+      : `<li class="empty">Ничего не найдено</li>`;
+    listEl.innerHTML = html;
+    listMusicEl.innerHTML = html;
+  }
+
+  function onTrackListClick(e: MouseEvent): void {
     const target = e.target as HTMLElement;
     if (target.closest("[data-dl]")) return;
 
@@ -668,7 +926,10 @@ function render(tracks: Track[]): void {
     if (!track) return;
     player.setQueue(filtered().length ? filtered() : tracks);
     void armBeat().then(() => player.toggle(track));
-  });
+  }
+
+  listEl.addEventListener("click", onTrackListClick);
+  listMusicEl.addEventListener("click", onTrackListClick);
 
   searchEl.addEventListener("input", () => {
     query = searchEl.value;
@@ -732,10 +993,12 @@ function render(tracks: Track[]): void {
   seekEl.addEventListener("pointerup", commitSeek);
   seekEl.addEventListener("change", commitSeek);
 
-  app.querySelector<HTMLButtonElement>('[data-nav="music"]')!.addEventListener("click", () => {
-    document.getElementById("tracks")?.scrollIntoView({ behavior: "smooth" });
-    side.classList.remove("is-open");
-    backdrop.classList.remove("is-open");
+  app.querySelectorAll<HTMLButtonElement>("[data-nav]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const id = btn.dataset.nav as ViewId | undefined;
+      if (!id) return;
+      setView(id);
+    });
   });
 
   document.addEventListener("click", (e) => {
