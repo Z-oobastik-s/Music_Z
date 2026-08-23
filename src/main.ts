@@ -1,5 +1,6 @@
 import "./styles.css";
 import { BeatMotion } from "./lib/beat";
+import { CharacterCycle } from "./lib/character";
 import { AudioPlayer, type RepeatMode } from "./lib/player";
 import {
   readDeepLink,
@@ -348,6 +349,7 @@ function render(tracks: Track[]): void {
   });
 
   const beat = new BeatMotion(app);
+  let charCycle: CharacterCycle | null = null;
   const player = new AudioPlayer({
     onChange: (track, isPlaying) => {
       activeId = track?.id ?? null;
@@ -369,6 +371,7 @@ function render(tracks: Track[]): void {
       paintList();
       paintLyrics();
       paintDeco();
+      charCycle?.setPlaying(isPlaying);
       if (isPlaying) {
         void beat.connect(player.media).then(() => beat.start());
       } else {
@@ -530,14 +533,21 @@ function render(tracks: Track[]): void {
 
   function paintDeco(): void {
     const track = currentTrack();
-    decoEl.innerHTML = `
-      <div class="char-stage">
-        <img class="char-art" src="${assetUrl("character.png")}" alt="" draggable="false" />
-      </div>
-      <div class="deco-vignette"></div>
-      <div class="deco-pulse" aria-hidden="true"></div>
-      <div class="deco-tag">${escapeHtml(track?.title ?? "Music_Z")}</div>
-    `;
+    let stage = decoEl.querySelector<HTMLElement>("[data-char-stage]");
+    if (!stage) {
+      decoEl.innerHTML = `
+        <div class="char-stage" data-char-stage></div>
+        <div class="deco-vignette"></div>
+        <div class="deco-pulse" aria-hidden="true"></div>
+        <div class="deco-tag" data-deco-tag></div>
+      `;
+      stage = decoEl.querySelector<HTMLElement>("[data-char-stage]")!;
+      charCycle?.destroy();
+      charCycle = new CharacterCycle(stage);
+      charCycle.setPlaying(playing);
+    }
+    const tag = decoEl.querySelector<HTMLElement>("[data-deco-tag]");
+    if (tag) tag.textContent = track?.title ?? "Music_Z";
   }
 
   function paintList(): void {

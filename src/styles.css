@@ -516,6 +516,26 @@ button img, a img {
   height: 100%;
   object-fit: cover;
   object-position: 48% 10%;
+  opacity: 0;
+  transition: opacity 0.7s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+.deco-panel .char-art.is-front {
+  opacity: 1;
+  z-index: 1;
+}
+.deco-panel .char-art.is-back {
+  opacity: 0;
+  z-index: 0;
+}
+.deco-panel .char-art.is-fading-in {
+  opacity: 1;
+  z-index: 2;
+}
+.deco-panel .char-art.is-fading-out {
+  opacity: 0;
+  z-index: 1;
 }
 .deco-vignette {
   position: absolute;
