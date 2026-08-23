@@ -420,7 +420,8 @@ button img, a img {
 .share-menu[hidden] {
   display: none;
 }
-.share-menu button {
+.share-menu button,
+.share-menu a {
   display: flex;
   align-items: center;
   gap: 0.45rem;
@@ -436,12 +437,16 @@ button img, a img {
   text-align: left;
   padding: 0.55rem 0.55rem;
   cursor: pointer;
+  text-decoration: none;
+  box-sizing: border-box;
 }
-.share-menu button:hover {
+.share-menu button:hover,
+.share-menu a:hover {
   background: color-mix(in srgb, var(--accent) 18%, transparent);
   color: var(--accent);
 }
-.share-menu button svg {
+.share-menu button svg,
+.share-menu a svg {
   flex-shrink: 0;
   opacity: 0.9;
 }

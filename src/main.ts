@@ -4,8 +4,11 @@ import { AudioPlayer, type RepeatMode } from "./lib/player";
 import {
   readDeepLink,
   syncTrackInUrl,
+  telegramShareUrl,
   trackEmbedSnippet,
   trackShareUrl,
+  vkShareUrl,
+  whatsappShareUrl,
 } from "./lib/share";
 import { applyTheme, getTheme, setTheme, toggleTheme } from "./lib/theme";
 import {
@@ -404,7 +407,6 @@ function render(tracks: Track[]): void {
       return;
     }
     const on = activeId === track.id && playing;
-    const canNativeShare = typeof navigator.share === "function";
     heroEl.innerHTML = `
       <div class="hero-art">
         <img class="brand-hero" src="${assetUrl("hero-banner.png")}" alt="Music_Z" />
@@ -417,7 +419,9 @@ function render(tracks: Track[]): void {
             <button type="button" class="btn btn-line btn-icon" data-hero-share title="Поделиться" aria-haspopup="menu" aria-expanded="false">${ICONS.more}</button>
             <div class="share-menu" data-share-menu hidden role="menu">
               <button type="button" role="menuitem" data-share-copy>${ICONS.copy} Копировать ссылку</button>
-              ${canNativeShare ? `<button type="button" role="menuitem" data-share-native>${ICONS.share} Поделиться…</button>` : ""}
+              <a role="menuitem" data-share-tg href="${telegramShareUrl(track.id, track.title, track.artist)}" target="_blank" rel="noopener noreferrer">${ICONS.share} Telegram</a>
+              <a role="menuitem" data-share-vk href="${vkShareUrl(track.id, track.title, track.artist)}" target="_blank" rel="noopener noreferrer">${ICONS.share} ВКонтакте</a>
+              <a role="menuitem" data-share-wa href="${whatsappShareUrl(track.id, track.title, track.artist)}" target="_blank" rel="noopener noreferrer">${ICONS.share} WhatsApp</a>
               <button type="button" role="menuitem" data-share-embed>${ICONS.code} Код для сайта</button>
             </div>
           </div>
@@ -460,19 +464,8 @@ function render(tracks: Track[]): void {
       }
     };
 
-    heroEl.querySelector<HTMLButtonElement>("[data-share-native]")?.addEventListener("click", async (e) => {
-      e.stopPropagation();
-      const url = trackShareUrl(track.id, true);
-      try {
-        await navigator.share({
-          title: `${track.title} — Music_Z`,
-          text: `${track.artist} — ${track.title}`,
-          url,
-        });
-        closeShareMenu();
-      } catch {
-        /* user cancel / unsupported */
-      }
+    heroEl.querySelectorAll<HTMLAnchorElement>("[data-share-tg], [data-share-vk], [data-share-wa]").forEach((a) => {
+      a.addEventListener("click", (e) => e.stopPropagation());
     });
 
     heroEl.querySelector<HTMLButtonElement>("[data-share-embed]")!.onclick = (e) => {
@@ -532,7 +525,7 @@ function render(tracks: Track[]): void {
 
     listEl.innerHTML = items
       .map((t, i) => {
-        const on = t.id === activeId;
+        const on = t.id === (activeId ?? focusId);
         const num = String(i + 1).padStart(2, "0");
         const styleBtn = t.style
           ? `<button type="button" class="chip" data-style="${t.id}" title="Стиль">Стиль</button>`
@@ -677,15 +670,17 @@ function render(tracks: Track[]): void {
     const deepTrack = tracks.find((t) => t.id === deep.id);
     if (deepTrack) {
       focusId = deepTrack.id;
+      activeId = deepTrack.id;
       player.setQueue(tracks);
+      nowTitle.textContent = deepTrack.title;
+      nowArtist.textContent = deepTrack.artist;
+      nowCover.src = assetUrl(deepTrack.cover);
+      nowCover.hidden = false;
+      // Consume deep-link once (keep track in URL, drop play flag after attempt)
+      syncTrackInUrl(deepTrack.id, false);
+
       if (deep.play) {
-        void armBeat()
-          .then(() => player.play(deepTrack))
-          .catch(() => {
-            syncTrackInUrl(deepTrack.id);
-          });
-      } else {
-        syncTrackInUrl(deepTrack.id);
+        void armBeat().then(() => player.play(deepTrack));
       }
     }
   }
@@ -694,6 +689,15 @@ function render(tracks: Track[]): void {
   paintList();
   paintLyrics();
   paintDeco();
+
+  if (deep?.id) {
+    requestAnimationFrame(() => {
+      app.querySelector<HTMLElement>(`.track-item[data-id="${CSS.escape(deep.id)}"]`)?.scrollIntoView({
+        block: "nearest",
+        behavior: "smooth",
+      });
+    });
+  }
 }
 
 loadTracks()
