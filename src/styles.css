@@ -47,6 +47,44 @@ button, input { font: inherit; color: inherit; }
 img { display: block; max-width: 100%; }
 a { color: inherit; text-decoration: none; }
 
+/* Запрет выделения текста и перетаскивания картинок */
+html, body, #app {
+  -webkit-user-select: none;
+  user-select: none;
+}
+input, textarea {
+  -webkit-user-select: text;
+  user-select: text;
+}
+img, .char-art, .brand-hero, .side-logo img, .now-play img, .track-item img {
+  -webkit-user-drag: none;
+  user-drag: none;
+  -webkit-user-select: none;
+  user-select: none;
+  pointer-events: none;
+}
+/* Клики по кнопкам/ссылкам с иконками остаются рабочими */
+button img, a img {
+  pointer-events: none;
+}
+
+/* Скролл работает, полосы не видны */
+.nav,
+.track-list,
+.lyrics-body,
+.modal-body {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.nav::-webkit-scrollbar,
+.track-list::-webkit-scrollbar,
+.lyrics-body::-webkit-scrollbar,
+.modal-body::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
 .shell {
   display: grid;
   grid-template-columns: var(--side-w) minmax(0, 1fr);
@@ -662,6 +700,7 @@ a { color: inherit; text-decoration: none; }
   padding: 0;
 }
 .player-ctrl button:hover { color: var(--accent); }
+.player-ctrl button.is-active { color: var(--accent); }
 .player-ctrl .play-main {
   width: 2.7rem;
   height: 2.7rem;
@@ -670,6 +709,7 @@ a { color: inherit; text-decoration: none; }
   margin: 0 0.15rem;
 }
 .player-ctrl .play-main:hover { background: var(--accent2); color: #fff; }
+.player-ctrl .play-main.is-active { color: #fff; }
 
 .wave-seek {
   min-width: 0;
@@ -753,6 +793,63 @@ a { color: inherit; text-decoration: none; }
   padding: 0;
 }
 .queue-btn:hover { color: var(--ink); }
+.queue-btn.is-active { color: var(--ink); }
+
+.modal-queue {
+  white-space: normal;
+  font-family: "IBM Plex Sans", system-ui, sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.45rem;
+}
+.queue-item {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr) auto;
+  gap: 0.55rem;
+  align-items: center;
+  width: 100%;
+  border: 0;
+  border-bottom: 1px solid var(--line-soft);
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  padding: 0.55rem 0.45rem;
+}
+.queue-item:last-child { border-bottom: 0; }
+.queue-item:hover { background: rgba(225, 6, 0, 0.08); }
+.queue-item.is-on { background: rgba(225, 6, 0, 0.12); }
+.queue-num {
+  font-family: "Bebas Neue", sans-serif;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+.queue-item.is-on .queue-num { color: var(--accent); }
+.queue-meta { min-width: 0; }
+.queue-meta strong,
+.queue-meta em {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.queue-meta strong {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--ink);
+}
+.queue-item.is-on .queue-meta strong { color: var(--accent); }
+.queue-meta em {
+  font-style: normal;
+  font-size: 0.68rem;
+  color: var(--muted);
+}
+.queue-dur {
+  font-size: 0.68rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
 
 .modal {
   position: fixed;

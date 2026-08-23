@@ -1,5 +1,5 @@
 import "./styles.css";
-import { AudioPlayer } from "./lib/player";
+import { AudioPlayer, type RepeatMode } from "./lib/player";
 import { applyTheme, getTheme, setTheme, toggleTheme } from "./lib/theme";
 import {
   assetUrl,
@@ -17,6 +17,28 @@ const app: HTMLDivElement = rootEl;
 
 applyTheme(getTheme());
 startAutoUpdate();
+
+/** Запрет drag / save картинок и случайного выделения */
+document.addEventListener(
+  "dragstart",
+  (e) => {
+    const t = e.target;
+    if (t instanceof HTMLImageElement || (t instanceof Element && t.closest("img"))) {
+      e.preventDefault();
+    }
+  },
+  true,
+);
+document.addEventListener(
+  "contextmenu",
+  (e) => {
+    const t = e.target;
+    if (t instanceof HTMLImageElement || (t instanceof Element && t.closest("img, .deco-panel, .hero-art"))) {
+      e.preventDefault();
+    }
+  },
+  true,
+);
 
 const BUILD = typeof __BUILD_ID__ !== "undefined" ? __BUILD_ID__ : String(Date.now());
 
@@ -37,6 +59,7 @@ const ICONS = {
   prev: `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>`,
   next: `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M16 18h2V6h-2zM6 18l8.5-6L6 6z"/></svg>`,
   repeat: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 1l4 4-4 4M3 11V9a4 4 0 014-4h14M7 23l-4-4 4-4M21 13v2a4 4 0 01-4 4H3"/></svg>`,
+  repeatOne: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 1l4 4-4 4M3 11V9a4 4 0 014-4h14M7 23l-4-4 4-4M21 13v2a4 4 0 01-4 4H3"/><text x="12" y="15.5" text-anchor="middle" fill="currentColor" stroke="none" font-size="8" font-family="IBM Plex Sans, sans-serif" font-weight="700">1</text></svg>`,
   playBig: `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`,
   pauseBig: `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>`,
   queue: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg>`,
@@ -147,11 +170,11 @@ function render(tracks: Track[]): void {
           </div>
         </div>
         <div class="player-ctrl">
-          <button type="button" data-shuffle title="Shuffle">${ICONS.shuffle}</button>
+          <button type="button" data-shuffle title="Перемешать" aria-pressed="false">${ICONS.shuffle}</button>
           <button type="button" data-prev title="Назад">${ICONS.prev}</button>
           <button type="button" class="play-main" data-toggle title="Play">${ICONS.playBig}</button>
           <button type="button" data-next title="Вперёд">${ICONS.next}</button>
-          <button type="button" data-repeat title="Repeat">${ICONS.repeat}</button>
+          <button type="button" data-repeat title="Повтор: выкл" aria-pressed="false">${ICONS.repeat}</button>
         </div>
         <div class="wave-seek">
           <div class="wave-wrap">
@@ -177,7 +200,7 @@ function render(tracks: Track[]): void {
           <strong data-modal-title></strong>
           <button type="button" class="ico-btn" data-modal-close aria-label="Закрыть">✕</button>
         </div>
-        <pre class="modal-body" data-modal-body></pre>
+        <div class="modal-body" data-modal-body></div>
         <div class="modal-actions">
           <button type="button" class="btn btn-line" data-modal-copy>Копировать</button>
           <button type="button" class="btn btn-fill" data-modal-close2>Закрыть</button>
@@ -201,6 +224,9 @@ function render(tracks: Track[]): void {
   const nowTitle = app.querySelector<HTMLElement>("[data-now-title]")!;
   const nowArtist = app.querySelector<HTMLElement>("[data-now-artist]")!;
   const toggleEl = app.querySelector<HTMLButtonElement>("[data-toggle]")!;
+  const shuffleBtn = app.querySelector<HTMLButtonElement>("[data-shuffle]")!;
+  const repeatBtn = app.querySelector<HTMLButtonElement>("[data-repeat]")!;
+  const queueBtn = app.querySelector<HTMLButtonElement>("[data-queue]")!;
   const seekEl = app.querySelector<HTMLInputElement>("[data-seek]")!;
   const waveFill = app.querySelector<HTMLElement>("[data-wave-fill]")!;
   const volEl = app.querySelector<HTMLInputElement>("[data-vol]")!;
@@ -209,19 +235,82 @@ function render(tracks: Track[]): void {
   const modal = app.querySelector<HTMLElement>("[data-modal]")!;
   const modalTitle = app.querySelector<HTMLElement>("[data-modal-title]")!;
   const modalBody = app.querySelector<HTMLElement>("[data-modal-body]")!;
+  const modalCopy = app.querySelector<HTMLButtonElement>("[data-modal-copy]")!;
 
   let seeking = false;
   let modalText = "";
+  let modalMode: "text" | "queue" = "text";
+
+  function paintModes(shuffle: boolean, repeat: RepeatMode): void {
+    shuffleBtn.classList.toggle("is-active", shuffle);
+    shuffleBtn.setAttribute("aria-pressed", String(shuffle));
+    shuffleBtn.title = shuffle ? "Перемешивание: вкл" : "Перемешивание: выкл";
+
+    repeatBtn.classList.toggle("is-active", repeat !== "off");
+    repeatBtn.setAttribute("aria-pressed", String(repeat !== "off"));
+    if (repeat === "one") {
+      repeatBtn.innerHTML = ICONS.repeatOne;
+      repeatBtn.title = "Повтор: один трек";
+    } else if (repeat === "all") {
+      repeatBtn.innerHTML = ICONS.repeat;
+      repeatBtn.title = "Повтор: весь список";
+    } else {
+      repeatBtn.innerHTML = ICONS.repeat;
+      repeatBtn.title = "Повтор: выкл";
+    }
+  }
 
   function openModal(title: string, text: string): void {
+    modalMode = "text";
     modalTitle.textContent = title;
+    modalBody.className = "modal-body";
     modalBody.textContent = text;
     modalText = text;
+    modalCopy.hidden = false;
+    modal.hidden = false;
+  }
+
+  function openQueueModal(): void {
+    modalMode = "queue";
+    const q = player.getQueue();
+    modalTitle.textContent = "Очередь";
+    modalCopy.hidden = true;
+    if (!q.length) {
+      modalBody.className = "modal-body";
+      modalBody.textContent = "Очередь пуста — выбери трек.";
+      modal.hidden = false;
+      return;
+    }
+    modalBody.className = "modal-body modal-queue";
+    modalBody.innerHTML = q
+      .map((t, i) => {
+        const on = t.id === (activeId ?? focusId);
+        return `<button type="button" class="queue-item${on ? " is-on" : ""}" data-qid="${escapeHtml(t.id)}">
+          <span class="queue-num">${String(i + 1).padStart(2, "0")}</span>
+          <span class="queue-meta">
+            <strong>${escapeHtml(t.title)}</strong>
+            <em>${escapeHtml(t.artist)}</em>
+          </span>
+          <span class="queue-dur">${formatDuration(t.durationSec)}</span>
+        </button>`;
+      })
+      .join("");
+    modalBody.querySelectorAll<HTMLButtonElement>("[data-qid]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const id = btn.getAttribute("data-qid");
+        const track = tracks.find((t) => t.id === id);
+        if (!track) return;
+        player.setQueue(filtered().length ? filtered() : tracks);
+        void player.play(track);
+        closeModal();
+      });
+    });
     modal.hidden = false;
   }
 
   function closeModal(): void {
     modal.hidden = true;
+    modalMode = "text";
   }
 
   app.querySelectorAll("[data-modal-close], [data-modal-close2]").forEach((el) => {
@@ -231,13 +320,13 @@ function render(tracks: Track[]): void {
     if (e.target === modal) closeModal();
   });
   app.querySelector<HTMLButtonElement>("[data-modal-copy]")!.addEventListener("click", async () => {
+    if (modalMode !== "text") return;
     try {
       await navigator.clipboard.writeText(modalText);
-      const btn = app.querySelector<HTMLButtonElement>("[data-modal-copy]")!;
-      const prev = btn.textContent;
-      btn.textContent = "Скопировано";
+      const prev = modalCopy.textContent;
+      modalCopy.textContent = "Скопировано";
       setTimeout(() => {
-        btn.textContent = prev;
+        modalCopy.textContent = prev;
       }, 1200);
     } catch {
       /* ignore */
@@ -264,17 +353,20 @@ function render(tracks: Track[]): void {
       paintLyrics();
       paintDeco();
     },
-    onTime: (current, duration) => {
-      t0.textContent = formatDuration(current);
-      t1.textContent = formatDuration(duration || 0);
-      if (!duration || seeking) return;
-      const ratio = current / duration;
-      seekEl.value = String(Math.round(ratio * 1000));
-      waveFill.style.width = `${ratio * 100}%`;
+    onTime: (cur, dur) => {
+      if (!seeking) {
+        const ratio = dur > 0 ? cur / dur : 0;
+        seekEl.value = String(Math.round(ratio * 1000));
+        waveFill.style.width = `${ratio * 100}%`;
+      }
+      t0.textContent = formatDuration(Math.floor(cur));
+      t1.textContent = formatDuration(Math.floor(dur || 0));
     },
+    onMode: paintModes,
   });
-
-  player.setVolume(0.88);
+  player.setQueue(tracks);
+  player.setVolume(Number(volEl.value) / 100);
+  paintModes(false, "off");
 
   const filtered = (): Track[] => tracks.filter((t) => matchesQuery(t, query));
 
@@ -447,9 +539,17 @@ function render(tracks: Track[]): void {
     player.toggle(track);
   });
   app.querySelector<HTMLButtonElement>("[data-prev]")!.addEventListener("click", () => player.prev());
-  app.querySelector<HTMLButtonElement>("[data-next]")!.addEventListener("click", () => player.next());
-  app.querySelector<HTMLButtonElement>("[data-queue]")!.addEventListener("click", () => {
-    document.getElementById("tracks")?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  app.querySelector<HTMLButtonElement>("[data-next]")!.addEventListener("click", () => player.next(true));
+  shuffleBtn.addEventListener("click", () => {
+    player.setQueue(filtered().length ? filtered() : tracks);
+    player.toggleShuffle();
+  });
+  repeatBtn.addEventListener("click", () => {
+    player.toggleRepeat();
+  });
+  queueBtn.addEventListener("click", () => {
+    player.setQueue(filtered().length ? filtered() : tracks);
+    openQueueModal();
   });
 
   volEl.addEventListener("input", () => player.setVolume(Number(volEl.value) / 100));
