@@ -1,4 +1,5 @@
 import "./styles.css";
+import { BeatMotion } from "./lib/beat";
 import { AudioPlayer, type RepeatMode } from "./lib/player";
 import { applyTheme, getTheme, setTheme, toggleTheme } from "./lib/theme";
 import {
@@ -333,6 +334,7 @@ function render(tracks: Track[]): void {
     }
   });
 
+  const beat = new BeatMotion(app);
   const player = new AudioPlayer({
     onChange: (track, isPlaying) => {
       activeId = track?.id ?? null;
@@ -348,10 +350,16 @@ function render(tracks: Track[]): void {
       }
       toggleEl.innerHTML = isPlaying ? ICONS.pauseBig : ICONS.playBig;
       miniWave.classList.toggle("is-paused", !isPlaying);
+      app.classList.toggle("is-playing", isPlaying);
       paintHero();
       paintList();
       paintLyrics();
       paintDeco();
+      if (isPlaying) {
+        void beat.connect(player.media).then(() => beat.start());
+      } else {
+        beat.stop();
+      }
     },
     onTime: (cur, dur) => {
       if (!seeking) {
@@ -431,8 +439,11 @@ function render(tracks: Track[]): void {
   function paintDeco(): void {
     const track = currentTrack();
     decoEl.innerHTML = `
-      <img class="char-art" src="${assetUrl("character.png")}" alt="" />
+      <div class="char-stage">
+        <img class="char-art" src="${assetUrl("character.png")}" alt="" draggable="false" />
+      </div>
       <div class="deco-vignette"></div>
+      <div class="deco-pulse" aria-hidden="true"></div>
       <div class="deco-tag">${escapeHtml(track?.title ?? "Music_Z")}</div>
     `;
   }

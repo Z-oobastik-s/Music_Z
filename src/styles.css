@@ -439,6 +439,15 @@ button img, a img {
   min-height: 0;
   height: 100%;
 }
+.char-stage {
+  position: absolute;
+  inset: -2%;
+  transform-origin: 50% 70%;
+  will-change: transform;
+  transform: translate3d(calc(var(--beat-x, 0) * 1px), calc(var(--beat-y, 0) * 1px), 0)
+    scale(calc(1 + var(--beat-scale, 0)));
+  transition: transform 0.05s linear;
+}
 .deco-panel .char-art {
   position: absolute;
   inset: 0;
@@ -446,12 +455,28 @@ button img, a img {
   height: 100%;
   object-fit: cover;
   object-position: 48% 10%;
+  transform-origin: 50% 40%;
+}
+#app.is-alive .char-art {
+  animation: char-breathe 4.8s ease-in-out infinite;
 }
 .deco-vignette {
   position: absolute;
   inset: 0;
   background: linear-gradient(180deg, transparent 62%, rgba(0, 0, 0, 0.75) 100%);
   pointer-events: none;
+  z-index: 1;
+}
+/* Мягкий «дыхательный» ореол без glow/вспышек — только лёгкое затемнение краёв */
+.deco-pulse {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: calc(var(--bass, 0) * 0.22);
+  background:
+    radial-gradient(ellipse at 50% 35%, transparent 35%, rgba(0, 0, 0, 0.35) 100%);
+  transition: opacity 0.08s linear;
 }
 .deco-tag {
   position: absolute;
@@ -465,6 +490,38 @@ button img, a img {
   text-shadow: 0 1px 4px #000;
   letter-spacing: 0.05em;
   text-align: center;
+  transform: translate3d(0, calc(var(--beat-y, 0) * -0.25px), 0);
+}
+@keyframes char-breathe {
+  0%, 100% { transform: scale(1) translate3d(0, 0, 0); }
+  50% { transform: scale(1.012) translate3d(0, -1.5px, 0); }
+}
+
+/* Лёгкий отклик волны плеера и сайдбара */
+#app.is-alive .wave-bars {
+  opacity: calc(0.22 + var(--beat, 0) * 0.18);
+}
+#app.is-alive .wave-fill .wave-bars {
+  opacity: calc(0.85 + var(--beat, 0) * 0.15);
+}
+#app.is-alive .mini-wave i {
+  animation: none;
+  height: 14px !important;
+  transform-origin: bottom center;
+  transform: scaleY(calc(0.4 + var(--bass, 0) * 1.1));
+}
+#app.is-alive .player-ctrl .play-main {
+  transform: scale(calc(1 + var(--bass, 0) * 0.04));
+  transition: transform 0.08s linear;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #app.is-alive .char-art { animation: none; }
+  .char-stage,
+  .deco-tag,
+  #app.is-alive .player-ctrl .play-main {
+    transform: none !important;
+  }
 }
 
 .panel-head {

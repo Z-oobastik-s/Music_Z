@@ -174,4 +174,9 @@ export class AudioPlayer {
   setVolume(v: number): void {
     this.audio.volume = Math.min(1, Math.max(0, v));
   }
+
+  /** For Web Audio analyser — one MediaElementSource per element. */
+  get media(): HTMLAudioElement {
+    return this.audio;
+  }
 }
