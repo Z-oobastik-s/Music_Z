@@ -7,7 +7,18 @@
     "durationSec": 184,
     "tags": ["ambient", "chill", "night"],
     "cover": "covers/aurora.svg",
-    "src": "tracks/silence.mp3"
+    "src": "tracks/silence.mp3",
+    "lyrics": [
+      "Тишина растёт волной,",
+      "Свет Aurora тает в ночи.",
+      "Город спит — мы на грани сна,",
+      "И пульс неоновой реки.",
+      "",
+      "Широкое стерео ведёт вперёд,",
+      "Сквозь туман и холодный ветер.",
+      "Drift — и мир становится проще,",
+      "Когда внутри горит ответ."
+    ]
   },
   {
     "id": "demo-pulse",
@@ -17,7 +28,18 @@
     "durationSec": 212,
     "tags": ["electronic", "bass", "focus"],
     "cover": "covers/pulse.svg",
-    "src": "tracks/silence.mp3"
+    "src": "tracks/silence.mp3",
+    "lyrics": [
+      "City Pulse — сердце метро,",
+      "Бас бьёт в грудь, как красный свет.",
+      "Сэмплы режут воздух пополам,",
+      "Gridline держит свой секрет.",
+      "",
+      "Focus mode — без лишних слов,",
+      "Только ритм и чёрный фон.",
+      "Pulse, pulse — не останавливай,",
+      "Пока горит неон."
+    ]
   },
   {
     "id": "demo-ember",
@@ -27,6 +49,17 @@
     "durationSec": 156,
     "tags": ["acoustic", "calm", "indie"],
     "cover": "covers/ember.svg",
-    "src": "tracks/silence.mp3"
+    "src": "tracks/silence.mp3",
+    "lyrics": [
+      "Ember Walk по старым полам,",
+      "Гитара шепчет о былом.",
+      "Шум комнаты — как тёплый плед,",
+      "Low Tide ведёт за собой.",
+      "",
+      "Calm indie в красном свете,",
+      "Тихий walk без спешки.",
+      "Угольки памяти горят,",
+      "В конце дорожки."
+    ]
   }
 ]

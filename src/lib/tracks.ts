@@ -7,6 +7,7 @@ export type Track = {
   tags: string[];
   cover: string;
   src: string;
+  lyrics?: string[];
 };
 
 export function formatDuration(totalSec: number): string {
@@ -38,4 +39,14 @@ export function escapeHtml(value: string): string {
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;");
+}
+
+export function defaultLyrics(track: Track): string[] {
+  if (track.lyrics?.length) return track.lyrics;
+  return [
+    track.description,
+    "",
+    `[ ${track.artist} ]`,
+    track.tags.map((t) => `#${t}`).join("  "),
+  ].filter(Boolean);
 }

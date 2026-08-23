@@ -3,19 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Music_Z — библиотека треков с поиском и прослушиванием." />
+    <meta name="description" content="Music_Z — личная музыкальная библиотека." />
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <title>Music_Z</title>
     <script>
       (() => {
         try {
           const t = localStorage.getItem("music_z_theme");
-          const theme =
-            t === "light" || t === "dark"
-              ? t
-              : matchMedia("(prefers-color-scheme: light)").matches
-                ? "light"
-                : "dark";
+          const theme = t === "light" || t === "dark" ? t : "dark";
           document.documentElement.dataset.theme = theme;
           document.documentElement.style.colorScheme = theme;
         } catch (_) {}
@@ -24,7 +19,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&family=Space+Grotesk:wght@600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
   </head>
