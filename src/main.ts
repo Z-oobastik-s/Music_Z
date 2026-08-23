@@ -535,8 +535,10 @@ function render(tracks: Track[]): void {
     const track = currentTrack();
     let stage = decoEl.querySelector<HTMLElement>("[data-char-stage]");
     if (!stage) {
+      const marks = Array.from({ length: 24 }, () => "<span>Zoobastiks</span>").join("");
       decoEl.innerHTML = `
         <div class="char-stage" data-char-stage></div>
+        <div class="deco-mark" aria-hidden="true"><div class="deco-mark-grid">${marks}</div></div>
         <div class="deco-vignette"></div>
         <div class="deco-pulse" aria-hidden="true"></div>
         <div class="deco-tag" data-deco-tag></div>

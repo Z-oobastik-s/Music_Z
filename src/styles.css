@@ -531,18 +531,50 @@ button img, a img {
 .deco-panel .char-art.is-incoming {
   z-index: 2;
 }
+.deco-mark {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.deco-mark-grid {
+  position: absolute;
+  left: -55%;
+  top: -40%;
+  width: 210%;
+  height: 180%;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2.4rem 1.2rem;
+  transform: rotate(-28deg);
+  opacity: 0.11;
+  color: #e10600;
+  font-family: "Bebas Neue", sans-serif;
+  font-size: clamp(0.85rem, 1.6vw, 1.15rem);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  text-shadow: 0 0 1px rgba(0, 0, 0, 0.35);
+}
+.deco-mark-grid span {
+  white-space: nowrap;
+  text-align: center;
+  line-height: 1;
+}
 .deco-vignette {
   position: absolute;
   inset: 0;
   background: linear-gradient(180deg, transparent 58%, rgba(0, 0, 0, 0.78) 100%);
   pointer-events: none;
-  z-index: 1;
+  z-index: 2;
 }
 .deco-pulse {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  z-index: 1;
+  z-index: 2;
   opacity: calc(0.03 + var(--kick, 0) * 0.2 + var(--bass, 0) * 0.1);
   background:
     radial-gradient(ellipse at 50% 55%, rgba(225, 6, 0, calc(var(--kick, 0) * 0.12)) 0%, transparent 55%),
@@ -553,7 +585,7 @@ button img, a img {
   bottom: 0.65rem;
   left: 0.55rem;
   right: 0.55rem;
-  z-index: 2;
+  z-index: 3;
   font-family: "Bebas Neue", sans-serif;
   font-size: 1.05rem;
   color: var(--accent);
