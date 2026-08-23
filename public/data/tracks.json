@@ -1,0 +1,32 @@
+[
+  {
+    "id": "demo-aurora",
+    "title": "Aurora Drift",
+    "artist": "Studio North",
+    "description": "Мягкий ambient с широким стерео — для работы и ночных поездок.",
+    "durationSec": 184,
+    "tags": ["ambient", "chill", "night"],
+    "cover": "covers/aurora.svg",
+    "src": "tracks/silence.mp3"
+  },
+  {
+    "id": "demo-pulse",
+    "title": "City Pulse",
+    "artist": "Gridline",
+    "description": "Ритмичный electronic с акцентом на бас и короткие сэмплы.",
+    "durationSec": 212,
+    "tags": ["electronic", "bass", "focus"],
+    "cover": "covers/pulse.svg",
+    "src": "tracks/silence.mp3"
+  },
+  {
+    "id": "demo-ember",
+    "title": "Ember Walk",
+    "artist": "Low Tide",
+    "description": "Акустическая зарисовка: гитара, лёгкий шум комнаты, тёплый тембр.",
+    "durationSec": 156,
+    "tags": ["acoustic", "calm", "indie"],
+    "cover": "covers/ember.svg",
+    "src": "tracks/silence.mp3"
+  }
+]
