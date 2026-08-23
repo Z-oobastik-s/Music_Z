@@ -12,9 +12,13 @@ export const CHAR_FRAMES = [
 /** How long each expression stays visible (ms). Blink/closed are short beats. */
 const HOLD_MS = [4200, 220, 3800, 720, 4000];
 
+/** Fade-in only (old frame stays solid underneath — no dip to black). */
+const FADE_MS = 520;
+const FADE_BLINK_MS = 280;
+
 /**
- * Crossfades stacked character images to feel alive.
- * When music plays, cycles expressions; occasional blinks feel natural.
+ * Soft expression morph: new frame fades in on top of the old one.
+ * Never fades both out at once — no black flash.
  */
 export class CharacterCycle {
   private readonly a: HTMLImageElement;
@@ -45,7 +49,6 @@ export class CharacterCycle {
     this.a.classList.add("is-front");
     this.b.classList.add("is-back");
 
-    // Preload the rest
     for (const u of this.urls) {
       const pre = new Image();
       pre.src = u;
@@ -59,7 +62,7 @@ export class CharacterCycle {
     this.playing = on;
     this.clearTimer();
     if (on) this.arm();
-    else this.goTo(0, false);
+    else void this.goTo(0, false);
   }
 
   destroy(): void {
@@ -82,13 +85,11 @@ export class CharacterCycle {
   }
 
   private nextIndex(from: number): number {
-    // After open/soft/smirk → often a quick blink, else pick another expression
     const isHoldFace = from === 0 || from === 2 || from === 4;
-    if (isHoldFace && Math.random() < 0.55) return 1; // blink
+    if (isHoldFace && Math.random() < 0.55) return 1;
     if (from === 1) {
-      // blink resolves to closed sometimes, else back to a face
       if (Math.random() < 0.35) return 3;
-      const faces = [0, 2, 4].filter((i) => i !== from);
+      const faces = [0, 2, 4];
       return faces[Math.floor(Math.random() * faces.length)] ?? 0;
     }
     if (from === 3) {
@@ -109,18 +110,36 @@ export class CharacterCycle {
     this.arm();
   }
 
-  private goTo(to: number, animate: boolean): Promise<void> {
-    if (to === this.idx && animate) return Promise.resolve();
+  private waitDecode(img: HTMLImageElement): Promise<void> {
+    if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+    return new Promise((resolve) => {
+      const done = () => {
+        img.removeEventListener("load", done);
+        img.removeEventListener("error", done);
+        resolve();
+      };
+      img.addEventListener("load", done);
+      img.addEventListener("error", done);
+    });
+  }
+
+  private async goTo(to: number, animate: boolean): Promise<void> {
+    if (to === this.idx && animate) return;
     this.switching = true;
-    const back = this.frontIsA ? this.b : this.a;
-    const front = this.frontIsA ? this.a : this.b;
-    back.src = this.urls[to];
+
+    const incoming = this.frontIsA ? this.b : this.a;
+    const outgoing = this.frontIsA ? this.a : this.b;
+
+    incoming.src = this.urls[to];
+    await this.waitDecode(incoming);
 
     const finish = () => {
-      front.classList.remove("is-front");
-      front.classList.add("is-back");
-      back.classList.remove("is-back");
-      back.classList.add("is-front");
+      outgoing.classList.remove("is-front");
+      outgoing.classList.add("is-back");
+      incoming.classList.remove("is-incoming", "is-back");
+      incoming.classList.add("is-front");
+      incoming.style.transition = "";
+      incoming.style.opacity = "";
       this.frontIsA = !this.frontIsA;
       this.idx = to;
       this.switching = false;
@@ -128,23 +147,25 @@ export class CharacterCycle {
 
     if (!animate) {
       finish();
-      return Promise.resolve();
+      return;
     }
 
-    return new Promise((resolve) => {
-      // Force reflow then crossfade
-      back.style.opacity = "0";
-      requestAnimationFrame(() => {
-        back.classList.add("is-fading-in");
-        front.classList.add("is-fading-out");
-        window.setTimeout(() => {
-          back.classList.remove("is-fading-in");
-          front.classList.remove("is-fading-out");
-          back.style.opacity = "";
-          finish();
-          resolve();
-        }, 700);
-      });
-    });
+    const ms = to === 1 || this.idx === 1 || to === 3 || this.idx === 3 ? FADE_BLINK_MS : FADE_MS;
+
+    // Keep outgoing fully visible; only fade the new frame in on top.
+    outgoing.classList.add("is-front");
+    outgoing.classList.remove("is-back");
+    incoming.classList.remove("is-front");
+    incoming.classList.add("is-back", "is-incoming");
+    incoming.style.opacity = "0";
+    incoming.style.transition = "none";
+
+    await new Promise<void>((r) => requestAnimationFrame(() => requestAnimationFrame(() => r())));
+
+    incoming.style.transition = `opacity ${ms}ms ease-out`;
+    incoming.style.opacity = "1";
+
+    await new Promise<void>((r) => window.setTimeout(r, ms + 20));
+    finish();
   }
 }
