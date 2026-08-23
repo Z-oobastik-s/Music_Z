@@ -1,0 +1,45 @@
+# Local push / secrets (never publish)
+.push-token
+push.bat
+push.ps1
+*.bat
+.env
+.env.*
+!.env.example
+secrets/
+*.pem
+*.key
+
+# Dependencies & build
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# Logs & cache
+logs/
+*.log
+npm-debug.log*
+.npm
+.cache/
+.vite/
+
+# Editor / OS
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+
+# Cursor / agent junk
+.cursor/
+agent-transcripts/
+*.canvas.tsx
+
+# Local media drafts (site music lives in public/music)
+_local/
+temp/
+tmp/
