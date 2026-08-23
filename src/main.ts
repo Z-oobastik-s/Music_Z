@@ -21,15 +21,55 @@ import {
   type Track,
 } from "./lib/tracks";
 import { startAutoUpdate } from "./lib/update";
+import { prefetchMany } from "./lib/media-cache";
 
 const rootEl = document.querySelector<HTMLDivElement>("#app");
 if (!rootEl) throw new Error("#app missing");
 const app: HTMLDivElement = rootEl;
 
+const BUILD = typeof __BUILD_ID__ !== "undefined" ? __BUILD_ID__ : String(Date.now());
+
 applyTheme(getTheme());
 startAutoUpdate();
 
-/** Запрет drag / save картинок и случайного выделения */
+/** Service worker: instant revisits for tracks / art (production only). */
+function registerSw(): void {
+  if (!import.meta.env.PROD || !("serviceWorker" in navigator)) return;
+  const swUrl = `${import.meta.env.BASE_URL}sw.js?v=${encodeURIComponent(BUILD)}`;
+  void navigator.serviceWorker.register(swUrl).catch(() => {
+    /* private mode / blocked */
+  });
+}
+registerSw();
+
+/** Warm character frames into Cache API / memory after first paint */
+function warmCharacterCache(): void {
+  prefetchMany([
+    "character.png",
+    "characters/01-open.png",
+    "characters/02-blink.png",
+    "characters/03-soft.png",
+    "characters/04-closed.png",
+    "characters/05-smirk.png",
+    "characters/hair-00.png",
+    "characters/hair-01.png",
+    "characters/hair-02.png",
+    "characters/hair-03.png",
+    "characters/head-turn.png",
+    "characters/body-sway.png",
+    "characters/06-wind.png",
+    "characters/07-breath.png",
+    "hero-banner.png",
+    "logo.png",
+  ]);
+}
+if (typeof requestIdleCallback === "function") {
+  requestIdleCallback(() => warmCharacterCache(), { timeout: 2500 });
+} else {
+  window.setTimeout(warmCharacterCache, 1200);
+}
+
+/** Запрет drag / save картинок и ПКМ по всему сайту */
 document.addEventListener(
   "dragstart",
   (e) => {
@@ -43,15 +83,10 @@ document.addEventListener(
 document.addEventListener(
   "contextmenu",
   (e) => {
-    const t = e.target;
-    if (t instanceof HTMLImageElement || (t instanceof Element && t.closest("img, .deco-panel, .hero-art"))) {
-      e.preventDefault();
-    }
+    e.preventDefault();
   },
   true,
 );
-
-const BUILD = typeof __BUILD_ID__ !== "undefined" ? __BUILD_ID__ : String(Date.now());
 
 const ICONS = {
   home: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5L12 3l9 7.5V20a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1v-9.5z"/></svg>`,
@@ -394,8 +429,8 @@ function render(tracks: Track[]): void {
   paintModes(false, "off");
 
   async function armBeat(): Promise<void> {
+    // Only unlock / wire AudioContext — motion starts when audio is actually playing
     await beat.connect(player.media);
-    beat.start();
   }
 
   const filtered = (): Track[] => tracks.filter((t) => matchesQuery(t, query));

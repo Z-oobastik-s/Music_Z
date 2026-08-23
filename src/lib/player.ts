@@ -1,5 +1,5 @@
+import { getCachedMediaUrl, prefetchMedia } from "./media-cache";
 import type { Track } from "./tracks";
-import { assetUrl } from "./tracks";
 
 export type RepeatMode = "off" | "all" | "one";
 
@@ -33,6 +33,7 @@ export class AudioPlayer {
   private shuffleOn = false;
   private repeat: RepeatMode = "off";
   private readonly cb: PlayerCallbacks;
+  private playGen = 0;
 
   constructor(cb: PlayerCallbacks) {
     this.cb = cb;
@@ -42,7 +43,8 @@ export class AudioPlayer {
       this.cb.onTime(this.audio.currentTime, this.audio.duration || 0);
     });
     this.audio.addEventListener("ended", () => this.onEnded());
-    this.audio.addEventListener("play", () => this.cb.onChange(this.track, true));
+    // Only "playing" = actually outputting audio (not loading / armed)
+    this.audio.addEventListener("playing", () => this.cb.onChange(this.track, true));
     this.audio.addEventListener("pause", () => this.cb.onChange(this.track, false));
   }
 
@@ -51,7 +53,7 @@ export class AudioPlayer {
   }
 
   get playing(): boolean {
-    return !this.audio.paused;
+    return !this.audio.paused && !this.audio.ended;
   }
 
   get shuffle(): boolean {
@@ -98,16 +100,42 @@ export class AudioPlayer {
     return this.repeat;
   }
 
+  private prefetchNeighbors(): void {
+    if (!this.track || !this.queue.length) return;
+    const i = this.queue.findIndex((t) => t.id === this.track?.id);
+    if (i < 0) return;
+    const next = this.queue[i + 1] ?? (this.repeat === "all" ? this.queue[0] : undefined);
+    const prev = this.queue[i - 1] ?? (this.repeat === "all" ? this.queue[this.queue.length - 1] : undefined);
+    if (next) prefetchMedia(next.src);
+    if (prev && prev.id !== next?.id) prefetchMedia(prev.src);
+    if (this.track.cover) prefetchMedia(this.track.cover);
+  }
+
   async play(track: Track): Promise<void> {
+    const gen = ++this.playGen;
+
     if (this.track?.id !== track.id) {
+      this.audio.pause();
       this.track = track;
-      this.audio.src = assetUrl(track.src);
-      this.audio.load();
+      this.cb.onChange(track, false);
+
+      try {
+        const url = await getCachedMediaUrl(track.src);
+        if (gen !== this.playGen || this.track?.id !== track.id) return;
+        this.audio.src = url;
+        this.audio.load();
+      } catch {
+        if (gen !== this.playGen) return;
+        this.cb.onChange(this.track, false);
+        return;
+      }
     }
+
     try {
       await this.audio.play();
+      if (gen === this.playGen) this.prefetchNeighbors();
     } catch {
-      this.cb.onChange(this.track, false);
+      if (gen === this.playGen) this.cb.onChange(this.track, false);
     }
   }
 

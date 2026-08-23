@@ -9,6 +9,7 @@ export class BeatMotion {
   private analyser: AnalyserNode | null = null;
   private freq: Uint8Array | null = null;
   private time: Uint8Array | null = null;
+  private mediaEl: HTMLAudioElement | null = null;
   private raf = 0;
   private enabled = false;
   private sampleRate = 44100;
@@ -31,6 +32,7 @@ export class BeatMotion {
   }
 
   async connect(audio: HTMLAudioElement): Promise<void> {
+    this.mediaEl = audio;
     if (this.src && this.analyser) {
       await this.resume();
       return;
@@ -246,7 +248,25 @@ export class BeatMotion {
     }
 
     let { bass, mid, voice, energy, onset, alive } = this.read();
+
+    const audioLive =
+      !!this.mediaEl &&
+      !this.mediaEl.paused &&
+      !this.mediaEl.ended &&
+      this.mediaEl.readyState >= 2;
+
+    if (!audioLive) {
+      this.envBass = this.follow(this.envBass, 0, 0.5, 0.2);
+      this.envMid = this.follow(this.envMid, 0, 0.5, 0.2);
+      this.envVoice = this.follow(this.envVoice, 0, 0.5, 0.2);
+      this.envEnergy = this.follow(this.envEnergy, 0, 0.5, 0.2);
+      this.kick *= 0.7;
+      this.apply(0, 0, 0, 0, 0);
+      return;
+    }
+
     if (!alive) {
+      // Real playback but analyser quiet (intro / decode) — soft fallback only then
       ({ bass, mid, voice, energy, onset } = this.fallback());
     }
 
