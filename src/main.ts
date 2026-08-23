@@ -1,6 +1,6 @@
 import "./styles.css";
 import { AudioPlayer } from "./lib/player";
-import { applyTheme, getTheme, setTheme } from "./lib/theme";
+import { applyTheme, getTheme, setTheme, toggleTheme } from "./lib/theme";
 import {
   assetUrl,
   defaultLyrics,
@@ -88,9 +88,18 @@ function render(tracks: Track[]): void {
             ${ICONS.search}
             <input type="search" placeholder="Поиск трека, артиста…" data-search aria-label="Поиск" />
           </label>
-          <div class="theme-switch">
-            <button type="button" data-theme-pick="dark">☾ Тёмная</button>
-            <button type="button" data-theme-pick="light">☀ Светлая</button>
+          <div class="theme-switch" data-theme-root>
+            <span class="theme-label" data-theme-pick="dark">
+              <span class="theme-ico" aria-hidden="true">☾</span>
+              Тёмная
+            </span>
+            <button type="button" class="theme-toggle" data-theme-toggle aria-label="Сменить тему">
+              <span class="theme-knob"></span>
+            </button>
+            <span class="theme-label" data-theme-pick="light">
+              <span class="theme-ico" aria-hidden="true">☀</span>
+              Светлая
+            </span>
           </div>
         </header>
 
@@ -396,8 +405,11 @@ function render(tracks: Track[]): void {
     paintList();
   });
 
-  app.querySelectorAll<HTMLButtonElement>("[data-theme-pick]").forEach((btn) => {
-    btn.addEventListener("click", () => setTheme(btn.dataset.themePick as "dark" | "light"));
+  app.querySelectorAll<HTMLElement>("[data-theme-pick]").forEach((el) => {
+    el.addEventListener("click", () => setTheme(el.dataset.themePick as "dark" | "light"));
+  });
+  app.querySelector<HTMLButtonElement>("[data-theme-toggle]")!.addEventListener("click", () => {
+    toggleTheme();
   });
 
   app.querySelector<HTMLButtonElement>("[data-menu]")!.addEventListener("click", () => {

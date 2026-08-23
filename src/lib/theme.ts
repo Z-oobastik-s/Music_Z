@@ -12,8 +12,9 @@ export function applyTheme(theme: Theme): void {
   document.documentElement.dataset.theme = theme;
   document.documentElement.style.colorScheme = theme;
   localStorage.setItem(KEY, theme);
-  document.querySelectorAll<HTMLButtonElement>("[data-theme-pick]").forEach((btn) => {
-    btn.classList.toggle("is-on", btn.dataset.themePick === theme);
+
+  document.querySelectorAll<HTMLElement>("[data-theme-root]").forEach((root) => {
+    root.dataset.theme = theme;
   });
 }
 
