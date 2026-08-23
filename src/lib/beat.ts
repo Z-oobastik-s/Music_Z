@@ -95,28 +95,32 @@ export class BeatMotion {
     };
   }
 
-  /** Visible pulse even if WebAudio analysis is blocked (CORS / reduced data). */
+  /** Soft pulse if WebAudio analysis is blocked. */
   private fallback(): { bass: number; mid: number; energy: number } {
     const t = this.t * 0.001;
-    // ~145 BPM kick feel + slower sway
-    const kick = Math.pow(Math.max(0, Math.sin(t * Math.PI * 4.83)), 8);
-    const sway = 0.35 + 0.65 * (0.5 + 0.5 * Math.sin(t * 1.7));
-    const bass = Math.min(1, kick * 0.95 + sway * 0.25);
-    return { bass, mid: sway * 0.55, energy: 0.35 + kick * 0.45 };
+    const kick = Math.pow(Math.max(0, Math.sin(t * Math.PI * 4.83)), 10);
+    const sway = 0.45 + 0.55 * (0.5 + 0.5 * Math.sin(t * 1.35));
+    return {
+      bass: Math.min(1, kick * 0.55 + sway * 0.35),
+      mid: sway * 0.4,
+      energy: 0.28 + kick * 0.25,
+    };
   }
 
   private apply(beat: number, bass: number, energy: number): void {
-    const breathe = this.enabled ? 0.5 + 0.5 * Math.sin(this.t * 0.002) : 0;
-    const y = -(bass * 10 + breathe * 3.5);
-    const x = Math.sin(this.t * 0.0011) * (2.5 + energy * 4);
-    const scale = beat * 0.035 + breathe * 0.012;
+    const breathe = this.enabled ? 0.5 + 0.5 * Math.sin(this.t * 0.00135) : 0;
+    // Soft lift + micro-scale only — no sideways jump
+    const lift = -(bass * 2.4 + breathe * 1.4);
+    const scale = beat * 0.012 + breathe * 0.008;
+    const tilt = Math.sin(this.t * 0.00075) * (0.12 + energy * 0.18);
 
     this.root.style.setProperty("--beat", beat.toFixed(3));
     this.root.style.setProperty("--bass", bass.toFixed(3));
     this.root.style.setProperty("--energy", energy.toFixed(3));
-    this.root.style.setProperty("--beat-x", x.toFixed(2));
-    this.root.style.setProperty("--beat-y", y.toFixed(2));
+    this.root.style.setProperty("--beat-x", "0");
+    this.root.style.setProperty("--beat-y", lift.toFixed(2));
     this.root.style.setProperty("--beat-scale", scale.toFixed(4));
+    this.root.style.setProperty("--beat-tilt", tilt.toFixed(3));
   }
 
   private tick = (): void => {
