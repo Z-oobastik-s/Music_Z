@@ -65,15 +65,16 @@ function render(tracks: Track[]): void {
       <aside class="side" data-side>
         <div class="side-logo">Music_Z</div>
         <ul class="nav">
-          <li><button type="button" class="is-on" data-nav="home">${ICONS.home} Главная</button></li>
-          <li><button type="button" data-nav="music">${ICONS.music} Музыка</button></li>
-          <li><button type="button" data-nav="playlists">${ICONS.list} Плейлисты</button></li>
-          <li><button type="button" data-nav="artists">${ICONS.user} Артисты</button></li>
-          <li><button type="button" data-nav="downloads">${ICONS.down} Загрузки</button></li>
-          <li><button type="button" data-nav="info">${ICONS.info} Инфо</button></li>
+          <li><button type="button" class="is-on" data-nav="home"><span class="nav-ico">${ICONS.home}</span> Главная</button></li>
+          <li><button type="button" data-nav="music"><span class="nav-ico">${ICONS.music}</span> Музыка</button></li>
+          <li><button type="button" data-nav="playlists"><span class="nav-ico">${ICONS.list}</span> Плейлисты</button></li>
+          <li><button type="button" data-nav="artists"><span class="nav-ico">${ICONS.user}</span> Артисты</button></li>
+          <li><button type="button" data-nav="downloads"><span class="nav-ico">${ICONS.down}</span> Загрузки</button></li>
+          <li><button type="button" data-nav="info"><span class="nav-ico">${ICONS.info}</span> Инфо</button></li>
         </ul>
         <div class="side-foot">
           <div class="mini-wave" data-mini-wave>${waveBars(5)}</div>
+          <div class="barcode" aria-hidden="true"></div>
           © ${new Date().getFullYear()} Music_Z
         </div>
       </aside>
@@ -86,25 +87,25 @@ function render(tracks: Track[]): void {
             <input type="search" placeholder="Поиск трека, артиста…" data-search aria-label="Поиск" />
           </label>
           <div class="theme-switch">
-            <button type="button" data-theme-pick="dark">Тёмная</button>
-            <button type="button" data-theme-pick="light">Светлая</button>
+            <button type="button" data-theme-pick="dark">☾ Тёмная</button>
+            <button type="button" data-theme-pick="light">☀ Светлая</button>
           </div>
         </header>
 
         <div class="grid">
-          <section class="hero" data-hero></section>
+          <section class="hero kit-box" data-hero></section>
 
-          <section class="tracks-panel" id="tracks">
+          <section class="tracks-panel kit-box" id="tracks">
             <div class="panel-head">Популярные треки <span data-count></span></div>
             <ul class="track-list" data-list></ul>
           </section>
 
-          <aside class="lyrics-panel">
+          <aside class="lyrics-panel kit-box">
             <div class="panel-head">Текст песни</div>
             <div class="lyrics-body" data-lyrics></div>
           </aside>
 
-          <aside class="deco-panel" data-deco></aside>
+          <aside class="deco-panel kit-box" data-deco></aside>
         </div>
       </div>
     </div>
@@ -210,8 +211,11 @@ function render(tracks: Track[]): void {
     }
     const on = activeId === track.id && playing;
     heroEl.innerHTML = `
-      <h2 class="hero-title">${escapeHtml(track.title)}</h2>
-      <p class="hero-sub">${escapeHtml(track.artist)} · ${formatDuration(track.durationSec)}</p>
+      <div class="hero-splatter" aria-hidden="true"></div>
+      <h1 class="brand-hero">Music_Z</h1>
+      <p class="hero-track">
+        Сейчас: <strong>${escapeHtml(track.title)}</strong> · <em>${escapeHtml(track.artist)}</em> · ${formatDuration(track.durationSec)}
+      </p>
       <div class="hero-actions">
         <button type="button" class="btn btn-fill" data-hero-play>${on ? "Пауза" : "Воспроизвести"}</button>
         <a class="btn btn-line" href="${assetUrl(track.src)}" download="${escapeHtml(track.title)}.mp3">${ICONS.dl} Скачать</a>
@@ -256,11 +260,13 @@ function render(tracks: Track[]): void {
   function paintDeco(): void {
     const track = currentTrack();
     if (!track) {
-      decoEl.innerHTML = "";
+      decoEl.innerHTML = `<img class="deco-bg" src="${assetUrl("deco-bg.svg")}" alt="" />`;
       return;
     }
     decoEl.innerHTML = `
-      <img src="${assetUrl(track.cover)}" alt="" />
+      <img class="deco-bg" src="${assetUrl("deco-bg.svg")}" alt="" />
+      <img class="deco-cover" src="${assetUrl(track.cover)}" alt="" />
+      <div class="deco-vignette"></div>
       <div class="deco-tag">${escapeHtml(track.title)}</div>
     `;
   }
