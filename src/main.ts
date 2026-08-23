@@ -376,6 +376,11 @@ function render(tracks: Track[]): void {
   player.setVolume(Number(volEl.value) / 100);
   paintModes(false, "off");
 
+  async function armBeat(): Promise<void> {
+    await beat.connect(player.media);
+    beat.start();
+  }
+
   const filtered = (): Track[] => tracks.filter((t) => matchesQuery(t, query));
 
   const currentTrack = (): Track | undefined =>
@@ -402,7 +407,7 @@ function render(tracks: Track[]): void {
     `;
     heroEl.querySelector<HTMLButtonElement>("[data-hero-play]")!.onclick = () => {
       player.setQueue(filtered().length ? filtered() : tracks);
-      player.toggle(track);
+      void armBeat().then(() => player.toggle(track));
     };
     heroEl.querySelector<HTMLButtonElement>("[data-hero-next]")!.onclick = () => {
       player.setQueue(filtered().length ? filtered() : tracks);
@@ -519,7 +524,7 @@ function render(tracks: Track[]): void {
     const track = tracks.find((t) => t.id === id);
     if (!track) return;
     player.setQueue(filtered().length ? filtered() : tracks);
-    player.toggle(track);
+    void armBeat().then(() => player.toggle(track));
   });
 
   searchEl.addEventListener("input", () => {
@@ -547,10 +552,14 @@ function render(tracks: Track[]): void {
     const track = player.current ?? filtered()[0] ?? tracks[0];
     if (!track) return;
     player.setQueue(filtered().length ? filtered() : tracks);
-    player.toggle(track);
+    void armBeat().then(() => player.toggle(track));
   });
-  app.querySelector<HTMLButtonElement>("[data-prev]")!.addEventListener("click", () => player.prev());
-  app.querySelector<HTMLButtonElement>("[data-next]")!.addEventListener("click", () => player.next(true));
+  app.querySelector<HTMLButtonElement>("[data-prev]")!.addEventListener("click", () => {
+    void armBeat().then(() => player.prev());
+  });
+  app.querySelector<HTMLButtonElement>("[data-next]")!.addEventListener("click", () => {
+    void armBeat().then(() => player.next(true));
+  });
   shuffleBtn.addEventListener("click", () => {
     player.setQueue(filtered().length ? filtered() : tracks);
     player.toggleShuffle();

@@ -37,6 +37,7 @@ export class AudioPlayer {
   constructor(cb: PlayerCallbacks) {
     this.cb = cb;
     this.audio.preload = "metadata";
+    this.audio.crossOrigin = "anonymous";
     this.audio.addEventListener("timeupdate", () => {
       this.cb.onTime(this.audio.currentTime, this.audio.duration || 0);
     });

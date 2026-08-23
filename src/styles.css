@@ -441,12 +441,11 @@ button img, a img {
 }
 .char-stage {
   position: absolute;
-  inset: -2%;
-  transform-origin: 50% 70%;
+  inset: -6%;
+  transform-origin: 50% 72%;
   will-change: transform;
   transform: translate3d(calc(var(--beat-x, 0) * 1px), calc(var(--beat-y, 0) * 1px), 0)
     scale(calc(1 + var(--beat-scale, 0)));
-  transition: transform 0.05s linear;
 }
 .deco-panel .char-art {
   position: absolute;
@@ -454,11 +453,11 @@ button img, a img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 48% 10%;
+  object-position: calc(48% + var(--beat-x, 0) * 0.35%) 10%;
   transform-origin: 50% 40%;
 }
 #app.is-alive .char-art {
-  animation: char-breathe 4.8s ease-in-out infinite;
+  animation: char-breathe 3.6s ease-in-out infinite;
 }
 .deco-vignette {
   position: absolute;
@@ -467,16 +466,14 @@ button img, a img {
   pointer-events: none;
   z-index: 1;
 }
-/* Мягкий «дыхательный» ореол без glow/вспышек — только лёгкое затемнение краёв */
 .deco-pulse {
   position: absolute;
   inset: 0;
   pointer-events: none;
   z-index: 1;
-  opacity: calc(var(--bass, 0) * 0.22);
+  opacity: calc(0.08 + var(--bass, 0) * 0.35);
   background:
-    radial-gradient(ellipse at 50% 35%, transparent 35%, rgba(0, 0, 0, 0.35) 100%);
-  transition: opacity 0.08s linear;
+    radial-gradient(ellipse at 50% 30%, transparent 28%, rgba(0, 0, 0, 0.45) 100%);
 }
 .deco-tag {
   position: absolute;
@@ -490,38 +487,32 @@ button img, a img {
   text-shadow: 0 1px 4px #000;
   letter-spacing: 0.05em;
   text-align: center;
-  transform: translate3d(0, calc(var(--beat-y, 0) * -0.25px), 0);
+  transform: translate3d(0, calc(var(--beat-y, 0) * -0.4px), 0);
 }
 @keyframes char-breathe {
   0%, 100% { transform: scale(1) translate3d(0, 0, 0); }
-  50% { transform: scale(1.012) translate3d(0, -1.5px, 0); }
+  50% { transform: scale(1.028) translate3d(0, -4px, 0); }
 }
 
 /* Лёгкий отклик волны плеера и сайдбара */
 #app.is-alive .wave-bars {
-  opacity: calc(0.22 + var(--beat, 0) * 0.18);
+  opacity: calc(0.2 + var(--beat, 0) * 0.28);
 }
 #app.is-alive .wave-fill .wave-bars {
-  opacity: calc(0.85 + var(--beat, 0) * 0.15);
+  opacity: calc(0.8 + var(--beat, 0) * 0.2);
 }
 #app.is-alive .mini-wave i {
   animation: none;
-  height: 14px !important;
+  height: 16px !important;
   transform-origin: bottom center;
-  transform: scaleY(calc(0.4 + var(--bass, 0) * 1.1));
+  transform: scaleY(calc(0.35 + var(--bass, 0) * 1.35));
 }
 #app.is-alive .player-ctrl .play-main {
-  transform: scale(calc(1 + var(--bass, 0) * 0.04));
-  transition: transform 0.08s linear;
+  transform: scale(calc(1 + var(--bass, 0) * 0.07));
 }
 
 @media (prefers-reduced-motion: reduce) {
-  #app.is-alive .char-art { animation: none; }
-  .char-stage,
-  .deco-tag,
-  #app.is-alive .player-ctrl .play-main {
-    transform: none !important;
-  }
+  #app.is-alive .char-art { animation: char-breathe 5.5s ease-in-out infinite; }
 }
 
 .panel-head {

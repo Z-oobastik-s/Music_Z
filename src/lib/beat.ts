@@ -1,4 +1,4 @@
-/** Subtle beat-linked motion. No flashes / glow. */
+/** Beat-linked motion for the UI. No flashes / neon glow. */
 
 export class BeatMotion {
   private ctx: AudioContext | null = null;
@@ -11,20 +11,40 @@ export class BeatMotion {
   private t = 0;
   private enabled = false;
   private readonly root: HTMLElement;
-  private audio: HTMLAudioElement | null = null;
 
   constructor(root: HTMLElement) {
     this.root = root;
   }
 
   async connect(audio: HTMLAudioElement): Promise<void> {
-    if (this.audio === audio && this.analyser) return;
-    this.audio = audio;
+    if (this.src && this.analyser) {
+      await this.resume();
+      return;
+    }
 
-    const AC = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    const AC =
+      window.AudioContext ||
+      (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
     if (!AC) return;
 
-    if (!this.ctx) this.ctx = new AC();
+    try {
+      if (!this.ctx) this.ctx = new AC();
+      await this.resume();
+
+      this.src = this.ctx.createMediaElementSource(audio);
+      this.analyser = this.ctx.createAnalyser();
+      this.analyser.fftSize = 512;
+      this.analyser.smoothingTimeConstant = 0.7;
+      this.src.connect(this.analyser);
+      this.analyser.connect(this.ctx.destination);
+      this.data = new Uint8Array(this.analyser.frequencyBinCount);
+    } catch {
+      /* fallback pulse still works without analyser */
+    }
+  }
+
+  private async resume(): Promise<void> {
+    if (!this.ctx) return;
     if (this.ctx.state === "suspended") {
       try {
         await this.ctx.resume();
@@ -32,22 +52,12 @@ export class BeatMotion {
         /* ignore */
       }
     }
-
-    if (!this.src) {
-      this.src = this.ctx.createMediaElementSource(audio);
-      this.analyser = this.ctx.createAnalyser();
-      this.analyser.fftSize = 256;
-      this.analyser.smoothingTimeConstant = 0.82;
-      this.src.connect(this.analyser);
-      this.analyser.connect(this.ctx.destination);
-      this.data = new Uint8Array(this.analyser.frequencyBinCount);
-    }
   }
 
   start(): void {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     this.enabled = true;
     this.root.classList.add("is-alive");
+    void this.resume();
     if (!this.raf) this.tick();
   }
 
@@ -70,8 +80,8 @@ export class BeatMotion {
     let bass = 0;
     let mid = 0;
     let all = 0;
-    const bEnd = Math.max(2, Math.floor(n * 0.08));
-    const mEnd = Math.max(bEnd + 1, Math.floor(n * 0.35));
+    const bEnd = Math.max(3, Math.floor(n * 0.1));
+    const mEnd = Math.max(bEnd + 1, Math.floor(n * 0.4));
     for (let i = 0; i < n; i++) {
       const v = this.data[i] / 255;
       all += v;
@@ -79,17 +89,27 @@ export class BeatMotion {
       else if (i < mEnd) mid += v;
     }
     return {
-      bass: Math.min(1, (bass / bEnd) * 1.35),
-      mid: Math.min(1, (mid / (mEnd - bEnd)) * 1.2),
-      energy: Math.min(1, (all / n) * 1.8),
+      bass: Math.min(1, (bass / bEnd) * 1.6),
+      mid: Math.min(1, (mid / (mEnd - bEnd)) * 1.35),
+      energy: Math.min(1, (all / n) * 2.2),
     };
   }
 
+  /** Visible pulse even if WebAudio analysis is blocked (CORS / reduced data). */
+  private fallback(): { bass: number; mid: number; energy: number } {
+    const t = this.t * 0.001;
+    // ~145 BPM kick feel + slower sway
+    const kick = Math.pow(Math.max(0, Math.sin(t * Math.PI * 4.83)), 8);
+    const sway = 0.35 + 0.65 * (0.5 + 0.5 * Math.sin(t * 1.7));
+    const bass = Math.min(1, kick * 0.95 + sway * 0.25);
+    return { bass, mid: sway * 0.55, energy: 0.35 + kick * 0.45 };
+  }
+
   private apply(beat: number, bass: number, energy: number): void {
-    const breathe = this.enabled ? Math.sin(this.t * 0.0016) * 0.5 + 0.5 : 0;
-    const y = -bass * 4.5 - breathe * 1.2;
-    const x = Math.sin(this.t * 0.0009) * (1.2 + energy * 1.5);
-    const scale = beat * 0.016 + breathe * 0.004;
+    const breathe = this.enabled ? 0.5 + 0.5 * Math.sin(this.t * 0.002) : 0;
+    const y = -(bass * 10 + breathe * 3.5);
+    const x = Math.sin(this.t * 0.0011) * (2.5 + energy * 4);
+    const scale = beat * 0.035 + breathe * 0.012;
 
     this.root.style.setProperty("--beat", beat.toFixed(3));
     this.root.style.setProperty("--bass", bass.toFixed(3));
@@ -106,10 +126,16 @@ export class BeatMotion {
       this.apply(0, 0, 0);
       return;
     }
-    const { bass, mid, energy } = this.read();
-    const target = Math.max(bass * 0.75 + mid * 0.2 + energy * 0.15, 0);
-    this.smooth += (target - this.smooth) * 0.18;
-    this.smoothBass += (bass - this.smoothBass) * 0.22;
+
+    let { bass, mid, energy } = this.read();
+    // If analyser is silent / blocked, drive a musical fallback so motion is always visible
+    if (bass + mid + energy < 0.04) {
+      ({ bass, mid, energy } = this.fallback());
+    }
+
+    const target = Math.min(1, bass * 0.7 + mid * 0.2 + energy * 0.2);
+    this.smooth += (target - this.smooth) * 0.28;
+    this.smoothBass += (bass - this.smoothBass) * 0.32;
     this.apply(this.smooth, this.smoothBass, energy);
   };
 }
