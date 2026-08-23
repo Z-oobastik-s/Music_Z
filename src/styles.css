@@ -53,17 +53,21 @@ a { color: inherit; text-decoration: none; }
   height: 100dvh;
   height: 100vh;
   overflow: hidden;
+  padding: var(--gap);
+  padding-bottom: calc(var(--player-h) + var(--gap));
+  gap: var(--gap);
+  box-sizing: border-box;
 }
 
-/* Sidebar */
+/* Sidebar — boxed, не уезжает под плеер/контент */
 .side {
-  border-right: 1px solid var(--line);
+  border: 1px solid var(--line);
   background: var(--panel);
   display: flex;
   flex-direction: column;
   padding: 0.75rem 0;
-  height: 100%;
   min-height: 0;
+  height: 100%;
   z-index: 40;
   overflow: hidden;
 }
@@ -157,7 +161,6 @@ a { color: inherit; text-decoration: none; }
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  padding-bottom: var(--player-h);
 }
 
 /* Search+theme | character side-by-side (character not under theme) */
@@ -167,7 +170,6 @@ a { color: inherit; text-decoration: none; }
   display: grid;
   grid-template-columns: minmax(0, 1fr) var(--deco-w);
   gap: var(--gap);
-  padding: var(--gap);
   overflow: hidden;
 }
 .stage-mid {
@@ -305,29 +307,21 @@ a { color: inherit; text-decoration: none; }
   border-bottom: 1px solid var(--line);
   overflow: hidden;
   background: #000;
-  padding: 0.4rem 0.75rem;
+  padding: 0;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
 }
-.hero-art::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(ellipse at 22% 50%, rgba(225, 6, 0, 0.1), transparent 50%);
-  pointer-events: none;
-  z-index: 1;
-}
+.hero-art::before { display: none; }
 
 .brand-hero {
   position: relative;
   z-index: 0;
+  width: 100%;
   height: 100%;
-  width: auto;
-  max-width: 100%;
   margin: 0;
   object-fit: contain;
-  object-position: left center;
+  object-position: center center;
 }
 
 .hero-foot {
@@ -432,6 +426,7 @@ a { color: inherit; text-decoration: none; }
   color: var(--accent);
   text-shadow: 0 1px 4px #000;
   letter-spacing: 0.05em;
+  text-align: center;
 }
 
 .panel-head {
@@ -486,7 +481,8 @@ a { color: inherit; text-decoration: none; }
 
 .num {
   font-family: "Bebas Neue", sans-serif;
-  font-size: 0.95rem;
+  font-size: 0.88rem;
+  font-weight: 400;
   color: var(--muted);
   text-align: center;
 }
@@ -500,20 +496,27 @@ a { color: inherit; text-decoration: none; }
 .track-meta { min-width: 0; }
 .track-meta h4 {
   margin: 0;
-  font-size: 0.82rem;
-  font-weight: 600;
+  font-size: 0.8rem;
+  font-weight: 400;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   color: var(--ink);
 }
-.track-item.is-on .track-meta h4 { color: var(--accent); }
+.track-item.is-on .track-meta h4 {
+  color: var(--accent);
+  font-weight: 500;
+}
 .track-meta p {
   margin: 0.05rem 0 0;
-  font-size: 0.68rem;
+  font-size: 0.66rem;
+  font-weight: 400;
   color: var(--muted);
 }
-.track-item.is-on .track-meta p { color: var(--accent); }
+.track-item.is-on .track-meta p {
+  color: var(--muted);
+  font-weight: 400;
+}
 .track-dur { font-size: 0.68rem; color: var(--muted); font-variant-numeric: tabular-nums; }
 
 .track-actions {
@@ -810,21 +813,27 @@ a { color: inherit; text-decoration: none; }
 .backdrop.is-open { display: block; }
 
 @media (max-width: 980px) {
-  .shell { grid-template-columns: 1fr; }
+  .shell {
+    grid-template-columns: 1fr;
+    height: auto;
+    min-height: 100dvh;
+    padding-bottom: calc(var(--player-h) + var(--gap));
+  }
   .side {
     position: fixed;
-    left: 0;
-    top: 0;
+    left: var(--gap);
+    top: var(--gap);
+    bottom: calc(var(--player-h) + var(--gap));
     width: min(240px, 88vw);
-    transform: translateX(-100%);
+    height: auto;
+    transform: translateX(calc(-100% - var(--gap)));
     transition: transform 0.2s ease;
     z-index: 45;
   }
   .side.is-open { transform: translateX(0); }
   .menu-btn { display: grid; place-items: center; }
   html, body, #app { overflow: auto; height: auto; }
-  .shell { height: auto; min-height: 100dvh; }
-  .main { height: auto; padding-bottom: calc(var(--player-h) + 8px); }
+  .main { height: auto; }
   .stage {
     grid-template-columns: 1fr;
     height: auto;
