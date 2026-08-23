@@ -82,39 +82,43 @@ function render(tracks: Track[]): void {
       </aside>
 
       <div class="main">
-        <header class="topbar">
-          <button type="button" class="menu-btn" data-menu aria-label="Меню">☰</button>
-          <label class="search-box">
-            ${ICONS.search}
-            <input type="search" placeholder="Поиск трека, артиста…" data-search aria-label="Поиск" />
-          </label>
-          <div class="theme-switch" data-theme-root>
-            <span class="theme-label" data-theme-pick="dark">
-              <span class="theme-ico" aria-hidden="true">☾</span>
-              Тёмная
-            </span>
-            <button type="button" class="theme-toggle" data-theme-toggle aria-label="Сменить тему">
-              <span class="theme-knob"></span>
-            </button>
-            <span class="theme-label" data-theme-pick="light">
-              <span class="theme-ico" aria-hidden="true">☀</span>
-              Светлая
-            </span>
+        <div class="stage">
+          <div class="stage-mid">
+            <header class="topbar kit-box">
+              <button type="button" class="menu-btn" data-menu aria-label="Меню">☰</button>
+              <label class="search-box">
+                ${ICONS.search}
+                <input type="search" placeholder="Поиск трека, артиста…" data-search aria-label="Поиск" />
+              </label>
+              <div class="theme-switch" data-theme-root>
+                <span class="theme-label" data-theme-pick="dark">
+                  <span class="theme-ico" aria-hidden="true">☾</span>
+                  Тёмная
+                </span>
+                <button type="button" class="theme-toggle" data-theme-toggle aria-label="Сменить тему">
+                  <span class="theme-knob"></span>
+                </button>
+                <span class="theme-label" data-theme-pick="light">
+                  <span class="theme-ico" aria-hidden="true">☀</span>
+                  Светлая
+                </span>
+              </div>
+            </header>
+
+            <div class="grid">
+              <section class="hero kit-box" data-hero></section>
+
+              <section class="tracks-panel kit-box" id="tracks">
+                <div class="panel-head">Популярные треки <span data-count></span></div>
+                <ul class="track-list" data-list></ul>
+              </section>
+
+              <aside class="lyrics-panel kit-box">
+                <div class="panel-head">Текст песни</div>
+                <div class="lyrics-body" data-lyrics></div>
+              </aside>
+            </div>
           </div>
-        </header>
-
-        <div class="grid">
-          <section class="hero kit-box" data-hero></section>
-
-          <section class="tracks-panel kit-box" id="tracks">
-            <div class="panel-head">Популярные треки <span data-count></span></div>
-            <ul class="track-list" data-list></ul>
-          </section>
-
-          <aside class="lyrics-panel kit-box">
-            <div class="panel-head">Текст песни</div>
-            <div class="lyrics-body" data-lyrics></div>
-          </aside>
 
           <aside class="deco-panel kit-box" data-deco></aside>
         </div>
