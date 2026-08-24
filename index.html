@@ -28,7 +28,45 @@
     />
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app">
+      <p class="boot-splash" data-boot-splash style="margin:0;padding:2rem;font-family:system-ui,sans-serif;color:#8a8a8a;text-align:center">
+        Загрузка Music_Z…
+      </p>
+    </div>
+    <script>
+      (() => {
+        const FAIL_MS = 9000;
+        window.setTimeout(async () => {
+          const app = document.getElementById("app");
+          if (!app) return;
+          if (app.querySelector(".shell") || app.querySelector("[data-boot-fail]")) return;
+          const splash = app.querySelector("[data-boot-splash]");
+          if (!splash && app.children.length > 0 && !app.querySelector(".shell")) {
+            /* maybe error already shown */
+          }
+          app.innerHTML =
+            '<div data-boot-fail style="padding:2rem;font-family:system-ui,sans-serif;color:#f0f0f0;text-align:center;max-width:28rem;margin:20vh auto">' +
+            "<p style=\"margin:0 0 1rem;color:#8a8a8a\">Сайт не загрузился (часто из‑за старого кэша).</p>" +
+            '<button type="button" id="mz-boot-repair" style="border:0;background:#e10600;color:#fff;padding:0.65rem 1.1rem;cursor:pointer;font:inherit">Сбросить кэш и обновить</button>' +
+            "</div>";
+          document.getElementById("mz-boot-repair")?.addEventListener("click", async () => {
+            try {
+              if ("serviceWorker" in navigator) {
+                const regs = await navigator.serviceWorker.getRegistrations();
+                await Promise.all(regs.map((r) => r.unregister()));
+              }
+              if (typeof caches !== "undefined") {
+                const keys = await caches.keys();
+                await Promise.all(
+                  keys.filter((k) => k.startsWith("music-z-")).map((k) => caches.delete(k)),
+                );
+              }
+            } catch (_) {}
+            location.reload();
+          });
+        }, FAIL_MS);
+      })();
+    </script>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

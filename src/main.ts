@@ -39,9 +39,14 @@ applyTheme(getTheme());
 function registerSw(): void {
   if (!import.meta.env.PROD || !("serviceWorker" in navigator)) return;
   const swUrl = `${import.meta.env.BASE_URL}sw.js?v=${encodeURIComponent(BUILD)}`;
-  void navigator.serviceWorker.register(swUrl).catch(() => {
-    /* private mode / blocked */
-  });
+  void navigator.serviceWorker
+    .register(swUrl)
+    .then((reg) => {
+      void reg.update();
+    })
+    .catch(() => {
+      /* private mode / blocked */
+    });
 }
 registerSw();
 
@@ -395,7 +400,10 @@ function render(tracks: Track[]): void {
     updateBar.hidden = false;
   });
   updateBar.querySelector<HTMLButtonElement>("[data-update-reload]")?.addEventListener("click", () => {
-    location.reload();
+    // Bypass possible stale SW HTML by hard navigation with cache bust
+    const u = new URL(location.href);
+    u.searchParams.set("_r", String(Date.now()));
+    location.replace(u.href);
   });
 
   let seeking = false;
@@ -1217,6 +1225,27 @@ function render(tracks: Track[]): void {
 
 loadTracks()
   .then(render)
-  .catch((err: unknown) => {
-    app.innerHTML = `<p class="empty">${err instanceof Error ? err.message : "Ошибка загрузки"}</p>`;
+  .catch(async (err: unknown) => {
+    const msg = err instanceof Error ? err.message : "Ошибка загрузки";
+    app.innerHTML = `<div class="boot-fail" data-boot-fail>
+      <p class="empty">${escapeHtml(msg)}</p>
+      <button type="button" class="btn btn-fill" data-boot-repair>Сбросить кэш и обновить</button>
+    </div>`;
+    app.querySelector("[data-boot-repair]")?.addEventListener("click", async () => {
+      try {
+        if ("serviceWorker" in navigator) {
+          const regs = await navigator.serviceWorker.getRegistrations();
+          await Promise.all(regs.map((r) => r.unregister()));
+        }
+        if (typeof caches !== "undefined") {
+          const keys = await caches.keys();
+          await Promise.all(
+            keys.filter((k) => k.startsWith("music-z-")).map((k) => caches.delete(k)),
+          );
+        }
+      } catch {
+        /* ignore */
+      }
+      location.reload();
+    });
   });

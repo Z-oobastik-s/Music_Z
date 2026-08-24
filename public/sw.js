@@ -1,14 +1,14 @@
 /**
- * Music_Z service worker — caches media & character art for instant revisits.
- * Shell cache is build-scoped; media cache is stable across deploys.
+ * Music_Z service worker
+ * - HTML / navigations: network-first (avoid black screen from stale index → missing hashed JS)
+ * - Hashed /assets/: cache-first (immutable filenames)
+ * - Media: stable cache across deploys
  */
 const BUILD = new URL(self.location.href).searchParams.get("v") || "dev";
 const SHELL = `music-z-shell-${BUILD}`;
 const MEDIA = "music-z-media-v1";
 
 const PRECACHE = [
-  "./",
-  "./index.html",
   "./favicon.svg",
   "./favicon.png",
   "./character.png",
@@ -38,7 +38,7 @@ self.addEventListener("install", (event) => {
         try {
           await cache.add(new URL(p, self.location.href).href);
         } catch {
-          /* skip missing asset — don't fail whole install */
+          /* skip missing */
         }
       }
       await self.skipWaiting();
@@ -55,7 +55,6 @@ self.addEventListener("activate", (event) => {
         keys
           .filter((k) => {
             if (k.startsWith("music-z-shell-") && k !== SHELL) return true;
-            // Drop legacy build-scoped media caches; keep stable MEDIA
             if (k.startsWith("music-z-media-") && k !== MEDIA) return true;
             return false;
           })
@@ -71,11 +70,8 @@ self.addEventListener("activate", (event) => {
  * @param {string} cacheName
  */
 async function cacheFirst(req, cacheName) {
+  if (req.headers.has("Range")) return fetch(req);
   const cache = await caches.open(cacheName);
-  // Never store partial responses as the only cache entry
-  if (req.headers.has("Range")) {
-    return fetch(req);
-  }
   const hit = await cache.match(req);
   if (hit) return hit;
   const res = await fetch(req);
@@ -90,6 +86,30 @@ async function cacheFirst(req, cacheName) {
 }
 
 /**
+ * Always try network first — critical for index.html after deploys.
+ * @param {Request} req
+ * @param {string} cacheName
+ */
+async function networkFirst(req, cacheName) {
+  const cache = await caches.open(cacheName);
+  try {
+    const res = await fetch(req, { cache: "no-store" });
+    if (res.ok) {
+      try {
+        await cache.put(req, res.clone());
+      } catch {
+        /* quota */
+      }
+    }
+    return res;
+  } catch {
+    const hit = await cache.match(req);
+    if (hit) return hit;
+    return new Response("Offline", { status: 503, statusText: "Offline" });
+  }
+}
+
+/**
  * @param {Request} req
  * @param {string} cacheName
  */
@@ -98,9 +118,7 @@ async function staleWhileRevalidate(req, cacheName) {
   const hit = await cache.match(req);
   const refreshing = fetch(req)
     .then((res) => {
-      if (res.ok) {
-        void cache.put(req, res.clone());
-      }
+      if (res.ok) void cache.put(req, res.clone());
       return res;
     })
     .catch(() => hit);
@@ -117,12 +135,10 @@ self.addEventListener("fetch", (event) => {
 
   const path = url.pathname;
 
-  // Never cache version / catalog — always fresh for updates
   if (path.endsWith("/version.json") || path.endsWith("/tracks.json")) {
     return;
   }
 
-  // Theme cats: SWR with query bust (?v=build)
   if (/mz-theme-cat/i.test(path)) {
     e.respondWith(staleWhileRevalidate(req, MEDIA));
     return;
@@ -137,7 +153,6 @@ self.addEventListener("fetch", (event) => {
     /\/logo\.png$/i.test(path) ||
     /\/favicon\.(svg|png)$/i.test(path)
   ) {
-    // Range requests (seek / progressive) must hit the network — cached 200 breaks 206
     if (path.includes("/tracks/") && req.headers.has("Range")) {
       e.respondWith(fetch(req));
       return;
@@ -146,10 +161,18 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // App shell (html / hashed assets under /assets/)
-  if (path.includes("/Music_Z/") || path.endsWith("/Music_Z")) {
-    if (path.includes("/assets/") || path.endsWith(".html") || path.endsWith("/Music_Z/")) {
-      e.respondWith(staleWhileRevalidate(req, SHELL));
-    }
+  const underApp = path.includes("/Music_Z/") || path.endsWith("/Music_Z");
+  if (!underApp) return;
+
+  // Navigation / HTML — never prefer stale shell (black screen after deploy)
+  const isNav = req.mode === "navigate" || path.endsWith(".html") || /\/Music_Z\/?$/.test(path);
+  if (isNav) {
+    e.respondWith(networkFirst(req, SHELL));
+    return;
+  }
+
+  // Hashed JS/CSS bundles
+  if (path.includes("/assets/")) {
+    e.respondWith(cacheFirst(req, SHELL));
   }
 });

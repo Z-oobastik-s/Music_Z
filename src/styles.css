@@ -1363,6 +1363,14 @@ button img, a img {
   margin: 0;
 }
 
+.boot-fail {
+  display: grid;
+  place-items: center;
+  gap: 0.85rem;
+  min-height: 50vh;
+  padding: 2rem 1rem;
+}
+
 /* Player — like UI kit: info | controls | waveform | time | volume */
 .player {
   position: fixed;
