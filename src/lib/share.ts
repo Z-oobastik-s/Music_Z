@@ -86,6 +86,21 @@ export function syncTrackInUrl(trackId: string, keepPlay = false): void {
   history.replaceState(null, "", url);
 }
 
+/** Remove track deep-link params from the address bar (e.g. when opening Home). */
+export function clearTrackInUrl(): void {
+  const url = new URL(window.location.href);
+  url.pathname = appPathname();
+  const dirty =
+    url.searchParams.has("track") ||
+    url.searchParams.has("t") ||
+    url.searchParams.has("play") ||
+    Boolean(url.hash);
+  if (!dirty) return;
+  url.search = "";
+  url.hash = "";
+  history.replaceState(null, "", url);
+}
+
 /** Embed snippet for other sites (iframe + API note). */
 export function trackEmbedSnippet(trackId: string, title: string): string {
   const src = trackShareUrl(trackId, true);

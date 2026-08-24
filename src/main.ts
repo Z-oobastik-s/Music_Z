@@ -3,6 +3,7 @@ import { BeatMotion } from "./lib/beat";
 import { CharacterCycle } from "./lib/character";
 import { AudioPlayer, type RepeatMode } from "./lib/player";
 import {
+  clearTrackInUrl,
   readDeepLink,
   syncTrackInUrl,
   telegramShareUrl,
@@ -17,6 +18,8 @@ import {
   defaultLyrics,
   escapeHtml,
   formatDuration,
+  formatTotalDuration,
+  sumDuration,
   matchesQuery,
   trackSource,
   type Track,
@@ -210,7 +213,7 @@ function render(tracks: Track[]): void {
 
               <div class="view view-page" data-view="music" hidden>
                 <section class="page-panel kit-box">
-                  <div class="panel-head">Вся музыка <span data-count-music></span></div>
+                  <div class="panel-head"><span data-music-title>Вся музыка</span> <span data-count-music></span></div>
                   <ul class="track-list" data-list-music></ul>
                 </section>
               </div>
@@ -343,6 +346,7 @@ function render(tracks: Track[]): void {
   const decoEl = app.querySelector<HTMLElement>("[data-deco]")!;
   const countEl = app.querySelector<HTMLElement>("[data-count]")!;
   const countMusicEl = app.querySelector<HTMLElement>("[data-count-music]")!;
+  const musicTitleEl = app.querySelector<HTMLElement>("[data-music-title]")!;
   const playlistsEl = app.querySelector<HTMLElement>("[data-playlists]")!;
   const artistsEl = app.querySelector<HTMLElement>("[data-artists]")!;
   const genresEl = app.querySelector<HTMLElement>("[data-genres]")!;
@@ -369,6 +373,9 @@ function render(tracks: Track[]): void {
   let modalText = "";
   let modalMode: "text" | "queue" = "text";
   type ViewId = "home" | "music" | "playlists" | "artists" | "genres" | "info";
+  let viewId: ViewId = "home";
+  let browseList: Track[] | null = null;
+  let browseTitle: string | null = null;
 
   function closeSide(): void {
     side.classList.remove("is-open");
@@ -376,6 +383,7 @@ function render(tracks: Track[]): void {
   }
 
   function setView(id: ViewId): void {
+    viewId = id;
     app.querySelectorAll<HTMLElement>("[data-view]").forEach((el) => {
       const on = el.dataset.view === id;
       el.classList.toggle("is-on", on);
@@ -384,6 +392,11 @@ function render(tracks: Track[]): void {
     app.querySelectorAll<HTMLButtonElement>("[data-nav]").forEach((btn) => {
       btn.classList.toggle("is-on", btn.dataset.nav === id);
     });
+    if (id === "home") {
+      browseList = null;
+      browseTitle = null;
+      clearTrackInUrl();
+    }
     if (id === "playlists") paintPlaylists();
     if (id === "artists") paintArtists();
     if (id === "genres") paintGenres();
@@ -396,6 +409,13 @@ function render(tracks: Track[]): void {
     player.setQueue(list);
     const t = start ?? list[0];
     void armBeat().then(() => player.play(t));
+  }
+
+  function openCollection(list: Track[], title: string): void {
+    browseList = list;
+    browseTitle = title;
+    playList(list);
+    setView("music");
   }
 
   function paintPlaylists(): void {
@@ -469,8 +489,7 @@ function render(tracks: Track[]): void {
         const id = btn.dataset.plist;
         const card = cards.find((c) => c.id === id);
         if (!card) return;
-        playList(card.list);
-        setView("music");
+        openCollection(card.list, card.title);
       });
     });
   }
@@ -507,9 +526,8 @@ function render(tracks: Track[]): void {
       btn.addEventListener("click", () => {
         const name = btn.dataset.artist;
         const list = name ? map.get(name) : undefined;
-        if (!list?.length) return;
-        playList(list);
-        setView("music");
+        if (!list?.length || !name) return;
+        openCollection(list, name);
       });
     });
   }
@@ -545,9 +563,8 @@ function render(tracks: Track[]): void {
       btn.addEventListener("click", () => {
         const tag = btn.dataset.genre;
         const list = tag ? map.get(tag) : undefined;
-        if (!list?.length) return;
-        playList(list);
-        setView("music");
+        if (!list?.length || !tag) return;
+        openCollection(list, tag);
       });
     });
   }
@@ -665,7 +682,7 @@ function render(tracks: Track[]): void {
       toggleEl.innerHTML = isPlaying ? ICONS.pauseBig : ICONS.playBig;
       miniWave.classList.toggle("is-paused", !isPlaying);
       app.classList.toggle("is-playing", isPlaying);
-      if (track) syncTrackInUrl(track.id);
+      if (track && viewId !== "home") syncTrackInUrl(track.id);
       paintHero();
       paintList();
       paintLyrics();
@@ -697,7 +714,12 @@ function render(tracks: Track[]): void {
     await beat.connect(player.media);
   }
 
-  const filtered = (): Track[] => tracks.filter((t) => matchesQuery(t, query));
+  const listScope = (): Track[] => browseList ?? tracks;
+  const filtered = (): Track[] => listScope().filter((t) => matchesQuery(t, query));
+  const queueScope = (): Track[] => {
+    const items = filtered();
+    return items.length ? items : listScope();
+  };
 
   const currentTrack = (): Track | undefined =>
     tracks.find((t) => t.id === (activeId ?? focusId)) ?? tracks[0];
@@ -731,7 +753,7 @@ function render(tracks: Track[]): void {
       </div>
     `;
     heroEl.querySelector<HTMLButtonElement>("[data-hero-play]")!.onclick = () => {
-      player.setQueue(filtered().length ? filtered() : tracks);
+      player.setQueue(queueScope());
       void armBeat().then(() => player.toggle(track));
     };
 
@@ -886,16 +908,33 @@ function render(tracks: Track[]): void {
     `;
   }
 
-  function paintList(): void {
-    const items = filtered();
-    countEl.textContent = `${items.length} / ${tracks.length}`;
-    countMusicEl.textContent = `${items.length} / ${tracks.length}`;
+  function listCountLabel(items: Track[], total: number): string {
+    const dur = formatTotalDuration(sumDuration(items));
+    return `${items.length} / ${total} · ${dur}`;
+  }
 
-    const html = items.length
-      ? items.map((t, i) => trackRowHtml(t, i)).join("")
+  function paintList(): void {
+    const homeItems = tracks.filter((t) => matchesQuery(t, query));
+    const musicItems = filtered();
+    const scope = listScope();
+    const musicTotal = browseList ? scope.length : tracks.length;
+
+    countEl.textContent = listCountLabel(homeItems, tracks.length);
+    countEl.title = "Треков в списке · общая длительность";
+    if (musicTitleEl) {
+      musicTitleEl.textContent = browseTitle ?? "Вся музыка";
+    }
+    countMusicEl.textContent = listCountLabel(musicItems, musicTotal);
+    countMusicEl.title = "Треков в списке · общая длительность";
+
+    const homeHtml = homeItems.length
+      ? homeItems.map((t, i) => trackRowHtml(t, i)).join("")
       : `<li class="empty">Ничего не найдено</li>`;
-    listEl.innerHTML = html;
-    listMusicEl.innerHTML = html;
+    const musicHtml = musicItems.length
+      ? musicItems.map((t, i) => trackRowHtml(t, i)).join("")
+      : `<li class="empty">Ничего не найдено</li>`;
+    listEl.innerHTML = homeHtml;
+    listMusicEl.innerHTML = musicHtml;
   }
 
   function onTrackListClick(e: MouseEvent): void {
@@ -923,7 +962,7 @@ function render(tracks: Track[]): void {
     if (!id) return;
     const track = tracks.find((t) => t.id === id);
     if (!track) return;
-    player.setQueue(filtered().length ? filtered() : tracks);
+    player.setQueue(queueScope());
     void armBeat().then(() => player.toggle(track));
   }
 
@@ -952,9 +991,9 @@ function render(tracks: Track[]): void {
   });
 
   app.querySelector<HTMLButtonElement>("[data-toggle]")!.addEventListener("click", () => {
-    const track = player.current ?? filtered()[0] ?? tracks[0];
+    const track = player.current ?? queueScope()[0] ?? tracks[0];
     if (!track) return;
-    player.setQueue(filtered().length ? filtered() : tracks);
+    player.setQueue(queueScope());
     void armBeat().then(() => player.toggle(track));
   });
   app.querySelector<HTMLButtonElement>("[data-prev]")!.addEventListener("click", () => {
@@ -964,7 +1003,7 @@ function render(tracks: Track[]): void {
     void armBeat().then(() => player.next(true));
   });
   shuffleBtn.addEventListener("click", () => {
-    player.setQueue(filtered().length ? filtered() : tracks);
+    player.setQueue(queueScope());
     player.toggleShuffle();
   });
   repeatBtn.addEventListener("click", () => {
@@ -975,7 +1014,7 @@ function render(tracks: Track[]): void {
       closeModal();
       return;
     }
-    player.setQueue(filtered().length ? filtered() : tracks);
+    player.setQueue(queueScope());
     openQueueModal();
   });
 
@@ -1000,6 +1039,10 @@ function render(tracks: Track[]): void {
     btn.addEventListener("click", () => {
       const id = btn.dataset.nav as ViewId | undefined;
       if (!id) return;
+      if (id === "home" || id === "music") {
+        browseList = null;
+        browseTitle = null;
+      }
       setView(id);
     });
   });
