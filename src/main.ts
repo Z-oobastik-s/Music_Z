@@ -189,24 +189,27 @@ function render(tracks: Track[]): void {
               <div class="search-fx" data-search-fx>
                 <label class="search-box">
                   ${ICONS.search}
-                  <input type="search" placeholder="Поиск трека, артиста…" data-search aria-label="Поиск" />
-                  <span class="search-bat-letter" data-search-bat hidden aria-hidden="true"></span>
-                  <div class="search-paw" data-search-paw data-frame="0" aria-hidden="true">
-                    <img class="search-paw-f search-paw-f--1" src="${assetUrl("mz-search-paw-01.png", BUILD)}" alt="" width="40" height="40" draggable="false" />
-                    <img class="search-paw-f search-paw-f--2" src="${assetUrl("mz-search-paw-02.png", BUILD)}" alt="" width="40" height="40" draggable="false" />
-                    <img class="search-paw-f search-paw-f--3" src="${assetUrl("mz-search-paw-03.png", BUILD)}" alt="" width="40" height="40" draggable="false" />
-                    <img class="search-paw-f search-paw-f--4" src="${assetUrl("mz-search-paw-04.png", BUILD)}" alt="" width="40" height="40" draggable="false" />
-                    <img class="search-paw-f search-paw-f--5" src="${assetUrl("mz-search-paw-05.png", BUILD)}" alt="" width="40" height="40" draggable="false" />
+                  <div class="search-input-wrap">
+                    <input type="search" placeholder="Поиск трека, артиста…" data-search aria-label="Поиск" />
+                    <div class="search-text-mirror" data-search-mirror aria-hidden="true"></div>
                   </div>
-                  <div class="search-tail" data-search-tail data-frame="0" aria-hidden="true">
-                    <img class="search-tail-f search-tail-f--1" src="${assetUrl("mz-search-tail-01.png", BUILD)}" alt="" width="120" height="60" draggable="false" />
-                    <img class="search-tail-f search-tail-f--2" src="${assetUrl("mz-search-tail-02.png", BUILD)}" alt="" width="120" height="60" draggable="false" />
-                    <img class="search-tail-f search-tail-f--3" src="${assetUrl("mz-search-tail-03.png", BUILD)}" alt="" width="120" height="60" draggable="false" />
-                    <img class="search-tail-f search-tail-f--4" src="${assetUrl("mz-search-tail-04.png", BUILD)}" alt="" width="120" height="60" draggable="false" />
+                  <span class="search-hit-letter" data-search-hit hidden aria-hidden="true"></span>
+                  <div class="search-paw" data-search-paw aria-hidden="true">
+                    <img class="search-paw-f search-paw-f--1" src="${assetUrl("mz-search-paw-01.png", BUILD)}" alt="" width="48" height="48" draggable="false" />
+                    <img class="search-paw-f search-paw-f--2" src="${assetUrl("mz-search-paw-02.png", BUILD)}" alt="" width="48" height="48" draggable="false" />
+                    <img class="search-paw-f search-paw-f--3" src="${assetUrl("mz-search-paw-03.png", BUILD)}" alt="" width="48" height="48" draggable="false" />
+                    <img class="search-paw-f search-paw-f--4" src="${assetUrl("mz-search-paw-04.png", BUILD)}" alt="" width="48" height="48" draggable="false" />
+                    <img class="search-paw-f search-paw-f--5" src="${assetUrl("mz-search-paw-05.png", BUILD)}" alt="" width="48" height="48" draggable="false" />
                   </div>
                 </label>
+                <div class="search-tail-rig" data-search-tail aria-hidden="true">
+                  <img class="search-tail-f search-tail-f--1" src="${assetUrl("mz-search-tail-01.png", BUILD)}" alt="" width="160" height="48" draggable="false" />
+                  <img class="search-tail-f search-tail-f--2" src="${assetUrl("mz-search-tail-02.png", BUILD)}" alt="" width="160" height="48" draggable="false" />
+                  <img class="search-tail-f search-tail-f--3" src="${assetUrl("mz-search-tail-03.png", BUILD)}" alt="" width="160" height="48" draggable="false" />
+                  <img class="search-tail-f search-tail-f--4" src="${assetUrl("mz-search-tail-04.png", BUILD)}" alt="" width="160" height="48" draggable="false" />
+                </div>
                 <div class="search-smirk" data-search-smirk aria-hidden="true">
-                  <img src="${assetUrl("mz-search-smirk.png", BUILD)}" alt="" width="48" height="48" draggable="false" />
+                  <img src="${assetUrl("mz-search-smirk.png", BUILD)}" alt="" width="56" height="56" draggable="false" />
                 </div>
               </div>
               <div class="theme-cat-wrap" data-theme-root>
@@ -1286,82 +1289,96 @@ function render(tracks: Track[]): void {
 
   const searchFx = app.querySelector<HTMLElement>("[data-search-fx]")!;
   const searchBox = searchFx.querySelector<HTMLElement>(".search-box")!;
+  const searchMirror = app.querySelector<HTMLElement>("[data-search-mirror]")!;
   const searchPaw = app.querySelector<HTMLElement>("[data-search-paw]")!;
   const searchTail = app.querySelector<HTMLElement>("[data-search-tail]")!;
-  const searchBat = app.querySelector<HTMLElement>("[data-search-bat]")!;
+  const searchHit = app.querySelector<HTMLElement>("[data-search-hit]")!;
   let searchPawTimer = 0;
   let searchTailTimer = 0;
   let searchSmirkTimer = 0;
   let searchDeleteStreak = 0;
   let measureCtx: CanvasRenderingContext2D | null = null;
 
-  function caretXInSearch(): number {
-    const input = searchEl;
-    const box = searchBox;
-    const style = getComputedStyle(input);
-    if (!measureCtx) {
-      measureCtx = document.createElement("canvas").getContext("2d");
-    }
-    if (!measureCtx) return 12;
-    measureCtx.font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
-    const caret = input.selectionStart ?? input.value.length;
-    const text = input.value.slice(0, caret);
-    const textW = measureCtx.measureText(text).width;
-    const inputLeft = input.offsetLeft;
-    const padL = parseFloat(style.paddingLeft) || 0;
-    const x = inputLeft + padL + textW;
-    const max = box.clientWidth - 16;
-    return Math.max(inputLeft + 4, Math.min(max, x));
+  function measureCtxFont(): CanvasRenderingContext2D | null {
+    if (!measureCtx) measureCtx = document.createElement("canvas").getContext("2d");
+    if (!measureCtx) return null;
+    const s = getComputedStyle(searchEl);
+    measureCtx.font = `${s.fontWeight} ${s.fontSize} ${s.fontFamily}`;
+    return measureCtx;
   }
 
-  function runSearchPawBat(letter: string): void {
+  function measureTextWidth(text: string): number {
+    const ctx = measureCtxFont();
+    return ctx ? ctx.measureText(text).width : 0;
+  }
+
+  function textOriginX(): number {
+    const s = getComputedStyle(searchEl);
+    return searchEl.offsetLeft + (parseFloat(s.paddingLeft) || 0);
+  }
+
+  function letterCenterX(letter: string, before: string): number {
+    return textOriginX() + measureTextWidth(before) + measureTextWidth(letter) / 2;
+  }
+
+  function runSearchPawBat(letter: string, before: string): void {
+    if (!letter || letter === " ") return;
     window.clearTimeout(searchPawTimer);
     searchFx.classList.remove("is-sweeping", "is-smirking");
+    const hitX = letterCenterX(letter, before);
+    searchBox.style.setProperty("--paw-x", `${hitX}px`);
+    searchBox.style.setProperty("--hit-x", `${hitX}px`);
+    searchHit.textContent = letter;
+    searchHit.hidden = false;
+    searchPaw.classList.remove("is-strike");
+    searchHit.classList.remove("is-hit");
+    void searchPaw.offsetWidth;
+    searchPaw.classList.add("is-strike");
+    searchHit.classList.add("is-hit");
     searchFx.classList.add("is-batting");
-    const x = caretXInSearch();
-    searchBox.style.setProperty("--paw-x", `${x}px`);
-    searchBox.style.setProperty("--bat-x", `${x}px`);
-    if (letter && letter !== " ") {
-      searchBat.hidden = false;
-      searchBat.textContent = letter;
-      searchBox.style.setProperty("--bat-rot", `${Math.random() * 16 - 8}deg`);
-      searchBat.classList.remove("is-pop");
-      void searchBat.offsetWidth;
-      searchBat.classList.add("is-pop");
-    }
-    let frame = 1;
-    const tick = (): void => {
-      searchPaw.dataset.frame = String(frame);
-      frame += 1;
-      if (frame <= 5) {
-        searchPawTimer = window.setTimeout(tick, 72);
-      } else {
-        searchPaw.dataset.frame = "0";
-        searchFx.classList.remove("is-batting");
-        searchBat.hidden = true;
-        searchBat.classList.remove("is-pop");
-      }
-    };
-    tick();
+    searchPawTimer = window.setTimeout(() => {
+      searchPaw.classList.remove("is-strike");
+      searchHit.classList.remove("is-hit");
+      searchHit.hidden = true;
+      searchFx.classList.remove("is-batting");
+    }, 400);
   }
 
-  function runSearchTailSweep(): void {
+  function runSearchDeleteFx(prev: string, next: string): void {
+    if (prev.length <= next.length) return;
+    const removed = prev.startsWith(next) ? prev.slice(next.length) : prev.slice(-1);
+    const removedW = Math.max(measureTextWidth(removed), 4);
+    const sweepStart = textOriginX() + measureTextWidth(next);
+
     window.clearTimeout(searchTailTimer);
-    searchFx.classList.remove("is-batting");
-    searchPaw.dataset.frame = "0";
+    searchFx.classList.remove("is-batting", "is-smirking");
+    searchPaw.classList.remove("is-strike");
+
+    searchMirror.textContent = prev;
+    searchMirror.classList.remove("is-wiping");
+    searchMirror.classList.add("is-on");
+    searchEl.classList.add("is-mirror-active");
+    searchBox.style.setProperty("--wipe-end", `${removedW}px`);
+    searchBox.style.setProperty("--sweep-x", `${sweepStart + removedW * 0.45}px`);
+
+    searchTail.classList.remove("is-sweep");
+    void searchTail.offsetWidth;
+    searchTail.classList.add("is-sweep");
     searchFx.classList.add("is-sweeping");
-    let frame = 1;
-    const tick = (): void => {
-      searchTail.dataset.frame = String(frame);
-      frame += 1;
-      if (frame <= 4) {
-        searchTailTimer = window.setTimeout(tick, 95);
-      } else {
-        searchTail.dataset.frame = "0";
-        searchFx.classList.remove("is-sweeping");
-      }
-    };
-    tick();
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        searchMirror.classList.add("is-wiping");
+      });
+    });
+
+    searchTailTimer = window.setTimeout(() => {
+      searchMirror.classList.remove("is-on", "is-wiping");
+      searchMirror.textContent = "";
+      searchEl.classList.remove("is-mirror-active");
+      searchTail.classList.remove("is-sweep");
+      searchFx.classList.remove("is-sweeping");
+    }, 560);
   }
 
   function peekSearchSmirk(): void {
@@ -1369,7 +1386,7 @@ function render(tracks: Track[]): void {
     searchFx.classList.add("is-smirking");
     searchSmirkTimer = window.setTimeout(() => {
       searchFx.classList.remove("is-smirking");
-    }, 1400);
+    }, 1500);
   }
 
   function runSearchCatFx(prev: string, next: string): void {
@@ -1378,15 +1395,19 @@ function render(tracks: Track[]): void {
       searchFx.classList.remove("is-smirking");
       const added = next.slice(prev.length);
       const letter = added.length === 1 ? added : next.slice(-1);
-      runSearchPawBat(letter);
+      const before = next.slice(0, next.length - letter.length);
+      runSearchPawBat(letter, before);
       return;
     }
     if (next.length < prev.length) {
       searchDeleteStreak += 1;
-      runSearchTailSweep();
-      if (next.length === 0 || searchDeleteStreak >= 3) {
+      runSearchDeleteFx(prev, next);
+      if (next.length === 0) {
         peekSearchSmirk();
-        if (next.length === 0) searchDeleteStreak = 0;
+        searchDeleteStreak = 0;
+      } else if (searchDeleteStreak >= 4) {
+        peekSearchSmirk();
+        searchDeleteStreak = 0;
       }
     }
   }
