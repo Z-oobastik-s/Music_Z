@@ -730,6 +730,51 @@ function render(tracks: Track[]): void {
 
   let loadingWatch = 0;
 
+  async function runDownload(track: Track, btn: HTMLElement): Promise<void> {
+    if (btn.classList.contains("is-dl") || btn.classList.contains("is-dl-done")) return;
+    const label = btn.querySelector(".dl-label");
+    btn.classList.add("is-dl");
+    btn.setAttribute("aria-busy", "true");
+    if (label) label.textContent = "Качаю…";
+
+    const finishOk = () => {
+      btn.classList.remove("is-dl");
+      btn.classList.add("is-dl-done");
+      if (label) label.textContent = "Готово";
+      window.setTimeout(() => {
+        btn.classList.remove("is-dl-done");
+        btn.removeAttribute("aria-busy");
+        if (label) label.textContent = "Скачать";
+      }, 1400);
+    };
+
+    const finishFail = () => {
+      btn.classList.remove("is-dl", "is-dl-done");
+      btn.removeAttribute("aria-busy");
+      if (label) label.textContent = "Скачать";
+      showToast("Не удалось скачать трек");
+    };
+
+    try {
+      // Let pull frame show before network work
+      await new Promise((r) => window.setTimeout(r, 220));
+      const res = await fetch(assetUrl(track.src), { credentials: "same-origin" });
+      if (!res.ok) throw new Error(String(res.status));
+      const blob = await res.blob();
+      const href = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = href;
+      a.download = `${track.title}.mp3`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.setTimeout(() => URL.revokeObjectURL(href), 4000);
+      finishOk();
+    } catch {
+      finishFail();
+    }
+  }
+
   /** Show loading UI immediately (before AudioContext / fetch). */
   function primeTrackLoading(track: Track): void {
     loadingId = track.id;
@@ -869,7 +914,14 @@ function render(tracks: Track[]): void {
       <div class="hero-foot">
         <div class="hero-actions">
           <button type="button" class="btn btn-fill${loading ? " is-loading" : ""}" data-hero-play ${loading ? 'aria-busy="true"' : ""}>${heroIcon} ${heroLabel}</button>
-          <a class="btn btn-line" href="${assetUrl(track.src)}" download="${escapeHtml(track.title)}.mp3">${ICONS.dl} Скачать</a>
+          <button type="button" class="btn btn-line btn-dl" data-hero-dl title="Скачать трек">
+            <span class="dl-fx" aria-hidden="true">
+              <img class="dl-sprite dl-sprite--idle" src="${assetUrl("mz-dl-idle.png", BUILD)}" alt="" width="22" height="22" draggable="false" />
+              <img class="dl-sprite dl-sprite--pull" src="${assetUrl("mz-dl-pull.png", BUILD)}" alt="" width="22" height="22" draggable="false" />
+              <img class="dl-sprite dl-sprite--done" src="${assetUrl("mz-dl-done.png", BUILD)}" alt="" width="22" height="22" draggable="false" />
+            </span>
+            <span class="dl-label">Скачать</span>
+          </button>
           <div class="share-wrap">
             <button type="button" class="btn btn-line btn-icon" data-hero-share title="Поделиться" aria-haspopup="menu" aria-expanded="false">${ICONS.more}</button>
             <div class="share-menu" data-share-menu hidden role="menu">
@@ -908,6 +960,10 @@ function render(tracks: Track[]): void {
     heroEl.querySelector<HTMLButtonElement>("[data-hero-play]")!.onclick = () => {
       // Allow retry even if a previous load is stuck
       void playTrack(track, { toggle: true });
+    };
+
+    heroEl.querySelector<HTMLButtonElement>("[data-hero-dl]")!.onclick = () => {
+      void runDownload(track, heroEl.querySelector<HTMLButtonElement>("[data-hero-dl]")!);
     };
 
     const shareBtn = heroEl.querySelector<HTMLButtonElement>("[data-hero-share]")!;
@@ -1064,7 +1120,13 @@ function render(tracks: Track[]): void {
             ${styleBtn}
             ${promptBtn}
             ${genBtn}
-            <a class="ico-btn" href="${assetUrl(t.src)}" download="${escapeHtml(t.title)}.mp3" data-dl title="Скачать">${ICONS.dl}</a>
+            <button type="button" class="ico-btn ico-dl" data-dl="${escapeHtml(t.id)}" title="Скачать">
+              <span class="dl-fx dl-fx--sm" aria-hidden="true">
+                <img class="dl-sprite dl-sprite--idle" src="${assetUrl("mz-dl-idle.png", BUILD)}" alt="" width="14" height="14" draggable="false" />
+                <img class="dl-sprite dl-sprite--pull" src="${assetUrl("mz-dl-pull.png", BUILD)}" alt="" width="14" height="14" draggable="false" />
+                <img class="dl-sprite dl-sprite--done" src="${assetUrl("mz-dl-done.png", BUILD)}" alt="" width="14" height="14" draggable="false" />
+              </span>
+            </button>
           </div>
         </div>
       </li>
@@ -1102,7 +1164,16 @@ function render(tracks: Track[]): void {
 
   function onTrackListClick(e: MouseEvent): void {
     const target = e.target as HTMLElement;
-    if (target.closest("[data-dl], [data-src]")) return;
+    if (target.closest("[data-src]")) return;
+
+    const dlBtn = target.closest<HTMLButtonElement>("[data-dl]");
+    if (dlBtn?.dataset.dl) {
+      e.preventDefault();
+      e.stopPropagation();
+      const track = tracks.find((t) => t.id === dlBtn.dataset.dl);
+      if (track) void runDownload(track, dlBtn);
+      return;
+    }
 
     const styleBtn = target.closest<HTMLButtonElement>("[data-style]");
     if (styleBtn?.dataset.style) {
