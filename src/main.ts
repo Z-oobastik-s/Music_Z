@@ -18,6 +18,7 @@ import {
   escapeHtml,
   formatDuration,
   matchesQuery,
+  trackSource,
   type Track,
 } from "./lib/tracks";
 import { startAutoUpdate } from "./lib/update";
@@ -269,6 +270,7 @@ function render(tracks: Track[]): void {
                     <article class="info-card">
                       <h3>Технологии</h3>
                       <p>Клиентский плеер на Vite. Аудио и изображения кэшируются локально в браузере. Deep-link API: <code>?track=id&amp;play=1</code>.</p>
+                      <p>Треки созданы через AI: <a class="info-link" href="https://musichero.ai/ru/app" target="_blank" rel="noopener noreferrer">MusicHero</a> и <a class="info-link" href="https://aisong.io/ai-music-generator" target="_blank" rel="noopener noreferrer">AISong</a> — ссылка у каждого трека в списке.</p>
                     </article>
                   </div>
                 </section>
@@ -858,12 +860,14 @@ function render(tracks: Track[]): void {
   function trackRowHtml(t: Track, i: number): string {
     const on = t.id === (activeId ?? focusId);
     const num = String(i + 1).padStart(2, "0");
+    const src = trackSource(t);
     const styleBtn = t.style
       ? `<button type="button" class="chip" data-style="${t.id}" title="Стиль">Стиль</button>`
       : "";
     const promptBtn = t.prompt
       ? `<button type="button" class="chip" data-prompt="${t.id}" title="Промпт">Промпт</button>`
       : "";
+    const genBtn = `<a class="chip chip-src" href="${escapeHtml(src.url)}" target="_blank" rel="noopener noreferrer" data-src title="Сгенерировано на ${escapeHtml(src.name)}">${escapeHtml(src.name)}</a>`;
     return `
       <li>
         <div class="track-item${on ? " is-on" : ""}" data-id="${t.id}">
@@ -880,6 +884,7 @@ function render(tracks: Track[]): void {
           <div class="track-actions">
             ${styleBtn}
             ${promptBtn}
+            ${genBtn}
             <a class="ico-btn" href="${assetUrl(t.src)}" download="${escapeHtml(t.title)}.mp3" data-dl title="Скачать">${ICONS.dl}</a>
           </div>
         </div>
@@ -901,7 +906,7 @@ function render(tracks: Track[]): void {
 
   function onTrackListClick(e: MouseEvent): void {
     const target = e.target as HTMLElement;
-    if (target.closest("[data-dl]")) return;
+    if (target.closest("[data-dl], [data-src]")) return;
 
     const styleBtn = target.closest<HTMLButtonElement>("[data-style]");
     if (styleBtn?.dataset.style) {

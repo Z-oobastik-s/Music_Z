@@ -1128,8 +1128,23 @@ button img, a img {
   text-transform: uppercase;
   cursor: pointer;
   white-space: nowrap;
+  text-decoration: none;
 }
 .chip:hover { background: rgba(225, 6, 0, 0.12); }
+.chip-src {
+  border-color: transparent;
+  color: var(--muted);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  opacity: 0.55;
+  padding: 0.2rem 0.35rem;
+}
+.chip-src:hover {
+  opacity: 1;
+  color: var(--accent);
+  background: transparent;
+}
 
 .ico-btn {
   width: 1.7rem;

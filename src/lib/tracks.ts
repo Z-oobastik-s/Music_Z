@@ -1,3 +1,8 @@
+export type TrackSource = {
+  name: string;
+  url: string;
+};
+
 export type Track = {
   id: string;
   title: string;
@@ -10,7 +15,18 @@ export type Track = {
   lyrics?: string[];
   style?: string;
   prompt?: string;
+  /** Where the track was AI-generated */
+  source?: TrackSource;
 };
+
+export const DEFAULT_TRACK_SOURCE: TrackSource = {
+  name: "MusicHero",
+  url: "https://musichero.ai/ru/app",
+};
+
+export function trackSource(track: Track): TrackSource {
+  return track.source ?? DEFAULT_TRACK_SOURCE;
+}
 
 export function formatDuration(totalSec: number): string {
   if (!Number.isFinite(totalSec) || totalSec < 0) return "0:00";
