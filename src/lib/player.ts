@@ -1,4 +1,4 @@
-import { getCachedMediaUrl, prefetchMedia } from "./media-cache";
+import { prefetchMedia, resolvePlaybackUrl } from "./media-cache";
 import type { Track } from "./tracks";
 
 export type RepeatMode = "off" | "all" | "one";
@@ -12,6 +12,7 @@ type PlayerCallbacks = {
   onMode?: (shuffle: boolean, repeat: RepeatMode) => void;
   /** Fired while a track file is being fetched / prepared for playback. */
   onLoading?: (track: Track | null, loading: boolean) => void;
+  onError?: (track: Track | null, message: string) => void;
 };
 
 function shuffleCopy(list: Track[], keepId?: string | null): Track[] {
@@ -53,19 +54,28 @@ export class AudioPlayer {
   private crossfadeArmed = false;
   private graphReady: Promise<void> | null = null;
   private loading = false;
+  /** Element feeding the seek bar while crossfading (incoming). */
+  private timeEl: HTMLAudioElement | null = null;
 
   constructor(cb: PlayerCallbacks) {
     this.cb = cb;
     for (const el of [this.audioA, this.audioB]) {
       el.preload = "auto";
       el.crossOrigin = "anonymous";
-      el.addEventListener("timeupdate", () => this.onTimeUpdate());
+      el.addEventListener("timeupdate", () => this.onTimeUpdate(el));
       el.addEventListener("ended", () => this.onEnded(el));
       el.addEventListener("playing", () => {
-        if (el === this.activeEl) this.cb.onChange(this.track, true);
+        if (el === this.activeEl && !this.crossfading) this.cb.onChange(this.track, true);
       });
       el.addEventListener("pause", () => {
         if (el === this.activeEl && !this.crossfading) this.cb.onChange(this.track, false);
+      });
+      el.addEventListener("error", () => {
+        if (el !== this.activeEl && el !== this.idleEl) return;
+        if (this.loading) {
+          this.setLoading(null, false);
+          this.cb.onError?.(this.track, "Не удалось загрузить трек");
+        }
       });
     }
   }
@@ -216,7 +226,8 @@ export class AudioPlayer {
     const i = this.queue.findIndex((t) => t.id === this.track?.id);
     if (i < 0) return;
     const next = this.queue[i + 1] ?? (this.repeat === "all" ? this.queue[0] : undefined);
-    const prev = this.queue[i - 1] ?? (this.repeat === "all" ? this.queue[this.queue.length - 1] : undefined);
+    const prev =
+      this.queue[i - 1] ?? (this.repeat === "all" ? this.queue[this.queue.length - 1] : undefined);
     if (next) prefetchMedia(next.src);
     if (prev && prev.id !== next?.id) prefetchMedia(prev.src);
     if (this.track.cover) prefetchMedia(this.track.cover);
@@ -225,6 +236,7 @@ export class AudioPlayer {
   private resetCrossfadeState(): void {
     this.crossfading = false;
     this.crossfadeArmed = false;
+    this.timeEl = null;
   }
 
   private cancelCrossfade(): void {
@@ -260,18 +272,58 @@ export class AudioPlayer {
 
   private async loadInto(el: HTMLAudioElement, track: Track, gen: number): Promise<boolean> {
     try {
-      const url = await getCachedMediaUrl(track.src);
+      const url = resolvePlaybackUrl(track.src);
       if (gen !== this.playGen) return false;
-      el.src = url;
-      el.load();
+      if (el.src !== url) {
+        el.src = url;
+        el.load();
+      }
       return true;
     } catch {
       return false;
     }
   }
 
-  private async crossfadeTo(track: Track, gen: number): Promise<void> {
-    if (!this.ctx || !this.activeGain || !this.idleGain) return;
+  /** Hard switch without crossfade (fallback + cold start). */
+  private async hardCutTo(track: Track, gen: number): Promise<void> {
+    this.cancelCrossfade();
+    this.track = track;
+    this.setLoading(track, true);
+    this.cb.onChange(track, false);
+
+    if (!(await this.loadInto(this.activeEl, track, gen))) {
+      if (gen === this.playGen) {
+        this.setLoading(null, false);
+        this.cb.onChange(this.track, false);
+        this.cb.onError?.(track, "Не удалось загрузить трек");
+      }
+      return;
+    }
+
+    this.idleEl.pause();
+    this.idleEl.currentTime = 0;
+    if (this.activeGain) this.activeGain.gain.value = this.userVolume;
+    if (this.idleGain) this.idleGain.gain.value = 0;
+
+    try {
+      this.activeEl.currentTime = 0;
+      await this.activeEl.play();
+      if (gen === this.playGen) this.prefetchNeighbors();
+    } catch {
+      if (gen === this.playGen) {
+        this.cb.onChange(this.track, false);
+        this.cb.onError?.(track, "Не удалось начать воспроизведение");
+      }
+    } finally {
+      if (gen === this.playGen) this.setLoading(null, false);
+    }
+  }
+
+  private async crossfadeTo(track: Track, gen: number): Promise<boolean> {
+    if (!this.ctx || !this.activeGain || !this.idleGain) {
+      this.crossfadeArmed = false;
+      return false;
+    }
 
     this.cancelCrossfade();
     this.crossfading = true;
@@ -286,7 +338,7 @@ export class AudioPlayer {
     if (!(await this.loadInto(inEl, track, gen))) {
       this.resetCrossfadeState();
       if (gen === this.playGen) this.setLoading(null, false);
-      return;
+      return false;
     }
 
     try {
@@ -295,18 +347,20 @@ export class AudioPlayer {
     } catch {
       this.resetCrossfadeState();
       if (gen === this.playGen) this.setLoading(null, false);
-      return;
+      return false;
     }
 
     if (gen !== this.playGen) {
       inEl.pause();
       this.resetCrossfadeState();
       this.setLoading(null, false);
-      return;
+      return false;
     }
 
-    // Incoming audio is audible — clear loading while fade finishes
+    this.track = track;
+    this.timeEl = inEl;
     this.setLoading(null, false);
+    this.cb.onChange(track, true);
 
     const t0 = this.ctx.currentTime;
     const remaining = Math.max(0.35, (outEl.duration || CROSSFADE_SEC) - outEl.currentTime);
@@ -328,11 +382,12 @@ export class AudioPlayer {
       outGain.gain.value = 0;
       inGain.gain.value = this.userVolume;
       this.slot = this.slot === 0 ? 1 : 0;
-      this.track = track;
       this.resetCrossfadeState();
       this.cb.onChange(track, true);
       this.prefetchNeighbors();
     }, fade * 1000 + 40);
+
+    return true;
   }
 
   async play(track: Track): Promise<void> {
@@ -345,7 +400,10 @@ export class AudioPlayer {
         await this.activeEl.play();
         if (gen === this.playGen) this.prefetchNeighbors();
       } catch {
-        if (gen === this.playGen) this.cb.onChange(this.track, false);
+        if (gen === this.playGen) {
+          this.cb.onChange(this.track, false);
+          this.cb.onError?.(track, "Не удалось начать воспроизведение");
+        }
       } finally {
         if (gen === this.playGen) this.setLoading(null, false);
       }
@@ -355,36 +413,14 @@ export class AudioPlayer {
     const wasPlaying = this.playing;
 
     if (this.track && wasPlaying) {
-      await this.crossfadeTo(track, gen);
-      return;
-    }
-
-    this.cancelCrossfade();
-    this.track = track;
-    this.setLoading(track, true);
-    this.cb.onChange(track, false);
-
-    if (!(await this.loadInto(this.activeEl, track, gen))) {
-      if (gen === this.playGen) {
-        this.setLoading(null, false);
-        this.cb.onChange(this.track, false);
+      const ok = await this.crossfadeTo(track, gen);
+      if (!ok && gen === this.playGen) {
+        await this.hardCutTo(track, gen);
       }
       return;
     }
 
-    this.idleEl.pause();
-    this.idleEl.currentTime = 0;
-    if (this.activeGain) this.activeGain.gain.value = this.userVolume;
-    if (this.idleGain) this.idleGain.gain.value = 0;
-
-    try {
-      await this.activeEl.play();
-      if (gen === this.playGen) this.prefetchNeighbors();
-    } catch {
-      if (gen === this.playGen) this.cb.onChange(this.track, false);
-    } finally {
-      if (gen === this.playGen) this.setLoading(null, false);
-    }
+    await this.hardCutTo(track, gen);
   }
 
   toggle(track?: Track): void {
@@ -425,11 +461,12 @@ export class AudioPlayer {
     if (nextTrack) void this.play(nextTrack);
   }
 
-  private onTimeUpdate(): void {
-    const el = this.activeEl;
-    if (el.paused || this.crossfading) return;
-    this.cb.onTime(el.currentTime, el.duration || 0);
-    this.maybeStartCrossfade();
+  private onTimeUpdate(el: HTMLAudioElement): void {
+    const source = this.crossfading && this.timeEl ? this.timeEl : this.activeEl;
+    if (el !== source) return;
+    if (source.paused && !this.crossfading) return;
+    this.cb.onTime(source.currentTime, source.duration || 0);
+    if (!this.crossfading) this.maybeStartCrossfade();
   }
 
   private maybeStartCrossfade(): void {
@@ -447,7 +484,12 @@ export class AudioPlayer {
     if (!nextTrack || nextTrack.id === this.track?.id) return;
 
     this.crossfadeArmed = true;
-    void this.crossfadeTo(nextTrack, this.playGen);
+    void this.crossfadeTo(nextTrack, this.playGen).then((ok) => {
+      if (!ok && this.playGen) {
+        // Auto-advance fallback: hard cut when fade can't start
+        void this.hardCutTo(nextTrack, this.playGen);
+      }
+    });
   }
 
   private onEnded(el: HTMLAudioElement): void {
@@ -463,7 +505,7 @@ export class AudioPlayer {
   }
 
   seek(ratio: number): void {
-    const el = this.activeEl;
+    const el = this.crossfading && this.timeEl ? this.timeEl : this.activeEl;
     if (!Number.isFinite(el.duration) || el.duration <= 0) return;
     el.currentTime = Math.min(1, Math.max(0, ratio)) * el.duration;
     this.crossfadeArmed = false;
@@ -473,6 +515,9 @@ export class AudioPlayer {
     this.userVolume = Math.min(1, Math.max(0, v));
     if (!this.crossfading && this.activeGain) {
       this.activeGain.gain.value = this.userVolume;
+    } else if (!this.crossfading) {
+      this.audioA.volume = this.userVolume;
+      this.audioB.volume = this.userVolume;
     }
   }
 }

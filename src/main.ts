@@ -34,7 +34,6 @@ const app: HTMLDivElement = rootEl;
 const BUILD = typeof __BUILD_ID__ !== "undefined" ? __BUILD_ID__ : String(Date.now());
 
 applyTheme(getTheme());
-startAutoUpdate();
 
 /** Service worker: instant revisits for tracks / art (production only). */
 function registerSw(): void {
@@ -324,6 +323,12 @@ function render(tracks: Track[]): void {
       </div>
     </footer>
 
+    <div class="toast" data-toast hidden role="status" aria-live="polite"></div>
+    <div class="update-bar" data-update-bar hidden>
+      <span>Доступна новая версия Music_Z</span>
+      <button type="button" class="btn btn-fill" data-update-reload>Обновить</button>
+    </div>
+
     <div class="modal" data-modal hidden>
       <div class="modal-card">
         <div class="modal-head">
@@ -373,6 +378,25 @@ function render(tracks: Track[]): void {
   const modalTitle = app.querySelector<HTMLElement>("[data-modal-title]")!;
   const modalBody = app.querySelector<HTMLElement>("[data-modal-body]")!;
   const modalCopy = app.querySelector<HTMLButtonElement>("[data-modal-copy]")!;
+  const toastEl = app.querySelector<HTMLElement>("[data-toast]")!;
+  const updateBar = app.querySelector<HTMLElement>("[data-update-bar]")!;
+  let toastTimer = 0;
+
+  function showToast(message: string): void {
+    toastEl.textContent = message;
+    toastEl.hidden = false;
+    window.clearTimeout(toastTimer);
+    toastTimer = window.setTimeout(() => {
+      toastEl.hidden = true;
+    }, 4200);
+  }
+
+  startAutoUpdate(() => {
+    updateBar.hidden = false;
+  });
+  updateBar.querySelector<HTMLButtonElement>("[data-update-reload]")?.addEventListener("click", () => {
+    location.reload();
+  });
 
   let seeking = false;
   let modalText = "";
@@ -429,7 +453,7 @@ function render(tracks: Track[]): void {
     for (const t of tracks) {
       for (const tag of t.tags.slice(0, 3)) {
         const arr = tagMap.get(tag) ?? [];
-        arr.push(t);
+        if (!arr.some((x) => x.id === t.id)) arr.push(t);
         tagMap.set(tag, arr);
       }
     }
@@ -635,7 +659,7 @@ function render(tracks: Track[]): void {
         const id = btn.getAttribute("data-qid");
         const track = tracks.find((t) => t.id === id);
         if (!track) return;
-        void playTrack(track);
+        void playTrack(track, { queue: player.getQueue() });
         closeModal();
       });
     });
@@ -757,6 +781,11 @@ function render(tracks: Track[]): void {
         nowCover.src = assetUrl(track.cover);
         nowCover.hidden = false;
       }
+      paintLoadingUi();
+    },
+    onError: (_track, message) => {
+      showToast(message);
+      loadingId = null;
       paintLoadingUi();
     },
     onTime: (cur, dur) => {
@@ -1093,7 +1122,6 @@ function render(tracks: Track[]): void {
       closeModal();
       return;
     }
-    player.setQueue(queueScope());
     openQueueModal();
   });
 

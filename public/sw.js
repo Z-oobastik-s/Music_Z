@@ -1,10 +1,10 @@
 /**
  * Music_Z service worker — caches media & character art for instant revisits.
- * Does not unlock downloads; playback still goes through the app (blob / same-origin).
+ * Shell cache is build-scoped; media cache is stable across deploys.
  */
 const BUILD = new URL(self.location.href).searchParams.get("v") || "dev";
 const SHELL = `music-z-shell-${BUILD}`;
-const MEDIA = `music-z-media-${BUILD}`;
+const MEDIA = "music-z-media-v1";
 
 const PRECACHE = [
   "./",
@@ -34,7 +34,13 @@ self.addEventListener("install", (event) => {
   e.waitUntil(
     (async () => {
       const cache = await caches.open(SHELL);
-      await cache.addAll(PRECACHE.map((p) => new URL(p, self.location.href).href));
+      for (const p of PRECACHE) {
+        try {
+          await cache.add(new URL(p, self.location.href).href);
+        } catch {
+          /* skip missing asset — don't fail whole install */
+        }
+      }
       await self.skipWaiting();
     })(),
   );
@@ -47,11 +53,12 @@ self.addEventListener("activate", (event) => {
       const keys = await caches.keys();
       await Promise.all(
         keys
-          .filter(
-            (k) =>
-              (k.startsWith("music-z-shell-") && k !== SHELL) ||
-              (k.startsWith("music-z-media-") && k !== MEDIA),
-          )
+          .filter((k) => {
+            if (k.startsWith("music-z-shell-") && k !== SHELL) return true;
+            // Drop legacy build-scoped media caches; keep stable MEDIA
+            if (k.startsWith("music-z-media-") && k !== MEDIA) return true;
+            return false;
+          })
           .map((k) => caches.delete(k)),
       );
       await self.clients.claim();
@@ -106,12 +113,14 @@ self.addEventListener("fetch", (event) => {
 
   const path = url.pathname;
 
-  // Never cache version / catalog / theme sprites — always fresh for updates
-  if (
-    path.endsWith("/version.json") ||
-    path.endsWith("/tracks.json") ||
-    /mz-theme-cat/i.test(path)
-  ) {
+  // Never cache version / catalog — always fresh for updates
+  if (path.endsWith("/version.json") || path.endsWith("/tracks.json")) {
+    return;
+  }
+
+  // Theme cats: SWR with query bust (?v=build)
+  if (/mz-theme-cat/i.test(path)) {
+    e.respondWith(staleWhileRevalidate(req, MEDIA));
     return;
   }
 

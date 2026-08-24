@@ -1,14 +1,34 @@
 import { assetUrl } from "./tracks";
 
-declare const __BUILD_ID__: string;
-
-const CACHE_NAME = `music-z-media-${typeof __BUILD_ID__ !== "undefined" ? __BUILD_ID__ : "dev"}`;
+/** Stable across deploys — shell cache is versioned separately in sw.js */
+const CACHE_NAME = "music-z-media-v1";
 const memory = new Map<string, string>(); // path -> blob:
 const inflight = new Map<string, Promise<string>>();
+const MAX_MEMORY_BLOBS = 12;
 
 function absUrl(path: string): string {
   const rel = assetUrl(path);
   return new URL(rel, window.location.href).href;
+}
+
+function rememberBlob(path: string, blobUrl: string): void {
+  if (memory.has(path)) {
+    memory.delete(path);
+  }
+  memory.set(path, blobUrl);
+  while (memory.size > MAX_MEMORY_BLOBS) {
+    const oldest = memory.keys().next().value;
+    if (!oldest) break;
+    const url = memory.get(oldest);
+    memory.delete(oldest);
+    if (url) {
+      try {
+        URL.revokeObjectURL(url);
+      } catch {
+        /* ignore */
+      }
+    }
+  }
 }
 
 async function fetchToBlobUrl(path: string): Promise<string> {
@@ -21,7 +41,6 @@ async function fetchToBlobUrl(path: string): Promise<string> {
       if (!res || !res.ok) {
         res = await fetch(url, { credentials: "same-origin", mode: "cors" });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        // Store opaque-safe clone for next visits
         try {
           await cache.put(url, res.clone());
         } catch {
@@ -42,9 +61,17 @@ async function fetchToBlobUrl(path: string): Promise<string> {
 }
 
 /**
- * Resolve a public asset path to a blob: URL (memory → Cache API → network).
- * Playback uses blob URLs so the audio element does not keep a hotlink to /tracks/*.mp3.
+ * Instant playback URL: memory blob if ready, else network URL (progressive).
+ * Warms Cache API / memory in the background without blocking play.
  */
+export function resolvePlaybackUrl(path: string): string {
+  const hit = memory.get(path);
+  if (hit) return hit;
+  warmMedia(path);
+  return absUrl(path);
+}
+
+/** Full blob resolve (prefetch / offline). Prefer resolvePlaybackUrl for play(). */
 export async function getCachedMediaUrl(path: string): Promise<string> {
   const hit = memory.get(path);
   if (hit) return hit;
@@ -53,7 +80,7 @@ export async function getCachedMediaUrl(path: string): Promise<string> {
   if (!pending) {
     pending = fetchToBlobUrl(path)
       .then((blobUrl) => {
-        memory.set(path, blobUrl);
+        rememberBlob(path, blobUrl);
         inflight.delete(path);
         return blobUrl;
       })
@@ -66,12 +93,16 @@ export async function getCachedMediaUrl(path: string): Promise<string> {
   return pending;
 }
 
-/** Warm cache without blocking UI. */
-export function prefetchMedia(path: string): void {
+function warmMedia(path: string): void {
   if (memory.has(path) || inflight.has(path)) return;
   void getCachedMediaUrl(path).catch(() => {
-    /* ignore prefetch errors */
+    /* ignore warm errors */
   });
+}
+
+/** Warm cache without blocking UI. */
+export function prefetchMedia(path: string): void {
+  warmMedia(path);
 }
 
 export function prefetchMany(paths: string[]): void {
