@@ -114,6 +114,8 @@ const ICONS = {
   repeatOne: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 1l4 4-4 4M3 11V9a4 4 0 014-4h14M7 23l-4-4 4-4M21 13v2a4 4 0 01-4 4H3"/><text x="12" y="15.5" text-anchor="middle" fill="currentColor" stroke="none" font-size="8" font-family="IBM Plex Sans, sans-serif" font-weight="700">1</text></svg>`,
   playBig: `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`,
   pauseBig: `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>`,
+  spinner: `<svg class="icon-spin" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2.5" opacity=".25"/><path d="M21 12a9 9 0 00-9-9" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>`,
+  spinnerSm: `<svg class="icon-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2.5" opacity=".25"/><path d="M21 12a9 9 0 00-9-9" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>`,
   queue: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h12M3 12h12M3 18h8"/><path d="M17 9.5v5l4.5-2.5L17 9.5z" fill="currentColor" stroke="none"/></svg>`,
   vol: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5zM15 9a4 4 0 010 6M17 7a7 7 0 010 10"/></svg>`,
   share: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>`,
@@ -150,6 +152,7 @@ function render(tracks: Track[]): void {
   let query = "";
   let activeId: string | null = null;
   let playing = false;
+  let loadingId: string | null = null;
   let focusId = tracks[0]?.id ?? null;
 
   app.innerHTML = `
@@ -293,6 +296,7 @@ function render(tracks: Track[]): void {
           <div>
             <strong data-now-title>Выбери трек</strong>
             <span data-now-artist>Music_Z</span>
+            <span class="now-status" data-now-status hidden>Загрузка трека…</span>
           </div>
         </div>
         <div class="player-ctrl">
@@ -355,6 +359,7 @@ function render(tracks: Track[]): void {
   const nowCover = app.querySelector<HTMLImageElement>("[data-now-cover]")!;
   const nowTitle = app.querySelector<HTMLElement>("[data-now-title]")!;
   const nowArtist = app.querySelector<HTMLElement>("[data-now-artist]")!;
+  const nowStatus = app.querySelector<HTMLElement>("[data-now-status]")!;
   const toggleEl = app.querySelector<HTMLButtonElement>("[data-toggle]")!;
   const shuffleBtn = app.querySelector<HTMLButtonElement>("[data-shuffle]")!;
   const repeatBtn = app.querySelector<HTMLButtonElement>("[data-repeat]")!;
@@ -406,9 +411,8 @@ function render(tracks: Track[]): void {
 
   function playList(list: Track[], start?: Track): void {
     if (!list.length) return;
-    player.setQueue(list);
     const t = start ?? list[0];
-    void armBeat().then(() => player.play(t));
+    void playTrack(t, { queue: list });
   }
 
   function openCollection(list: Track[], title: string): void {
@@ -622,7 +626,8 @@ function render(tracks: Track[]): void {
       .map((t, i) => {
         const on = t.id === (activeId ?? focusId);
         const live = on && playing;
-        return `<button type="button" class="queue-item${on ? " is-on" : ""}${live ? " is-live" : ""}" data-qid="${escapeHtml(t.id)}"><span class="queue-num">${String(i + 1).padStart(2, "0")}</span><img class="queue-cover" src="${assetUrl(t.cover)}" alt="" width="40" height="40" loading="lazy" draggable="false" /><span class="queue-meta"><span class="queue-title">${escapeHtml(t.title)}</span><span class="queue-artist">${escapeHtml(t.artist)}</span></span><span class="queue-side">${live ? `<span class="queue-eq" aria-hidden="true"><i></i><i></i><i></i></span>` : ""}<span class="queue-dur">${formatDuration(t.durationSec)}</span></span></button>`;
+        const loading = t.id === loadingId;
+        return `<button type="button" class="queue-item${on ? " is-on" : ""}${live ? " is-live" : ""}${loading ? " is-loading" : ""}" data-qid="${escapeHtml(t.id)}"><span class="queue-num">${String(i + 1).padStart(2, "0")}</span><img class="queue-cover" src="${assetUrl(t.cover)}" alt="" width="40" height="40" loading="lazy" draggable="false" /><span class="queue-meta"><span class="queue-title">${escapeHtml(t.title)}</span><span class="queue-artist">${loading ? "Загрузка…" : escapeHtml(t.artist)}</span></span><span class="queue-side">${loading ? `<span class="queue-spin" aria-hidden="true">${ICONS.spinnerSm}</span>` : live ? `<span class="queue-eq" aria-hidden="true"><i></i><i></i><i></i></span>` : ""}<span class="queue-dur">${formatDuration(t.durationSec)}</span></span></button>`;
       })
       .join("");
     modalBody.querySelectorAll<HTMLButtonElement>("[data-qid]").forEach((btn) => {
@@ -630,7 +635,7 @@ function render(tracks: Track[]): void {
         const id = btn.getAttribute("data-qid");
         const track = tracks.find((t) => t.id === id);
         if (!track) return;
-        void player.play(track);
+        void playTrack(track);
         closeModal();
       });
     });
@@ -664,6 +669,56 @@ function render(tracks: Track[]): void {
     }
   });
 
+  function paintPlayButton(): void {
+    if (loadingId) {
+      toggleEl.innerHTML = ICONS.spinner;
+      toggleEl.classList.add("is-loading");
+      toggleEl.title = "Загрузка…";
+      toggleEl.setAttribute("aria-busy", "true");
+      return;
+    }
+    toggleEl.classList.remove("is-loading");
+    toggleEl.removeAttribute("aria-busy");
+    toggleEl.innerHTML = playing ? ICONS.pauseBig : ICONS.playBig;
+    toggleEl.title = playing ? "Пауза" : "Play";
+  }
+
+  function paintLoadingUi(): void {
+    const on = Boolean(loadingId);
+    app.classList.toggle("is-loading-track", on);
+    nowStatus.hidden = !on;
+    nowArtist.hidden = on;
+    paintPlayButton();
+    paintList();
+    paintHero();
+    if (modalMode === "queue" && !modal.hidden) openQueueModal();
+  }
+
+  /** Show loading UI immediately (before AudioContext / fetch). */
+  function primeTrackLoading(track: Track): void {
+    loadingId = track.id;
+    focusId = track.id;
+    nowTitle.textContent = track.title;
+    nowCover.src = assetUrl(track.cover);
+    nowCover.hidden = false;
+    paintLoadingUi();
+  }
+
+  async function playTrack(
+    track: Track,
+    opts?: { toggle?: boolean; queue?: Track[] },
+  ): Promise<void> {
+    if (opts?.toggle && activeId === track.id && playing && !loadingId) {
+      player.pause();
+      return;
+    }
+    primeTrackLoading(track);
+    player.setQueue(opts?.queue ?? queueScope());
+    await armBeat();
+    if (opts?.toggle) player.toggle(track);
+    else await player.play(track);
+  }
+
   const beat = new BeatMotion(app);
   let charCycle: CharacterCycle | null = null;
   const player = new AudioPlayer({
@@ -679,7 +734,7 @@ function render(tracks: Track[]): void {
       } else {
         nowCover.hidden = true;
       }
-      toggleEl.innerHTML = isPlaying ? ICONS.pauseBig : ICONS.playBig;
+      paintPlayButton();
       miniWave.classList.toggle("is-paused", !isPlaying);
       app.classList.toggle("is-playing", isPlaying);
       if (track && viewId !== "home") syncTrackInUrl(track.id);
@@ -693,6 +748,16 @@ function render(tracks: Track[]): void {
       } else {
         beat.stop();
       }
+    },
+    onLoading: (track, loading) => {
+      loadingId = loading && track ? track.id : null;
+      if (track && loading) {
+        focusId = track.id;
+        nowTitle.textContent = track.title;
+        nowCover.src = assetUrl(track.cover);
+        nowCover.hidden = false;
+      }
+      paintLoadingUi();
     },
     onTime: (cur, dur) => {
       if (!seeking) {
@@ -737,13 +802,16 @@ function render(tracks: Track[]): void {
       return;
     }
     const on = activeId === track.id && playing;
+    const loading = loadingId === track.id;
+    const heroLabel = loading ? "Загрузка…" : on ? "Пауза" : "Воспроизвести";
+    const heroIcon = loading ? ICONS.spinnerSm : ICONS.play;
     heroEl.innerHTML = `
       <div class="hero-art">
         <img class="brand-hero" src="${assetUrl("hero-banner.png")}" alt="Music_Z" />
       </div>
       <div class="hero-foot">
         <div class="hero-actions">
-          <button type="button" class="btn btn-fill" data-hero-play>${ICONS.play} ${on ? "Пауза" : "Воспроизвести"}</button>
+          <button type="button" class="btn btn-fill${loading ? " is-loading" : ""}" data-hero-play ${loading ? 'aria-busy="true"' : ""}>${heroIcon} ${heroLabel}</button>
           <a class="btn btn-line" href="${assetUrl(track.src)}" download="${escapeHtml(track.title)}.mp3">${ICONS.dl} Скачать</a>
           <div class="share-wrap">
             <button type="button" class="btn btn-line btn-icon" data-hero-share title="Поделиться" aria-haspopup="menu" aria-expanded="false">${ICONS.more}</button>
@@ -759,8 +827,8 @@ function render(tracks: Track[]): void {
       </div>
     `;
     heroEl.querySelector<HTMLButtonElement>("[data-hero-play]")!.onclick = () => {
-      player.setQueue(queueScope());
-      void armBeat().then(() => player.toggle(track));
+      if (loadingId) return;
+      void playTrack(track, { toggle: true });
     };
 
     const shareBtn = heroEl.querySelector<HTMLButtonElement>("[data-hero-share]")!;
@@ -881,6 +949,7 @@ function render(tracks: Track[]): void {
 
   function trackRowHtml(t: Track, i: number): string {
     const on = t.id === (activeId ?? focusId);
+    const loading = t.id === loadingId;
     const num = String(i + 1).padStart(2, "0");
     const src = trackSource(t);
     const styleBtn = t.style
@@ -890,18 +959,23 @@ function render(tracks: Track[]): void {
       ? `<button type="button" class="chip" data-prompt="${t.id}" title="Промпт">Промпт</button>`
       : "";
     const genBtn = `<a class="chip chip-src" href="${escapeHtml(src.url)}" target="_blank" rel="noopener noreferrer" data-src title="Сгенерировано на ${escapeHtml(src.name)}">·</a>`;
+    const stateIcon = loading
+      ? ICONS.spinnerSm
+      : on && playing
+        ? ICONS.pause
+        : ICONS.play;
     return `
       <li>
-        <div class="track-item${on ? " is-on" : ""}" data-id="${t.id}">
-          <button type="button" class="track-main" data-play-id="${t.id}">
+        <div class="track-item${on ? " is-on" : ""}${loading ? " is-loading" : ""}" data-id="${t.id}">
+          <button type="button" class="track-main" data-play-id="${t.id}" ${loading ? 'aria-busy="true"' : ""}>
             <span class="num">${num}</span>
             <img src="${assetUrl(t.cover)}" alt="" width="48" height="48" loading="lazy" />
             <div class="track-meta">
               <h4>${escapeHtml(t.title)}</h4>
-              <p>${escapeHtml(t.artist)}</p>
+              <p>${loading ? "Загрузка…" : escapeHtml(t.artist)}</p>
             </div>
             <span class="track-dur">${formatDuration(t.durationSec)}</span>
-            <span class="ico-btn" aria-hidden="true">${on && playing ? ICONS.pause : ICONS.play}</span>
+            <span class="ico-btn${loading ? " is-loading" : ""}" aria-hidden="true">${stateIcon}</span>
           </button>
           <div class="track-actions">
             ${styleBtn}
@@ -968,8 +1042,7 @@ function render(tracks: Track[]): void {
     if (!id) return;
     const track = tracks.find((t) => t.id === id);
     if (!track) return;
-    player.setQueue(queueScope());
-    void armBeat().then(() => player.toggle(track));
+    void playTrack(track, { toggle: true });
   }
 
   listEl.addEventListener("click", onTrackListClick);
@@ -1000,8 +1073,7 @@ function render(tracks: Track[]): void {
   app.querySelector<HTMLButtonElement>("[data-toggle]")!.addEventListener("click", () => {
     const track = player.current ?? queueScope()[0] ?? tracks[0];
     if (!track) return;
-    player.setQueue(queueScope());
-    void armBeat().then(() => player.toggle(track));
+    void playTrack(track, { toggle: true });
   });
   app.querySelector<HTMLButtonElement>("[data-prev]")!.addEventListener("click", () => {
     void armBeat().then(() => player.prev());
@@ -1095,7 +1167,7 @@ function render(tracks: Track[]): void {
       syncTrackInUrl(deepTrack.id, false);
 
       if (deep.play) {
-        void armBeat().then(() => player.play(deepTrack));
+        void playTrack(deepTrack, { queue: tracks });
       }
     }
   }

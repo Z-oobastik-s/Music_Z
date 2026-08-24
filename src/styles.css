@@ -1442,9 +1442,83 @@ button img, a img {
   background: var(--accent);
   color: #fff;
   margin: 0 0.15rem;
+  position: relative;
 }
 .player-ctrl .play-main:hover { background: var(--accent2); color: #fff; }
 .player-ctrl .play-main.is-active { color: #fff; }
+.player-ctrl .play-main.is-loading {
+  pointer-events: none;
+}
+.player-ctrl .play-main.is-loading::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  border-top-color: #fff;
+  border-right-color: color-mix(in srgb, #fff 35%, transparent);
+  animation: play-load-ring 0.7s linear infinite;
+  pointer-events: none;
+}
+
+.icon-spin {
+  animation: icon-spin 0.75s linear infinite;
+  transform-origin: center;
+}
+
+@keyframes icon-spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes play-load-ring {
+  to { transform: rotate(360deg); }
+}
+
+.now-play .now-status {
+  display: block;
+  font-size: 0.68rem;
+  color: var(--accent);
+  letter-spacing: 0.02em;
+}
+.now-play .now-status[hidden] {
+  display: none !important;
+}
+#app.is-loading-track .now-play img {
+  animation: cover-pulse 1.1s ease-in-out infinite;
+}
+@keyframes cover-pulse {
+  0%, 100% { opacity: 1; filter: brightness(1); }
+  50% { opacity: 0.72; filter: brightness(1.15); }
+}
+
+.track-item.is-loading {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+.track-item.is-loading .track-meta p {
+  color: var(--accent);
+}
+.track-item.is-loading .ico-btn {
+  color: var(--accent);
+}
+.btn.is-loading {
+  pointer-events: none;
+  opacity: 0.92;
+}
+.queue-item.is-loading .queue-artist {
+  color: var(--accent);
+}
+.queue-spin {
+  display: grid;
+  place-items: center;
+  color: var(--accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .icon-spin,
+  .player-ctrl .play-main.is-loading::after,
+  #app.is-loading-track .now-play img {
+    animation: none;
+  }
+}
 
 .wave-seek {
   min-width: 0;
