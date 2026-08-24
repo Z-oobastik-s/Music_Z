@@ -174,6 +174,9 @@ export class AudioPlayer {
 
     const srcA = this.ctx.createMediaElementSource(this.audioA);
     const srcB = this.ctx.createMediaElementSource(this.audioB);
+    // Element volume must stay at 1 — loudness is controlled by GainNodes only
+    this.audioA.volume = 1;
+    this.audioB.volume = 1;
     srcA.connect(this.gainA);
     srcB.connect(this.gainB);
     this.gainA.connect(this.analyser);
@@ -309,10 +312,14 @@ export class AudioPlayer {
       this.activeEl.currentTime = 0;
       await this.activeEl.play();
       if (gen === this.playGen) this.prefetchNeighbors();
-    } catch {
+    } catch (err) {
       if (gen === this.playGen) {
         this.cb.onChange(this.track, false);
-        this.cb.onError?.(track, "Не удалось начать воспроизведение");
+        const blocked = err instanceof DOMException && err.name === "NotAllowedError";
+        this.cb.onError?.(
+          track,
+          blocked ? "Нажми Play — браузер блокирует автозапуск" : "Не удалось начать воспроизведение",
+        );
       }
     } finally {
       if (gen === this.playGen) this.setLoading(null, false);
@@ -399,10 +406,14 @@ export class AudioPlayer {
       try {
         await this.activeEl.play();
         if (gen === this.playGen) this.prefetchNeighbors();
-      } catch {
+      } catch (err) {
         if (gen === this.playGen) {
           this.cb.onChange(this.track, false);
-          this.cb.onError?.(track, "Не удалось начать воспроизведение");
+          const blocked = err instanceof DOMException && err.name === "NotAllowedError";
+          this.cb.onError?.(
+            track,
+            blocked ? "Нажми Play — браузер блокирует автозапуск" : "Не удалось начать воспроизведение",
+          );
         }
       } finally {
         if (gen === this.playGen) this.setLoading(null, false);
@@ -484,10 +495,10 @@ export class AudioPlayer {
     if (!nextTrack || nextTrack.id === this.track?.id) return;
 
     this.crossfadeArmed = true;
-    void this.crossfadeTo(nextTrack, this.playGen).then((ok) => {
-      if (!ok && this.playGen) {
-        // Auto-advance fallback: hard cut when fade can't start
-        void this.hardCutTo(nextTrack, this.playGen);
+    const gen = this.playGen;
+    void this.crossfadeTo(nextTrack, gen).then((ok) => {
+      if (!ok && gen === this.playGen) {
+        void this.hardCutTo(nextTrack, gen);
       }
     });
   }
@@ -513,11 +524,15 @@ export class AudioPlayer {
 
   setVolume(v: number): void {
     this.userVolume = Math.min(1, Math.max(0, v));
-    if (!this.crossfading && this.activeGain) {
-      this.activeGain.gain.value = this.userVolume;
-    } else if (!this.crossfading) {
-      this.audioA.volume = this.userVolume;
-      this.audioB.volume = this.userVolume;
+    if (this.gainA && this.gainB) {
+      this.audioA.volume = 1;
+      this.audioB.volume = 1;
+      if (this.crossfading) return;
+      if (this.activeGain) this.activeGain.gain.value = this.userVolume;
+      if (this.idleGain) this.idleGain.gain.value = 0;
+      return;
     }
+    this.audioA.volume = this.userVolume;
+    this.audioB.volume = this.userVolume;
   }
 }

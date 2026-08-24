@@ -72,10 +72,14 @@ self.addEventListener("activate", (event) => {
  */
 async function cacheFirst(req, cacheName) {
   const cache = await caches.open(cacheName);
+  // Never store partial responses as the only cache entry
+  if (req.headers.has("Range")) {
+    return fetch(req);
+  }
   const hit = await cache.match(req);
   if (hit) return hit;
   const res = await fetch(req);
-  if (res.ok) {
+  if (res.ok && res.status === 200) {
     try {
       await cache.put(req, res.clone());
     } catch {
@@ -133,6 +137,11 @@ self.addEventListener("fetch", (event) => {
     /\/logo\.png$/i.test(path) ||
     /\/favicon\.(svg|png)$/i.test(path)
   ) {
+    // Range requests (seek / progressive) must hit the network — cached 200 breaks 206
+    if (path.includes("/tracks/") && req.headers.has("Range")) {
+      e.respondWith(fetch(req));
+      return;
+    }
     e.respondWith(cacheFirst(req, MEDIA));
     return;
   }
