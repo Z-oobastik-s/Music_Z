@@ -984,7 +984,7 @@ function render(tracks: Track[]): void {
       </div>
       <div class="hero-foot">
         <div class="hero-actions">
-          <button type="button" class="btn btn-fill btn-play-cat${loading ? " is-loading" : ""}" data-hero-play ${loading ? 'aria-busy="true"' : ""}>
+          <button type="button" class="btn btn-line btn-play-cat${loading ? " is-loading" : ""}" data-hero-play ${loading ? 'aria-busy="true"' : ""}>
             <span class="play-cat play-cat--md" data-play-cat data-pose="${heroPose}" aria-hidden="true">
               <img class="play-cat-f play-cat-f--1" src="${assetUrl("mz-play-cat-01.png", BUILD)}" alt="" width="28" height="28" draggable="false" />
               <img class="play-cat-f play-cat-f--2" src="${assetUrl("mz-play-cat-02.png", BUILD)}" alt="" width="28" height="28" draggable="false" />

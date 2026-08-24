@@ -950,6 +950,21 @@ button img, a img {
 .hero-actions .btn-fill:hover {
   background: var(--accent2);
 }
+.hero-actions .btn-play-cat {
+  gap: 0.45rem;
+  color: var(--ink);
+  border-color: var(--line);
+  background: transparent;
+}
+.hero-actions .btn-play-cat:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+.hero-actions .btn-play-cat.is-loading {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+  color: var(--accent);
+}
 .hero-actions .btn-dl {
   gap: 0.4rem;
   overflow: hidden;
