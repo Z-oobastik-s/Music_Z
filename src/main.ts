@@ -111,7 +111,7 @@ const ICONS = {
   repeatOne: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 1l4 4-4 4M3 11V9a4 4 0 014-4h14M7 23l-4-4 4-4M21 13v2a4 4 0 01-4 4H3"/><text x="12" y="15.5" text-anchor="middle" fill="currentColor" stroke="none" font-size="8" font-family="IBM Plex Sans, sans-serif" font-weight="700">1</text></svg>`,
   playBig: `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`,
   pauseBig: `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>`,
-  queue: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg>`,
+  queue: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h12M3 12h12M3 18h8"/><path d="M17 9.5v5l4.5-2.5L17 9.5z" fill="currentColor" stroke="none"/></svg>`,
   vol: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5zM15 9a4 4 0 010 6M17 7a7 7 0 010 10"/></svg>`,
   share: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>`,
   copy: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>`,
@@ -582,6 +582,10 @@ function render(tracks: Track[]): void {
     modal.hidden = false;
   }
 
+  function setQueueBtnActive(on: boolean): void {
+    app.querySelector<HTMLButtonElement>("[data-queue]")?.classList.toggle("is-active", on);
+  }
+
   function openQueueModal(): void {
     modalMode = "queue";
     const q = player.getQueue();
@@ -589,6 +593,7 @@ function render(tracks: Track[]): void {
     card?.classList.add("modal-card--queue");
     modalTitle.innerHTML = `Очередь <span class="modal-count">${q.length}</span>`;
     modalCopy.hidden = true;
+    setQueueBtnActive(true);
     if (!q.length) {
       modalBody.className = "modal-body modal-queue";
       modalBody.innerHTML = `<p class="queue-empty">Очередь пуста — выбери трек.</p>`;
@@ -600,18 +605,7 @@ function render(tracks: Track[]): void {
       .map((t, i) => {
         const on = t.id === (activeId ?? focusId);
         const live = on && playing;
-        return `<button type="button" class="queue-item${on ? " is-on" : ""}${live ? " is-live" : ""}" data-qid="${escapeHtml(t.id)}">
-          <span class="queue-num">${String(i + 1).padStart(2, "0")}</span>
-          <img class="queue-cover" src="${assetUrl(t.cover)}" alt="" width="40" height="40" loading="lazy" draggable="false" />
-          <span class="queue-meta">
-            <strong>${escapeHtml(t.title)}</strong>
-            <em>${escapeHtml(t.artist)}</em>
-          </span>
-          <span class="queue-side">
-            ${live ? `<span class="queue-eq" aria-hidden="true"><i></i><i></i><i></i></span>` : ""}
-            <span class="queue-dur">${formatDuration(t.durationSec)}</span>
-          </span>
-        </button>`;
+        return `<button type="button" class="queue-item${on ? " is-on" : ""}${live ? " is-live" : ""}" data-qid="${escapeHtml(t.id)}"><span class="queue-num">${String(i + 1).padStart(2, "0")}</span><img class="queue-cover" src="${assetUrl(t.cover)}" alt="" width="40" height="40" loading="lazy" draggable="false" /><span class="queue-meta"><span class="queue-title">${escapeHtml(t.title)}</span><span class="queue-artist">${escapeHtml(t.artist)}</span></span><span class="queue-side">${live ? `<span class="queue-eq" aria-hidden="true"><i></i><i></i><i></i></span>` : ""}<span class="queue-dur">${formatDuration(t.durationSec)}</span></span></button>`;
       })
       .join("");
     modalBody.querySelectorAll<HTMLButtonElement>("[data-qid]").forEach((btn) => {
@@ -619,7 +613,6 @@ function render(tracks: Track[]): void {
         const id = btn.getAttribute("data-qid");
         const track = tracks.find((t) => t.id === id);
         if (!track) return;
-        player.setQueue(filtered().length ? filtered() : tracks);
         void player.play(track);
         closeModal();
       });
@@ -631,6 +624,7 @@ function render(tracks: Track[]): void {
     modal.hidden = true;
     modalMode = "text";
     modal.querySelector(".modal-card")?.classList.remove("modal-card--queue");
+    setQueueBtnActive(false);
   }
 
   app.querySelectorAll("[data-modal-close], [data-modal-close2]").forEach((el) => {
@@ -977,6 +971,10 @@ function render(tracks: Track[]): void {
     player.toggleRepeat();
   });
   queueBtn.addEventListener("click", () => {
+    if (modalMode === "queue" && !modal.hidden) {
+      closeModal();
+      return;
+    }
     player.setQueue(filtered().length ? filtered() : tracks);
     openQueueModal();
   });

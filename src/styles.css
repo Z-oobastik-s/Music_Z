@@ -31,6 +31,7 @@
 }
 
 *, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html, body, #app {
   margin: 0;
   height: 100%;
@@ -1370,27 +1371,43 @@ button img, a img {
   accent-color: var(--accent);
 }
 .queue-btn {
-  width: 1.85rem;
-  height: 1.85rem;
-  border: 0;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid transparent;
+  border-radius: 2px;
   background: transparent;
-  color: var(--accent);
+  color: var(--ink);
   display: grid;
   place-items: center;
   cursor: pointer;
   padding: 0;
+  flex-shrink: 0;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
 }
-.queue-btn:hover { color: var(--ink); }
-.queue-btn.is-active { color: var(--ink); }
+.queue-btn svg { display: block; }
+.queue-btn:hover {
+  color: var(--accent);
+  border-color: var(--line);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+.queue-btn.is-active {
+  color: var(--accent);
+  border-color: var(--line);
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+}
 
 .modal-queue {
-  white-space: normal;
-  font-family: "IBM Plex Sans", system-ui, sans-serif;
+  white-space: normal !important;
+  word-break: normal !important;
+  overflow-wrap: anywhere;
+  font-family: "IBM Plex Sans", system-ui, sans-serif !important;
+  font-size: 13px !important;
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: 2px;
   padding: 0.4rem;
-  color: var(--ink);
+  color: var(--ink) !important;
+  line-height: 1.35 !important;
 }
 .queue-empty {
   margin: 1.5rem 0.75rem;
@@ -1400,18 +1417,22 @@ button img, a img {
 }
 .queue-item {
   display: grid;
-  grid-template-columns: 1.6rem 40px minmax(0, 1fr) auto;
-  gap: 0.55rem;
+  grid-template-columns: 1.4rem 40px minmax(0, 1fr) auto;
+  column-gap: 0.55rem;
   align-items: center;
   width: 100%;
   border: 1px solid transparent;
   border-radius: 2px;
   background: transparent;
-  color: inherit;
+  color: var(--ink);
   text-align: left;
   cursor: pointer;
-  padding: 0.35rem 0.4rem;
-  min-height: 0;
+  padding: 0.4rem 0.45rem;
+  min-height: 52px;
+  font-family: "IBM Plex Sans", system-ui, sans-serif;
+  font-size: 13px;
+  line-height: 1.3;
+  white-space: normal;
 }
 .queue-item:hover {
   background: color-mix(in srgb, var(--accent) 10%, transparent);
@@ -1427,9 +1448,10 @@ button img, a img {
 .queue-num {
   font-family: "Bebas Neue", sans-serif;
   color: var(--muted);
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   letter-spacing: 0.04em;
   text-align: center;
+  line-height: 1;
 }
 .queue-item.is-on .queue-num { color: var(--accent); }
 .queue-cover {
@@ -1438,32 +1460,46 @@ button img, a img {
   object-fit: cover;
   border: 1px solid var(--line);
   background: #000;
-  flex-shrink: 0;
+  display: block;
 }
 .queue-meta {
   min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.1rem;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  row-gap: 4px;
+  align-content: center;
+  overflow: hidden;
 }
-.queue-meta strong,
-.queue-meta em {
+.queue-title,
+.queue-artist {
   display: block;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  position: static;
+  float: none;
+  transform: none;
+  max-width: 100%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  line-height: 1.2;
+  letter-spacing: 0;
+  text-transform: none;
 }
-.queue-meta strong {
+.queue-title {
   font-size: 0.78rem;
   font-weight: 600;
+  font-family: "IBM Plex Sans", system-ui, sans-serif;
+  line-height: 1.2;
   color: var(--ink);
 }
-.queue-item.is-on .queue-meta strong { color: var(--accent); }
-.queue-meta em {
+.queue-item.is-on .queue-title { color: var(--accent); }
+.queue-artist {
+  font-size: 0.66rem;
+  font-weight: 500;
   font-style: normal;
-  font-size: 0.65rem;
+  line-height: 1.2;
   color: var(--muted);
 }
 .queue-side {
@@ -1473,11 +1509,12 @@ button img, a img {
   flex-shrink: 0;
 }
 .queue-dur {
-  font-size: 0.65rem;
+  font-size: 0.68rem;
   color: var(--muted);
   font-variant-numeric: tabular-nums;
-  min-width: 2.2rem;
+  min-width: 2.3rem;
   text-align: right;
+  line-height: 1;
 }
 .queue-eq {
   display: inline-flex;
@@ -1493,6 +1530,7 @@ button img, a img {
   border-radius: 1px;
   animation: queue-eq 0.85s ease-in-out infinite;
   height: 40%;
+  transform-origin: bottom center;
 }
 .queue-eq i:nth-child(2) { animation-delay: 0.15s; height: 70%; }
 .queue-eq i:nth-child(3) { animation-delay: 0.3s; height: 55%; }
@@ -1520,10 +1558,19 @@ button img, a img {
   flex-direction: column;
   box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
 }
+.modal:has(.modal-card--queue) {
+  align-items: end;
+  justify-content: end;
+  padding: var(--gap);
+  padding-bottom: calc(var(--player-h) + var(--gap) + 4px);
+  background: rgba(0, 0, 0, 0.55);
+}
 .modal-card--queue {
-  width: min(480px, 100%);
-  max-height: min(72vh, 560px);
+  width: min(420px, 100%);
+  max-height: min(68vh, 540px);
   background: #050505;
+  border-color: var(--line);
+  box-shadow: -12px 0 40px rgba(0, 0, 0, 0.55);
 }
 .modal-head {
   display: flex;
@@ -1538,8 +1585,8 @@ button img, a img {
   color: var(--ink);
 }
 .modal-card--queue .modal-head {
-  padding: 0.65rem 0.75rem;
-  background: linear-gradient(180deg, rgba(225, 6, 0, 0.08), transparent);
+  padding: 0.7rem 0.8rem;
+  background: linear-gradient(180deg, rgba(225, 6, 0, 0.1), transparent);
 }
 .modal-head strong {
   display: inline-flex;
@@ -1562,6 +1609,7 @@ button img, a img {
   font-size: 0.62rem;
   font-weight: 700;
   letter-spacing: 0.04em;
+  text-transform: none;
 }
 .modal-body {
   margin: 0;
@@ -1576,8 +1624,12 @@ button img, a img {
   color: var(--muted);
 }
 .modal-card--queue .modal-body {
-  padding: 0.35rem 0.4rem 0.5rem;
-  font-family: "IBM Plex Sans", system-ui, sans-serif;
+  padding: 0.3rem 0.35rem 0.45rem;
+  font-family: "IBM Plex Sans", system-ui, sans-serif !important;
+  white-space: normal !important;
+  word-break: normal !important;
+  line-height: 1.35 !important;
+  color: var(--ink) !important;
 }
 .modal-actions {
   display: flex;
@@ -1587,13 +1639,7 @@ button img, a img {
   border-top: 1px solid var(--line);
 }
 .modal-card--queue .modal-actions {
-  padding: 0.5rem 0.65rem;
-  background: #030303;
-}
-.modal-card--queue .modal-actions [data-modal-copy][hidden] + .btn-fill,
-.modal-card--queue .modal-actions .btn-fill {
-  min-width: 7rem;
-  justify-content: center;
+  display: none;
 }
 
 .backdrop {
