@@ -190,23 +190,23 @@ function render(tracks: Track[]): void {
                 <label class="search-box">
                   ${ICONS.search}
                   <input type="search" placeholder="Поиск трека, артиста…" data-search aria-label="Поиск" />
+                  <span class="search-bat-letter" data-search-bat hidden aria-hidden="true"></span>
+                  <div class="search-paw" data-search-paw data-frame="0" aria-hidden="true">
+                    <img class="search-paw-f search-paw-f--1" src="${assetUrl("mz-search-paw-01.png", BUILD)}" alt="" width="40" height="40" draggable="false" />
+                    <img class="search-paw-f search-paw-f--2" src="${assetUrl("mz-search-paw-02.png", BUILD)}" alt="" width="40" height="40" draggable="false" />
+                    <img class="search-paw-f search-paw-f--3" src="${assetUrl("mz-search-paw-03.png", BUILD)}" alt="" width="40" height="40" draggable="false" />
+                    <img class="search-paw-f search-paw-f--4" src="${assetUrl("mz-search-paw-04.png", BUILD)}" alt="" width="40" height="40" draggable="false" />
+                    <img class="search-paw-f search-paw-f--5" src="${assetUrl("mz-search-paw-05.png", BUILD)}" alt="" width="40" height="40" draggable="false" />
+                  </div>
+                  <div class="search-tail" data-search-tail data-frame="0" aria-hidden="true">
+                    <img class="search-tail-f search-tail-f--1" src="${assetUrl("mz-search-tail-01.png", BUILD)}" alt="" width="120" height="60" draggable="false" />
+                    <img class="search-tail-f search-tail-f--2" src="${assetUrl("mz-search-tail-02.png", BUILD)}" alt="" width="120" height="60" draggable="false" />
+                    <img class="search-tail-f search-tail-f--3" src="${assetUrl("mz-search-tail-03.png", BUILD)}" alt="" width="120" height="60" draggable="false" />
+                    <img class="search-tail-f search-tail-f--4" src="${assetUrl("mz-search-tail-04.png", BUILD)}" alt="" width="120" height="60" draggable="false" />
+                  </div>
                 </label>
-                <span class="search-bat-letter" data-search-bat hidden aria-hidden="true"></span>
-                <div class="search-paw" data-search-paw data-frame="0" aria-hidden="true">
-                  <img class="search-paw-f search-paw-f--1" src="${assetUrl("mz-search-paw-01.png", BUILD)}" alt="" width="72" height="72" draggable="false" />
-                  <img class="search-paw-f search-paw-f--2" src="${assetUrl("mz-search-paw-02.png", BUILD)}" alt="" width="72" height="72" draggable="false" />
-                  <img class="search-paw-f search-paw-f--3" src="${assetUrl("mz-search-paw-03.png", BUILD)}" alt="" width="72" height="72" draggable="false" />
-                  <img class="search-paw-f search-paw-f--4" src="${assetUrl("mz-search-paw-04.png", BUILD)}" alt="" width="72" height="72" draggable="false" />
-                  <img class="search-paw-f search-paw-f--5" src="${assetUrl("mz-search-paw-05.png", BUILD)}" alt="" width="72" height="72" draggable="false" />
-                </div>
-                <div class="search-tail" data-search-tail data-frame="0" aria-hidden="true">
-                  <img class="search-tail-f search-tail-f--1" src="${assetUrl("mz-search-tail-01.png", BUILD)}" alt="" width="220" height="110" draggable="false" />
-                  <img class="search-tail-f search-tail-f--2" src="${assetUrl("mz-search-tail-02.png", BUILD)}" alt="" width="220" height="110" draggable="false" />
-                  <img class="search-tail-f search-tail-f--3" src="${assetUrl("mz-search-tail-03.png", BUILD)}" alt="" width="220" height="110" draggable="false" />
-                  <img class="search-tail-f search-tail-f--4" src="${assetUrl("mz-search-tail-04.png", BUILD)}" alt="" width="220" height="110" draggable="false" />
-                </div>
                 <div class="search-smirk" data-search-smirk aria-hidden="true">
-                  <img src="${assetUrl("mz-search-smirk.png", BUILD)}" alt="" width="64" height="64" draggable="false" />
+                  <img src="${assetUrl("mz-search-smirk.png", BUILD)}" alt="" width="48" height="48" draggable="false" />
                 </div>
               </div>
               <div class="theme-cat-wrap" data-theme-root>
@@ -1285,6 +1285,7 @@ function render(tracks: Track[]): void {
   listMusicEl.addEventListener("click", onTrackListClick);
 
   const searchFx = app.querySelector<HTMLElement>("[data-search-fx]")!;
+  const searchBox = searchFx.querySelector<HTMLElement>(".search-box")!;
   const searchPaw = app.querySelector<HTMLElement>("[data-search-paw]")!;
   const searchTail = app.querySelector<HTMLElement>("[data-search-tail]")!;
   const searchBat = app.querySelector<HTMLElement>("[data-search-bat]")!;
@@ -1294,47 +1295,36 @@ function render(tracks: Track[]): void {
   let searchDeleteStreak = 0;
   let measureCtx: CanvasRenderingContext2D | null = null;
 
-  function syncSearchFxGeometry(): void {
-    const box = searchFx.querySelector(".search-box");
-    if (!box) return;
-    const r = box.getBoundingClientRect();
-    searchFx.style.setProperty("--search-left", `${r.left}px`);
-    searchFx.style.setProperty("--search-top", `${r.top}px`);
-    searchFx.style.setProperty("--search-width", `${r.width}px`);
-    searchFx.style.setProperty("--search-height", `${r.height}px`);
-  }
-
   function caretXInSearch(): number {
-    const box = searchFx.querySelector(".search-box");
-    if (!box) return 48;
-    syncSearchFxGeometry();
-    const style = getComputedStyle(searchEl);
+    const input = searchEl;
+    const box = searchBox;
+    const style = getComputedStyle(input);
     if (!measureCtx) {
-      const c = document.createElement("canvas");
-      measureCtx = c.getContext("2d");
+      measureCtx = document.createElement("canvas").getContext("2d");
     }
-    if (!measureCtx) return 48;
+    if (!measureCtx) return 12;
     measureCtx.font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
-    const caret = searchEl.selectionStart ?? searchEl.value.length;
-    const text = searchEl.value.slice(0, caret);
-    const iconPad = 34;
-    const x = iconPad + measureCtx.measureText(text).width;
-    const max = box.clientWidth - 28;
-    return Math.max(28, Math.min(max, x));
+    const caret = input.selectionStart ?? input.value.length;
+    const text = input.value.slice(0, caret);
+    const textW = measureCtx.measureText(text).width;
+    const inputLeft = input.offsetLeft;
+    const padL = parseFloat(style.paddingLeft) || 0;
+    const x = inputLeft + padL + textW;
+    const max = box.clientWidth - 16;
+    return Math.max(inputLeft + 4, Math.min(max, x));
   }
 
   function runSearchPawBat(letter: string): void {
-    syncSearchFxGeometry();
     window.clearTimeout(searchPawTimer);
-    searchFx.classList.remove("is-sweeping");
+    searchFx.classList.remove("is-sweeping", "is-smirking");
     searchFx.classList.add("is-batting");
-    const x = caretXInSearch() + (Math.random() * 12 - 6);
-    searchFx.style.setProperty("--paw-x", `${x}px`);
+    const x = caretXInSearch();
+    searchBox.style.setProperty("--paw-x", `${x}px`);
+    searchBox.style.setProperty("--bat-x", `${x}px`);
     if (letter && letter !== " ") {
       searchBat.hidden = false;
       searchBat.textContent = letter;
-      searchFx.style.setProperty("--bat-x", `${x}px`);
-      searchFx.style.setProperty("--bat-rot", `${Math.random() * 24 - 12}deg`);
+      searchBox.style.setProperty("--bat-rot", `${Math.random() * 16 - 8}deg`);
       searchBat.classList.remove("is-pop");
       void searchBat.offsetWidth;
       searchBat.classList.add("is-pop");
@@ -1344,7 +1334,7 @@ function render(tracks: Track[]): void {
       searchPaw.dataset.frame = String(frame);
       frame += 1;
       if (frame <= 5) {
-        searchPawTimer = window.setTimeout(tick, 88);
+        searchPawTimer = window.setTimeout(tick, 72);
       } else {
         searchPaw.dataset.frame = "0";
         searchFx.classList.remove("is-batting");
@@ -1356,7 +1346,6 @@ function render(tracks: Track[]): void {
   }
 
   function runSearchTailSweep(): void {
-    syncSearchFxGeometry();
     window.clearTimeout(searchTailTimer);
     searchFx.classList.remove("is-batting");
     searchPaw.dataset.frame = "0";
@@ -1366,7 +1355,7 @@ function render(tracks: Track[]): void {
       searchTail.dataset.frame = String(frame);
       frame += 1;
       if (frame <= 4) {
-        searchTailTimer = window.setTimeout(tick, 105);
+        searchTailTimer = window.setTimeout(tick, 95);
       } else {
         searchTail.dataset.frame = "0";
         searchFx.classList.remove("is-sweeping");
@@ -1376,17 +1365,17 @@ function render(tracks: Track[]): void {
   }
 
   function peekSearchSmirk(): void {
-    syncSearchFxGeometry();
     window.clearTimeout(searchSmirkTimer);
     searchFx.classList.add("is-smirking");
     searchSmirkTimer = window.setTimeout(() => {
       searchFx.classList.remove("is-smirking");
-    }, 1600);
+    }, 1400);
   }
 
   function runSearchCatFx(prev: string, next: string): void {
     if (next.length > prev.length) {
       searchDeleteStreak = 0;
+      searchFx.classList.remove("is-smirking");
       const added = next.slice(prev.length);
       const letter = added.length === 1 ? added : next.slice(-1);
       runSearchPawBat(letter);
@@ -1395,12 +1384,9 @@ function render(tracks: Track[]): void {
     if (next.length < prev.length) {
       searchDeleteStreak += 1;
       runSearchTailSweep();
-      if (searchDeleteStreak >= 2 || Math.random() < 0.42) {
+      if (next.length === 0 || searchDeleteStreak >= 3) {
         peekSearchSmirk();
-      }
-      if (next.length === 0) {
-        searchDeleteStreak = 0;
-        peekSearchSmirk();
+        if (next.length === 0) searchDeleteStreak = 0;
       }
     }
   }
@@ -1412,9 +1398,6 @@ function render(tracks: Track[]): void {
     paintList();
     runSearchCatFx(prev, next);
   });
-  searchEl.addEventListener("focus", syncSearchFxGeometry);
-  window.addEventListener("resize", syncSearchFxGeometry);
-  syncSearchFxGeometry();
 
   app.querySelector<HTMLButtonElement>("[data-theme-toggle]")!.addEventListener("click", () => {
     const btn = app.querySelector<HTMLButtonElement>("[data-theme-toggle]")!;
