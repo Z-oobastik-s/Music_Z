@@ -76,6 +76,10 @@ img, .char-art, .brand-hero, .side-logo img, .now-play img, .track-item img {
   user-select: none;
   pointer-events: none;
 }
+.theme-cat-sprite {
+  pointer-events: none;
+  background: transparent !important;
+}
 /* Клики по кнопкам/ссылкам с иконками остаются рабочими */
 button img, a img {
   pointer-events: none;
@@ -270,6 +274,8 @@ button img, a img {
 .theme-cat-wrap {
   flex-shrink: 0;
   padding-left: 0.15rem;
+  background: none;
+  border: 0;
 }
 
 .theme-cat-btn {
@@ -278,26 +284,32 @@ button img, a img {
   background: transparent;
   cursor: pointer;
   padding: 0;
-  width: 58px;
-  height: 54px;
+  width: 52px;
+  height: 60px;
   display: block;
+  overflow: visible;
+  appearance: none;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow: none;
 }
 
 .theme-cat-btn:focus-visible {
   outline: 2px solid var(--accent);
-  outline-offset: 3px;
+  outline-offset: 2px;
   border-radius: 999px;
 }
 
 .theme-cat-stage {
   position: absolute;
-  bottom: 12px;
+  bottom: 14px;
   left: 50%;
   transform: translateX(-50%);
-  width: 54px;
-  height: 54px;
+  width: 52px;
+  height: 52px;
   pointer-events: none;
   z-index: 2;
+  background: none;
+  border: 0;
 }
 
 .theme-cat-sprite {
@@ -307,8 +319,12 @@ button img, a img {
   height: 100%;
   object-fit: contain;
   object-position: bottom center;
+  background: transparent;
+  border: 0;
+  outline: none;
+  box-shadow: none;
   transition: opacity 0.14s ease, transform 0.2s cubic-bezier(0.34, 1.4, 0.64, 1);
-  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.45));
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.35));
 }
 
 .theme-cat-sprite--tap {
@@ -332,47 +348,48 @@ button img, a img {
 
 .theme-cat-btn.is-tapping .theme-cat-sprite--tap {
   opacity: 1;
-  transform: translateY(6px) scale(1.02);
+  transform: translateY(8px) scale(1.03);
 }
 
 .theme-cat-pad {
   position: absolute;
-  bottom: 0;
+  bottom: 2px;
   left: 50%;
   transform: translateX(-50%);
-  width: 36px;
-  height: 36px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
-  border: 1px solid var(--line);
+  border: 0;
   background:
-    radial-gradient(circle at 50% 30%, color-mix(in srgb, var(--accent) 42%, transparent), transparent 62%),
-    var(--surface);
+    radial-gradient(circle at 50% 42%, color-mix(in srgb, var(--accent) 72%, #fff), color-mix(in srgb, var(--accent) 38%, transparent) 58%, transparent 72%);
   box-shadow:
-    0 0 10px color-mix(in srgb, var(--accent) 35%, transparent),
-    inset 0 0 8px color-mix(in srgb, var(--accent) 18%, transparent);
+    0 0 10px color-mix(in srgb, var(--accent) 55%, transparent),
+    0 0 2px color-mix(in srgb, var(--accent) 80%, transparent);
   display: grid;
   place-items: center;
   z-index: 1;
-  transition: transform 0.16s ease, box-shadow 0.2s ease;
+  transition: transform 0.16s ease, box-shadow 0.2s ease, opacity 0.2s ease;
 }
 
 .theme-cat-btn:hover .theme-cat-pad {
   box-shadow:
-    0 0 14px color-mix(in srgb, var(--accent) 50%, transparent),
-    inset 0 0 10px color-mix(in srgb, var(--accent) 24%, transparent);
+    0 0 14px color-mix(in srgb, var(--accent) 65%, transparent),
+    0 0 3px color-mix(in srgb, var(--accent) 90%, transparent);
 }
 
 .theme-cat-btn.is-tapping .theme-cat-pad {
-  transform: translateX(-50%) scale(0.9);
+  transform: translateX(-50%) scale(0.82);
   box-shadow:
-    0 0 22px color-mix(in srgb, var(--accent) 75%, transparent),
-    inset 0 0 14px color-mix(in srgb, var(--accent) 40%, transparent);
+    0 0 20px color-mix(in srgb, var(--accent) 85%, transparent),
+    0 0 4px var(--accent);
 }
 
 .theme-cat-icon {
   position: absolute;
-  font-size: 0.95rem;
+  font-size: 0.78rem;
   line-height: 1;
+  pointer-events: none;
+  text-shadow: 0 0 6px color-mix(in srgb, var(--accent) 70%, transparent);
   transition: opacity 0.28s ease, transform 0.28s cubic-bezier(0.34, 1.4, 0.64, 1);
 }
 
@@ -400,9 +417,10 @@ button img, a img {
 
 .theme-cat-pulse {
   position: absolute;
-  inset: -5px;
+  inset: -4px;
   border-radius: 50%;
-  border: 1px solid var(--accent);
+  border: 0;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 55%, transparent);
   opacity: 0;
   pointer-events: none;
 }
