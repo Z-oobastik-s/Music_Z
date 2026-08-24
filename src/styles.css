@@ -866,6 +866,129 @@ button img, a img {
   }
 }
 
+/* Play / pause cat mascot — long soft crossfades between poses */
+.btn-play-cat {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  overflow: visible;
+}
+.btn-play-label {
+  line-height: 1;
+}
+.play-cat {
+  position: relative;
+  display: block;
+  flex-shrink: 0;
+  width: 1.55rem;
+  height: 1.55rem;
+  pointer-events: none;
+}
+.play-cat--md {
+  width: 1.7rem;
+  height: 1.7rem;
+}
+.play-cat--lg {
+  width: 2.05rem;
+  height: 2.05rem;
+}
+.play-cat-f {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  opacity: 0;
+  transform: translateY(3px) scale(0.94);
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
+  transition:
+    opacity 0.48s cubic-bezier(0.33, 0.1, 0.25, 1),
+    transform 0.52s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.4s ease;
+  will-change: opacity, transform;
+}
+.play-cat[data-pose="idle"] .play-cat-f--1,
+.play-cat[data-pose="tap"] .play-cat-f--2,
+.play-cat[data-pose="vibe"] .play-cat-f--3,
+.play-cat[data-pose="pause"] .play-cat-f--4 {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+.play-cat[data-pose="idle"] .play-cat-f--1 {
+  animation: play-cat-breathe 2.8s ease-in-out infinite;
+}
+.play-cat[data-pose="tap"] .play-cat-f--2 {
+  animation: play-cat-press 0.42s cubic-bezier(0.34, 1.35, 0.64, 1);
+}
+.play-cat[data-pose="vibe"] .play-cat-f--3 {
+  animation: play-cat-vibe 1.65s ease-in-out infinite;
+}
+.play-cat[data-pose="pause"] .play-cat-f--4 {
+  animation: play-cat-halt 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.play-cat-btn {
+  overflow: visible;
+}
+.play-cat-btn .play-cat {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  z-index: 1;
+}
+.play-cat-btn .play-cat-glyph {
+  position: relative;
+  z-index: 0;
+  opacity: 0;
+  width: 1.1rem;
+  height: 1.1rem;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+.play-cat-btn.is-loading .play-cat {
+  opacity: 0.35;
+  transition: opacity 0.35s ease;
+}
+.play-cat-btn.is-loading .play-cat-glyph {
+  opacity: 1;
+  z-index: 2;
+  color: #fff;
+}
+
+@keyframes play-cat-breathe {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-1.5px) scale(1.03); }
+}
+@keyframes play-cat-press {
+  0% { transform: translateY(-2px) scale(1.06); }
+  55% { transform: translateY(3px) scale(0.9); }
+  100% { transform: translateY(0) scale(1); }
+}
+@keyframes play-cat-vibe {
+  0%, 100% { transform: translateY(0) rotate(-2deg) scale(1); }
+  25% { transform: translateY(-2.5px) rotate(2deg) scale(1.04); }
+  50% { transform: translateY(0) rotate(-1deg) scale(1.01); }
+  75% { transform: translateY(-2px) rotate(2.5deg) scale(1.05); }
+}
+@keyframes play-cat-halt {
+  0% { transform: translateY(2px) scale(0.9); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .play-cat-f {
+    transition-duration: 0.01ms;
+  }
+  .play-cat[data-pose="idle"] .play-cat-f--1,
+  .play-cat[data-pose="tap"] .play-cat-f--2,
+  .play-cat[data-pose="vibe"] .play-cat-f--3,
+  .play-cat[data-pose="pause"] .play-cat-f--4 {
+    animation: none;
+  }
+}
+
 .hero-actions .btn-icon {
   width: 2.15rem;
   min-width: 2.15rem;
@@ -1626,12 +1749,13 @@ button img, a img {
 .player-ctrl button:hover { color: var(--accent); }
 .player-ctrl button.is-active { color: var(--accent); }
 .player-ctrl .play-main {
-  width: 2.7rem;
-  height: 2.7rem;
+  width: 2.85rem;
+  height: 2.85rem;
   background: var(--accent);
   color: #fff;
   margin: 0 0.15rem;
   position: relative;
+  overflow: visible;
 }
 .player-ctrl .play-main:hover { background: var(--accent2); color: #fff; }
 .player-ctrl .play-main.is-active { color: #fff; }

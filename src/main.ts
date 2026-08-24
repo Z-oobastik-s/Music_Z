@@ -308,7 +308,15 @@ function render(tracks: Track[]): void {
         <div class="player-ctrl">
           <button type="button" data-shuffle title="Перемешать" aria-pressed="false">${ICONS.shuffle}</button>
           <button type="button" data-prev title="Назад">${ICONS.prev}</button>
-          <button type="button" class="play-main" data-toggle title="Play">${ICONS.playBig}</button>
+          <button type="button" class="play-main play-cat-btn" data-toggle title="Play">
+            <span class="play-cat play-cat--lg" data-play-cat data-pose="idle" aria-hidden="true">
+              <img class="play-cat-f play-cat-f--1" src="${assetUrl("mz-play-cat-01.png", BUILD)}" alt="" width="40" height="40" draggable="false" />
+              <img class="play-cat-f play-cat-f--2" src="${assetUrl("mz-play-cat-02.png", BUILD)}" alt="" width="40" height="40" draggable="false" />
+              <img class="play-cat-f play-cat-f--3" src="${assetUrl("mz-play-cat-03.png", BUILD)}" alt="" width="40" height="40" draggable="false" />
+              <img class="play-cat-f play-cat-f--4" src="${assetUrl("mz-play-cat-04.png", BUILD)}" alt="" width="40" height="40" draggable="false" />
+            </span>
+            <span class="play-cat-glyph" data-toggle-glyph>${ICONS.playBig}</span>
+          </button>
           <button type="button" data-next title="Вперёд">${ICONS.next}</button>
           <button type="button" data-repeat title="Повтор: выкл" aria-pressed="false">${ICONS.repeat}</button>
         </div>
@@ -373,6 +381,47 @@ function render(tracks: Track[]): void {
   const nowArtist = app.querySelector<HTMLElement>("[data-now-artist]")!;
   const nowStatus = app.querySelector<HTMLElement>("[data-now-status]")!;
   const toggleEl = app.querySelector<HTMLButtonElement>("[data-toggle]")!;
+  const toggleGlyph = app.querySelector<HTMLElement>("[data-toggle-glyph]")!;
+  type PlayCatPose = "idle" | "tap" | "vibe" | "pause";
+  let playCatPose: PlayCatPose = "idle";
+  let playCatTimer = 0;
+  let playCatLockUntil = 0;
+
+  function applyPlayCatPose(pose: PlayCatPose): void {
+    playCatPose = pose;
+    app.querySelectorAll<HTMLElement>("[data-play-cat]").forEach((c) => {
+      c.dataset.pose = pose;
+    });
+  }
+
+  /** Smooth tap → vibe / pause → idle */
+  function animatePlayCat(willPlay: boolean): void {
+    window.clearTimeout(playCatTimer);
+    playCatLockUntil = Date.now() + 1100;
+    applyPlayCatPose("tap");
+    playCatTimer = window.setTimeout(() => {
+      if (willPlay) {
+        applyPlayCatPose(loadingId ? "tap" : "vibe");
+        playCatLockUntil = Date.now() + 180;
+        return;
+      }
+      applyPlayCatPose("pause");
+      playCatTimer = window.setTimeout(() => {
+        playCatLockUntil = 0;
+        applyPlayCatPose("idle");
+      }, 520);
+    }, 420);
+  }
+
+  function syncPlayCatPose(): void {
+    if (Date.now() < playCatLockUntil) return;
+    window.clearTimeout(playCatTimer);
+    if (loadingId) {
+      applyPlayCatPose("tap");
+      return;
+    }
+    applyPlayCatPose(playing ? "vibe" : "idle");
+  }
   const shuffleBtn = app.querySelector<HTMLButtonElement>("[data-shuffle]")!;
   const repeatBtn = app.querySelector<HTMLButtonElement>("[data-repeat]")!;
   const queueBtn = app.querySelector<HTMLButtonElement>("[data-queue]")!;
@@ -705,16 +754,18 @@ function render(tracks: Track[]): void {
 
   function paintPlayButton(): void {
     if (loadingId) {
-      toggleEl.innerHTML = ICONS.spinner;
       toggleEl.classList.add("is-loading");
       toggleEl.title = "Загрузка…";
       toggleEl.setAttribute("aria-busy", "true");
+      toggleGlyph.innerHTML = ICONS.spinner;
+      syncPlayCatPose();
       return;
     }
     toggleEl.classList.remove("is-loading");
     toggleEl.removeAttribute("aria-busy");
-    toggleEl.innerHTML = playing ? ICONS.pauseBig : ICONS.playBig;
+    toggleGlyph.innerHTML = playing ? ICONS.pauseBig : ICONS.playBig;
     toggleEl.title = playing ? "Пауза" : "Play";
+    syncPlayCatPose();
   }
 
   function paintLoadingUi(): void {
@@ -906,14 +957,23 @@ function render(tracks: Track[]): void {
     const on = activeId === track.id && playing;
     const loading = loadingId === track.id;
     const heroLabel = loading ? "Загрузка…" : on ? "Пауза" : "Воспроизвести";
-    const heroIcon = loading ? ICONS.spinnerSm : ICONS.play;
+    const heroPose =
+      Date.now() < playCatLockUntil ? playCatPose : loading ? "tap" : on ? "vibe" : "idle";
     heroEl.innerHTML = `
       <div class="hero-art">
         <img class="brand-hero" src="${assetUrl("hero-banner.png")}" alt="Music_Z" />
       </div>
       <div class="hero-foot">
         <div class="hero-actions">
-          <button type="button" class="btn btn-fill${loading ? " is-loading" : ""}" data-hero-play ${loading ? 'aria-busy="true"' : ""}>${heroIcon} ${heroLabel}</button>
+          <button type="button" class="btn btn-fill btn-play-cat${loading ? " is-loading" : ""}" data-hero-play ${loading ? 'aria-busy="true"' : ""}>
+            <span class="play-cat play-cat--md" data-play-cat data-pose="${heroPose}" aria-hidden="true">
+              <img class="play-cat-f play-cat-f--1" src="${assetUrl("mz-play-cat-01.png", BUILD)}" alt="" width="28" height="28" draggable="false" />
+              <img class="play-cat-f play-cat-f--2" src="${assetUrl("mz-play-cat-02.png", BUILD)}" alt="" width="28" height="28" draggable="false" />
+              <img class="play-cat-f play-cat-f--3" src="${assetUrl("mz-play-cat-03.png", BUILD)}" alt="" width="28" height="28" draggable="false" />
+              <img class="play-cat-f play-cat-f--4" src="${assetUrl("mz-play-cat-04.png", BUILD)}" alt="" width="28" height="28" draggable="false" />
+            </span>
+            <span class="btn-play-label">${heroLabel}</span>
+          </button>
           <button type="button" class="btn btn-line btn-dl" data-hero-dl title="Скачать трек">
             <span class="dl-fx" aria-hidden="true">
               <img class="dl-sprite dl-sprite--idle" src="${assetUrl("mz-dl-idle.png", BUILD)}" alt="" width="22" height="22" draggable="false" />
@@ -958,7 +1018,8 @@ function render(tracks: Track[]): void {
       </div>
     `;
     heroEl.querySelector<HTMLButtonElement>("[data-hero-play]")!.onclick = () => {
-      // Allow retry even if a previous load is stuck
+      const willPlay = !(activeId === track.id && playing && !loadingId);
+      animatePlayCat(willPlay);
       void playTrack(track, { toggle: true });
     };
 
@@ -1196,6 +1257,8 @@ function render(tracks: Track[]): void {
     if (!id) return;
     const track = tracks.find((t) => t.id === id);
     if (!track) return;
+    const willPlay = !(activeId === track.id && playing && !loadingId);
+    animatePlayCat(willPlay);
     void playTrack(track, { toggle: true });
   }
 
@@ -1227,6 +1290,8 @@ function render(tracks: Track[]): void {
   app.querySelector<HTMLButtonElement>("[data-toggle]")!.addEventListener("click", () => {
     const track = player.current ?? queueScope()[0] ?? tracks[0];
     if (!track) return;
+    const willPlay = !(activeId === track.id && playing && !loadingId);
+    animatePlayCat(willPlay);
     void playTrack(track, { toggle: true });
   });
   app.querySelector<HTMLButtonElement>("[data-prev]")!.addEventListener("click", () => {

@@ -139,7 +139,7 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  if (/mz-theme-cat/i.test(path)) {
+  if (/mz-theme-cat|mz-play-cat|mz-dl-/i.test(path)) {
     e.respondWith(staleWhileRevalidate(req, MEDIA));
     return;
   }
