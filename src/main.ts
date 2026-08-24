@@ -710,7 +710,13 @@ function render(tracks: Track[]): void {
   paintModes(false, "off");
 
   async function armBeat(): Promise<void> {
-    // Only unlock / wire AudioContext — motion starts when audio is actually playing
+    await player.initAudio();
+    const ctx = player.audioContext;
+    const analyser = player.analyserNode;
+    if (ctx && analyser) {
+      await beat.attach(ctx, analyser, () => player.isAudioLive());
+      return;
+    }
     await beat.connect(player.media);
   }
 

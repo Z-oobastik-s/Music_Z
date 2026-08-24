@@ -27,13 +27,31 @@ export class BeatMotion {
 
   private readonly root: HTMLElement;
 
+  private isLiveFn: (() => boolean) | null = null;
+
   constructor(root: HTMLElement) {
     this.root = root;
   }
 
+  /** Use when AudioPlayer owns the Web Audio graph (dual-track crossfade). */
+  async attach(
+    ctx: AudioContext,
+    analyser: AnalyserNode,
+    isLive: () => boolean,
+  ): Promise<void> {
+    this.ctx = ctx;
+    this.analyser = analyser;
+    this.isLiveFn = isLive;
+    this.sampleRate = ctx.sampleRate;
+    this.freq = new Uint8Array(this.analyser.frequencyBinCount);
+    this.time = new Uint8Array(this.analyser.fftSize);
+    this.prevBins = new Float32Array(this.analyser.frequencyBinCount);
+    await this.resume();
+  }
+
   async connect(audio: HTMLAudioElement): Promise<void> {
     this.mediaEl = audio;
-    if (this.src && this.analyser) {
+    if (this.isLiveFn) {
       await this.resume();
       return;
     }
@@ -249,11 +267,12 @@ export class BeatMotion {
 
     let { bass, mid, voice, energy, onset, alive } = this.read();
 
-    const audioLive =
-      !!this.mediaEl &&
-      !this.mediaEl.paused &&
-      !this.mediaEl.ended &&
-      this.mediaEl.readyState >= 2;
+    const audioLive = this.isLiveFn
+      ? this.isLiveFn()
+      : !!this.mediaEl &&
+        !this.mediaEl.paused &&
+        !this.mediaEl.ended &&
+        this.mediaEl.readyState >= 2;
 
     if (!audioLive) {
       this.envBass = this.follow(this.envBass, 0, 0.5, 0.2);
