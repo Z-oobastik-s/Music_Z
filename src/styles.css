@@ -235,18 +235,17 @@ button img, a img {
   display: flex;
   flex-direction: column;
   gap: var(--gap);
-  overflow: visible;
+  overflow: hidden;
 }
 
 .topbar {
   display: flex;
   align-items: center;
   gap: 0.65rem;
-  padding: 0.55rem 0.55rem 0.85rem;
+  padding: 0.4rem 0.55rem;
   background: var(--panel);
   flex-shrink: 0;
   z-index: 30;
-  overflow: visible;
 }
 
 .menu-btn {
@@ -259,17 +258,6 @@ button img, a img {
   color: var(--accent);
 }
 
-.search-fx {
-  position: relative;
-  flex: 1;
-  min-width: 0;
-  overflow: visible;
-  z-index: 4;
-  padding-bottom: 0.75rem;
-}
-.topbar.kit-box {
-  overflow: visible;
-}
 .search-box {
   flex: 1;
   display: flex;
@@ -280,204 +268,10 @@ button img, a img {
   padding: 0.4rem 0.75rem;
   background: var(--bg);
   min-width: 0;
-  position: relative;
-  z-index: 2;
-  overflow: visible;
-  transition: border-color 0.2s ease;
 }
-.search-fx.is-batting .search-box {
-  border-color: color-mix(in srgb, var(--accent) 40%, var(--line));
-}
-.search-fx.is-sweeping .search-box {
-  border-color: color-mix(in srgb, var(--accent) 35%, var(--line));
-}
-.search-box svg { flex-shrink: 0; color: var(--accent); position: relative; z-index: 4; }
-
-.search-input-wrap {
-  position: relative;
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  height: 1.35rem;
-}
-.search-input-wrap input {
-  width: 100%;
-  height: 100%;
-  border: 0;
-  background: transparent;
-  outline: none;
-  position: relative;
-  z-index: 4;
-  font: inherit;
-  color: var(--ink);
-}
-.search-input-wrap input::placeholder { color: var(--muted); }
-.search-input-wrap input.is-mirror-active {
-  color: transparent;
-  caret-color: var(--accent);
-}
-
-.search-text-mirror {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  color: var(--ink);
-  font: inherit;
-  white-space: pre;
-  pointer-events: none;
-  z-index: 3;
-  opacity: 0;
-  clip-path: inset(0 0 0 0);
-}
-.search-text-mirror.is-on { opacity: 1; }
-.search-text-mirror.is-wiping {
-  clip-path: inset(0 var(--wipe-end, 0px) 0 0);
-  transition: clip-path 0.52s cubic-bezier(0.33, 0.08, 0.25, 1);
-}
-
-/* Paw strike — drops onto the letter */
-.search-paw {
-  position: absolute;
-  top: 0;
-  left: var(--paw-x, 0);
-  width: 2.4rem;
-  height: calc(100% + 1.1rem);
-  transform: translateX(-50%);
-  pointer-events: none;
-  z-index: 5;
-  opacity: 0;
-}
-.search-paw.is-strike {
-  opacity: 1;
-  animation: search-paw-drop 0.38s cubic-bezier(0.34, 1.15, 0.64, 1) forwards;
-}
-@keyframes search-paw-drop {
-  0% { top: -1.05rem; }
-  42% { top: 0.05rem; }
-  52% { top: -0.05rem; }
-  100% { top: -1.2rem; opacity: 0; }
-}
-.search-paw-f {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  object-position: bottom center;
-  opacity: 0;
-}
-.search-paw.is-strike .search-paw-f--1 { animation: spf1 0.38s linear forwards; }
-.search-paw.is-strike .search-paw-f--2 { animation: spf2 0.38s linear forwards; }
-.search-paw.is-strike .search-paw-f--3 { animation: spf3 0.38s linear forwards; }
-.search-paw.is-strike .search-paw-f--4 { animation: spf4 0.38s linear forwards; }
-.search-paw.is-strike .search-paw-f--5 { animation: spf5 0.38s linear forwards; }
-@keyframes spf1 { 0%, 14% { opacity: 1; } 15%, 100% { opacity: 0; } }
-@keyframes spf2 { 0%, 14% { opacity: 0; } 15%, 28% { opacity: 1; } 29%, 100% { opacity: 0; } }
-@keyframes spf3 { 0%, 28% { opacity: 0; } 29%, 48% { opacity: 1; } 49%, 100% { opacity: 0; } }
-@keyframes spf4 { 0%, 48% { opacity: 0; } 49%, 68% { opacity: 1; } 69%, 100% { opacity: 0; } }
-@keyframes spf5 { 0%, 68% { opacity: 0; } 69%, 88% { opacity: 1; } 89%, 100% { opacity: 0; } }
-
-.search-hit-letter {
-  position: absolute;
-  top: 50%;
-  left: var(--hit-x, 0);
-  transform: translate(-50%, -50%);
-  font: inherit;
-  font-weight: 600;
-  color: var(--ink);
-  pointer-events: none;
-  z-index: 6;
-  line-height: 1;
-}
-.search-hit-letter.is-hit {
-  animation: search-letter-hit 0.38s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-@keyframes search-letter-hit {
-  0%, 34% { transform: translate(-50%, -50%) scale(1); opacity: 1; color: var(--ink); }
-  42% { transform: translate(-50%, -90%) scale(1.22) rotate(-12deg); color: var(--accent); }
-  58% { transform: translate(-50%, -55%) scale(0.92) rotate(6deg); }
-  100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
-}
-
-/* Tail — emerges from under the block and sweeps letters away */
-.search-tail-rig {
-  position: absolute;
-  left: 0;
-  width: 100%;
-  height: 3rem;
-  bottom: 0;
-  transform: translateY(100%);
-  pointer-events: none;
-  z-index: 6;
-  opacity: 0;
-}
-.search-tail-rig.is-sweep {
-  opacity: 1;
-  animation: search-tail-emerge 0.54s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-@keyframes search-tail-emerge {
-  0% { transform: translateY(100%) translateX(-12%); }
-  18% { transform: translateY(58%) translateX(-6%); }
-  100% { transform: translateY(32%) translateX(22%); }
-}
-.search-tail-f {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  object-position: left center;
-  opacity: 0;
-}
-.search-tail-rig.is-sweep .search-tail-f--1 { animation: stf1 0.54s linear forwards; }
-.search-tail-rig.is-sweep .search-tail-f--2 { animation: stf2 0.54s linear forwards; }
-.search-tail-rig.is-sweep .search-tail-f--3 { animation: stf3 0.54s linear forwards; }
-.search-tail-rig.is-sweep .search-tail-f--4 { animation: stf4 0.54s linear forwards; }
-@keyframes stf1 { 0%, 20% { opacity: 1; } 21%, 100% { opacity: 0; } }
-@keyframes stf2 { 0%, 20% { opacity: 0; } 21%, 42% { opacity: 1; } 43%, 100% { opacity: 0; } }
-@keyframes stf3 { 0%, 42% { opacity: 0; } 43%, 68% { opacity: 1; } 69%, 100% { opacity: 0; } }
-@keyframes stf4 { 0%, 68% { opacity: 0; } 69%, 100% { opacity: 1; } }
-
-.search-smirk {
-  position: absolute;
-  left: 0.75rem;
-  bottom: 0;
-  width: 2.6rem;
-  height: 2.6rem;
-  pointer-events: none;
-  z-index: 1;
-  opacity: 0;
-  transform: translateY(80%);
-  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease;
-}
-.search-smirk img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  object-position: bottom center;
-}
-.search-fx.is-smirking .search-smirk {
-  opacity: 1;
-  transform: translateY(42%);
-  animation: search-smirk-bob 1.4s ease-in-out;
-}
-@keyframes search-smirk-bob {
-  0%, 100% { transform: translateY(42%) rotate(0deg); }
-  35% { transform: translateY(30%) rotate(-3deg); }
-  65% { transform: translateY(38%) rotate(2deg); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .search-paw.is-strike,
-  .search-hit-letter.is-hit,
-  .search-tail-rig.is-sweep,
-  .search-smirk,
-  .search-text-mirror.is-wiping {
-    animation: none !important;
-    transition: none !important;
-  }
-}
+.search-box svg { flex-shrink: 0; color: var(--accent); }
+.search-box input { flex: 1; min-width: 0; border: 0; background: transparent; outline: none; }
+.search-box input::placeholder { color: var(--muted); }
 
 .theme-cat-wrap {
   flex-shrink: 0;
