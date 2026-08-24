@@ -106,8 +106,12 @@ self.addEventListener("fetch", (event) => {
 
   const path = url.pathname;
 
-  // Never cache version / catalog — always fresh for updates
-  if (path.endsWith("/version.json") || path.endsWith("/tracks.json")) {
+  // Never cache version / catalog / theme sprites — always fresh for updates
+  if (
+    path.endsWith("/version.json") ||
+    path.endsWith("/tracks.json") ||
+    /mz-theme-cat/i.test(path)
+  ) {
     return;
   }
 

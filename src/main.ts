@@ -184,8 +184,8 @@ function render(tracks: Track[]): void {
               <div class="theme-cat-wrap" data-theme-root>
                 <button type="button" class="theme-cat-btn" data-theme-toggle aria-label="Сменить тему" title="Котик переключит тему">
                   <span class="theme-cat-stage" aria-hidden="true">
-                    <img class="theme-cat-sprite theme-cat-sprite--idle" src="${assetUrl("theme-cat-idle.png")}" alt="" width="52" height="52" draggable="false" />
-                    <img class="theme-cat-sprite theme-cat-sprite--tap" src="${assetUrl("theme-cat-tap.png")}" alt="" width="52" height="52" draggable="false" />
+                    <img class="theme-cat-sprite theme-cat-sprite--idle" src="${assetUrl("mz-theme-cat-idle.png", BUILD)}" alt="" width="52" height="52" draggable="false" />
+                    <img class="theme-cat-sprite theme-cat-sprite--tap" src="${assetUrl("mz-theme-cat-tap.png", BUILD)}" alt="" width="52" height="52" draggable="false" />
                   </span>
                   <span class="theme-cat-pad">
                     <span class="theme-cat-icon theme-cat-icon--moon" aria-hidden="true">☾</span>
