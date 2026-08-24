@@ -3,6 +3,12 @@
 [data-theme="dark"] {
   --bg: #000;
   --panel: #050505;
+  --surface: #050505;
+  --surface-2: #070707;
+  --surface-hover: color-mix(in srgb, var(--accent) 10%, #050505);
+  --surface-hero: linear-gradient(135deg, rgba(225, 6, 0, 0.16), transparent 55%), #050505;
+  --overlay: rgba(0, 0, 0, 0.82);
+  --overlay-soft: rgba(0, 0, 0, 0.55);
   --ink: #f0f0f0;
   --muted: #8a8a8a;
   --accent: #e10600;
@@ -20,6 +26,12 @@
 [data-theme="light"] {
   --bg: #ececec;
   --panel: #fff;
+  --surface: #fff;
+  --surface-2: #f6f6f6;
+  --surface-hover: color-mix(in srgb, var(--accent) 7%, #fff);
+  --surface-hero: linear-gradient(135deg, rgba(201, 0, 0, 0.07), transparent 55%), #fff;
+  --overlay: rgba(0, 0, 0, 0.5);
+  --overlay-soft: rgba(0, 0, 0, 0.28);
   --ink: #0a0a0a;
   --muted: #555;
   --accent: #c90000;
@@ -361,15 +373,15 @@ button img, a img {
   align-items: center;
   text-align: left;
   border: 1px solid var(--line);
-  background: #050505;
-  color: inherit;
+  background: var(--surface);
+  color: var(--ink);
   cursor: pointer;
   padding: 0.45rem;
   font: inherit;
 }
 .browse-card:hover {
   border-color: var(--accent);
-  background: color-mix(in srgb, var(--accent) 10%, #050505);
+  background: var(--surface-hover);
 }
 .browse-card img {
   width: 52px;
@@ -389,6 +401,7 @@ button img, a img {
   font-size: 0.78rem;
   font-weight: 600;
   text-transform: capitalize;
+  color: var(--ink);
 }
 .browse-card em {
   font-style: normal;
@@ -451,9 +464,7 @@ button img, a img {
 .info-hero {
   padding: 1.1rem 1rem 0.85rem;
   border-bottom: 1px solid var(--line);
-  background:
-    linear-gradient(135deg, rgba(225, 6, 0, 0.16), transparent 55%),
-    #050505;
+  background: var(--surface-hero);
 }
 .info-kicker {
   margin: 0 0 0.35rem;
@@ -485,7 +496,7 @@ button img, a img {
 }
 .info-card {
   border: 1px solid var(--line);
-  background: #070707;
+  background: var(--surface-2);
   padding: 0.85rem 0.9rem;
 }
 .info-card--wide {
@@ -653,8 +664,8 @@ button img, a img {
   padding: 0.35rem;
   border: 1px solid var(--line);
   border-radius: 0.4rem;
-  background: #0a0a0a;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.65);
+  background: var(--surface);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
   display: flex;
   flex-direction: column;
   gap: 0.15rem;
@@ -1027,6 +1038,7 @@ button img, a img {
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
+  color: var(--ink);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -1548,7 +1560,7 @@ button img, a img {
   position: fixed;
   inset: 0;
   z-index: 80;
-  background: rgba(0, 0, 0, 0.82);
+  background: var(--overlay);
   display: grid;
   place-items: center;
   padding: 1rem;
@@ -1568,12 +1580,12 @@ button img, a img {
   justify-content: end;
   padding: var(--gap);
   padding-bottom: calc(var(--player-h) + var(--gap) + 4px);
-  background: rgba(0, 0, 0, 0.55);
+  background: var(--overlay-soft);
 }
 .modal-card--queue {
   width: min(420px, 100%);
   max-height: min(68vh, 540px);
-  background: #050505;
+  background: var(--surface);
   border-color: var(--line);
   box-shadow: -12px 0 40px rgba(0, 0, 0, 0.55);
 }
@@ -1651,7 +1663,7 @@ button img, a img {
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.75);
+  background: var(--overlay-soft);
   z-index: 35;
 }
 .backdrop.is-open { display: block; }
