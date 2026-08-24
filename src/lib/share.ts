@@ -6,33 +6,49 @@ export type DeepLink = {
   play: boolean;
 };
 
+const SITE_ORIGIN = "https://zoobastik.me";
+
 function appPathname(): string {
   const base = import.meta.env.BASE_URL || "/";
   return base.endsWith("/") ? base : `${base}/`;
 }
 
+function absBase(): string {
+  if (typeof window !== "undefined" && window.location?.origin) {
+    return `${window.location.origin}${appPathname()}`;
+  }
+  return `${SITE_ORIGIN}${appPathname()}`;
+}
+
+/** User-facing label without em/en dashes. */
+export function trackLabel(artist: string, title: string): string {
+  return `${artist}: ${title}`;
+}
+
 function parseHashParams(hash: string): URLSearchParams {
   const raw = hash.replace(/^#/, "");
   if (!raw) return new URLSearchParams();
-  // Support "#track=id&play=1" and "#?track=id"
   const q = raw.startsWith("?") ? raw.slice(1) : raw;
   return new URLSearchParams(q);
 }
 
-/** Absolute share URL that opens the site on a specific track. */
+/**
+ * Public share URL: static OG page (good Telegram/VK preview), then opens the player.
+ * Falls back to SPA deep-link when share pages are unavailable.
+ */
 export function trackShareUrl(trackId: string, play = true): string {
-  const url = new URL(window.location.href);
-  // Keep trailing slash under /Music_Z/ so hosts don't redirect and drop ?query
-  url.pathname = appPathname();
-  url.search = "";
+  const base = absBase();
+  const safe = encodeURIComponent(trackId);
+  // Static card at /t/<id>.html (generated at build)
+  return `${base}t/${safe}.html${play ? "" : "?play=0"}`;
+}
+
+/** SPA deep-link (internal navigation / embed). */
+export function trackAppUrl(trackId: string, play = true): string {
+  const url = new URL(absBase());
   url.searchParams.set("track", trackId);
   if (play) url.searchParams.set("play", "1");
   else url.searchParams.delete("play");
-  // Hash backup: survives redirects that strip search params
-  const hash = new URLSearchParams();
-  hash.set("track", trackId);
-  if (play) hash.set("play", "1");
-  url.hash = hash.toString();
   return url.toString();
 }
 
@@ -78,10 +94,8 @@ export function syncTrackInUrl(trackId: string, keepPlay = false): void {
   if (keepPlay) url.searchParams.set("play", "1");
   else url.searchParams.delete("play");
 
-  const hash = new URLSearchParams();
-  hash.set("track", trackId);
-  if (keepPlay) hash.set("play", "1");
-  url.hash = hash.toString();
+  // Keep hash light: only track id (no duplicate play noise in shares from address bar)
+  url.hash = `track=${encodeURIComponent(trackId)}`;
 
   history.replaceState(null, "", url);
 }
@@ -103,11 +117,11 @@ export function clearTrackInUrl(): void {
 
 /** Embed snippet for other sites (iframe + API note). */
 export function trackEmbedSnippet(trackId: string, title: string): string {
-  const src = trackShareUrl(trackId, true);
+  const src = trackAppUrl(trackId, true);
   return `<!-- Music_Z: ${title} -->
 <iframe
   src="${src}"
-  title="${title.replaceAll('"', "'")} — Music_Z"
+  title="${title.replaceAll('"', "'")}: Music_Z"
   width="100%"
   height="720"
   style="border:0;border-radius:8px;max-width:1100px;background:#000"
@@ -116,25 +130,35 @@ export function trackEmbedSnippet(trackId: string, title: string): string {
 ></iframe>
 
 <!-- API:
-  ?track=<id>&play=1   — открыть и играть (дублируется в #track=&play=)
-  ?track=<id>&play=0   — открыть без автозапуска
-  ?t=<id>              — короткий алиас
+  ?track=<id>&play=1   open and play
+  ?track=<id>&play=0   open without autoplay
+  ?t=<id>              short alias
+  /t/<id>.html         share card (Open Graph)
 -->`;
 }
 
 export function telegramShareUrl(trackId: string, title: string, artist: string): string {
   const url = trackShareUrl(trackId, true);
-  const text = `${artist} — ${title}`;
+  const text = trackLabel(artist, title);
   return `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
+}
+
+/** Direct MP3: Telegram shows a native audio player (unlike website embeds). */
+export function telegramAudioShareUrl(trackSrc: string, title: string, artist: string): string {
+  const base = absBase();
+  const clean = trackSrc.replace(/^\/+/, "");
+  const audioUrl = `${base}${clean}`;
+  const text = `${trackLabel(artist, title)}\n${audioUrl}`;
+  return `https://t.me/share/url?url=${encodeURIComponent(audioUrl)}&text=${encodeURIComponent(text)}`;
 }
 
 export function vkShareUrl(trackId: string, title: string, artist: string): string {
   const url = trackShareUrl(trackId, true);
-  return `https://vk.com/share.php?url=${encodeURIComponent(url)}&title=${encodeURIComponent(`${artist} — ${title}`)}`;
+  return `https://vk.com/share.php?url=${encodeURIComponent(url)}&title=${encodeURIComponent(trackLabel(artist, title))}`;
 }
 
 export function whatsappShareUrl(trackId: string, title: string, artist: string): string {
   const url = trackShareUrl(trackId, true);
-  const text = `${artist} — ${title}\n${url}`;
+  const text = `${trackLabel(artist, title)}\n${url}`;
   return `https://wa.me/?text=${encodeURIComponent(text)}`;
 }

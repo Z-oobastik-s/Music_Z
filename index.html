@@ -3,7 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Music_Z — личная музыкальная библиотека." />
+    <meta name="description" content="Music_Z: личная музыкальная библиотека." />
+    <meta property="og:site_name" content="Music_Z" />
+    <meta property="og:title" content="Music_Z" />
+    <meta property="og:description" content="Music_Z: личная музыкальная библиотека Zoobastiks." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://zoobastik.me/Music_Z/" />
+    <meta property="og:image" content="https://zoobastik.me/Music_Z/og-default.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="theme-color" content="#e10600" />
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <title>Music_Z</title>
@@ -46,7 +55,7 @@
           }
           app.innerHTML =
             '<div data-boot-fail style="padding:2rem;font-family:system-ui,sans-serif;color:#f0f0f0;text-align:center;max-width:28rem;margin:20vh auto">' +
-            "<p style=\"margin:0 0 1rem;color:#8a8a8a\">Сайт не загрузился (часто из‑за старого кэша).</p>" +
+            "<p style=\"margin:0 0 1rem;color:#8a8a8a\">Сайт не загрузился (часто из-за старого кэша).</p>" +
             '<button type="button" id="mz-boot-repair" style="border:0;background:#e10600;color:#fff;padding:0.65rem 1.1rem;cursor:pointer;font:inherit">Сбросить кэш и обновить</button>' +
             "</div>";
           document.getElementById("mz-boot-repair")?.addEventListener("click", async () => {

@@ -6,8 +6,10 @@ import {
   clearTrackInUrl,
   readDeepLink,
   syncTrackInUrl,
+  telegramAudioShareUrl,
   telegramShareUrl,
   trackEmbedSnippet,
+  trackLabel,
   trackShareUrl,
   vkShareUrl,
   whatsappShareUrl,
@@ -242,7 +244,7 @@ function render(tracks: Track[]): void {
                   <div class="info-hero">
                     <p class="info-kicker">Music_Z</p>
                     <h2>Личная сцена звука</h2>
-                    <p class="info-lead">Тёмный плеер для треков Zoobastiks — без шума ленты, только музыка, текст и атмосфера.</p>
+                    <p class="info-lead">Тёмный плеер для треков Zoobastiks: без шума ленты, только музыка, текст и атмосфера.</p>
                   </div>
 
                   <div class="info-grid">
@@ -250,7 +252,7 @@ function render(tracks: Track[]): void {
                       <h3>Об авторе</h3>
                       <p class="info-name">Zoobastiks <span>(Владислав)</span></p>
                       <p>Автор музыки и этого сайта. Здесь собираются релизы, эксперименты и версии треков в одном жёстком визуальном мире.</p>
-                      <a class="btn btn-fill info-tg" href="https://t.me/Zoobastiks" target="_blank" rel="noopener noreferrer">${ICONS.tg} Telegram · @Zoobastiks</a>
+                      <a class="btn btn-fill info-tg" href="https://t.me/Zoobastiks" target="_blank" rel="noopener noreferrer">${ICONS.tg} Telegram: @Zoobastiks</a>
                     </article>
 
                     <article class="info-card">
@@ -265,14 +267,14 @@ function render(tracks: Track[]): void {
 
                     <article class="info-card info-card--wide">
                       <h3>Лицензия и права</h3>
-                      <p>Весь контент Music_Z — музыка, тексты, промпты, графика, персонаж и оформление — защищён. Копирование, выкладывание «как своё», парсинг каталога и коммерческое использование без разрешения автора запрещены.</p>
-                      <p>Скачивание треков с сайта допускается только для личного прослушивания. Репосты — с указанием автора <strong>Zoobastiks</strong> и ссылки на Music_Z / Telegram.</p>
-                      <p class="info-note">© ${new Date().getFullYear()} Zoobastiks · Music_Z. All rights reserved.</p>
+                      <p>Весь контент Music_Z: музыка, тексты, промпты, графика, персонаж и оформление: защищён. Копирование, выкладывание «как своё», парсинг каталога и коммерческое использование без разрешения автора запрещены.</p>
+                      <p>Скачивание треков с сайта допускается только для личного прослушивания. Репосты: с указанием автора <strong>Zoobastiks</strong> и ссылки на Music_Z / Telegram.</p>
+                      <p class="info-note">© ${new Date().getFullYear()} Zoobastiks: Music_Z. All rights reserved.</p>
                     </article>
 
                     <article class="info-card">
                       <h3>Контакты</h3>
-                      <p>Новости, дропы и связь — в Telegram-канале.</p>
+                      <p>Новости, дропы и связь: в Telegram-канале.</p>
                       <a class="info-link" href="https://t.me/Zoobastiks" target="_blank" rel="noopener noreferrer">t.me/Zoobastiks</a>
                       <a class="info-link" href="https://zoobastik.me/Music_Z/" target="_blank" rel="noopener noreferrer">zoobastik.me/Music_Z</a>
                     </article>
@@ -280,7 +282,7 @@ function render(tracks: Track[]): void {
                     <article class="info-card">
                       <h3>Технологии</h3>
                       <p>Клиентский плеер на Vite. Аудио и изображения кэшируются локально в браузере. Deep-link API: <code>?track=id&amp;play=1</code>.</p>
-                      <p>Треки созданы через AI: <a class="info-link" href="https://musichero.ai/ru/app" target="_blank" rel="noopener noreferrer">MusicHero</a> и <a class="info-link" href="https://aisong.io/ai-music-generator" target="_blank" rel="noopener noreferrer">AISong</a> — ссылка у каждого трека в списке.</p>
+                      <p>Треки созданы через AI: <a class="info-link" href="https://musichero.ai/ru/app" target="_blank" rel="noopener noreferrer">MusicHero</a> и <a class="info-link" href="https://aisong.io/ai-music-generator" target="_blank" rel="noopener noreferrer">AISong</a>: ссылка у каждого трека в списке.</p>
                     </article>
                   </div>
                 </section>
@@ -592,7 +594,7 @@ function render(tracks: Track[]): void {
           )
           .join("")}
       </div>
-      <p class="page-hint">Нажми жанр — соберём очередь и откроем музыку.</p>
+      <p class="page-hint">Нажми жанр: соберём очередь и откроем музыку.</p>
     `;
 
     genresEl.querySelectorAll<HTMLButtonElement>("[data-genre]").forEach((btn) => {
@@ -649,7 +651,7 @@ function render(tracks: Track[]): void {
     setQueueBtnActive(true);
     if (!q.length) {
       modalBody.className = "modal-body modal-queue";
-      modalBody.innerHTML = `<p class="queue-empty">Очередь пуста — выбери трек.</p>`;
+      modalBody.innerHTML = `<p class="queue-empty">Очередь пуста: выбери трек.</p>`;
       modal.hidden = false;
       return;
     }
@@ -854,7 +856,8 @@ function render(tracks: Track[]): void {
             <button type="button" class="btn btn-line btn-icon" data-hero-share title="Поделиться" aria-haspopup="menu" aria-expanded="false">${ICONS.more}</button>
             <div class="share-menu" data-share-menu hidden role="menu">
               <button type="button" role="menuitem" data-share-copy>${ICONS.copy} Копировать ссылку</button>
-              <a role="menuitem" data-share-tg href="${telegramShareUrl(track.id, track.title, track.artist)}" target="_blank" rel="noopener noreferrer">${ICONS.share} Telegram</a>
+              <a role="menuitem" data-share-tg href="${telegramShareUrl(track.id, track.title, track.artist)}" target="_blank" rel="noopener noreferrer">${ICONS.share} Telegram: карточка</a>
+              <a role="menuitem" data-share-tg-audio href="${telegramAudioShareUrl(track.src, track.title, track.artist)}" target="_blank" rel="noopener noreferrer">${ICONS.share} Telegram: аудио</a>
               <a role="menuitem" data-share-vk href="${vkShareUrl(track.id, track.title, track.artist)}" target="_blank" rel="noopener noreferrer">${ICONS.share} ВКонтакте</a>
               <a role="menuitem" data-share-wa href="${whatsappShareUrl(track.id, track.title, track.artist)}" target="_blank" rel="noopener noreferrer">${ICONS.share} WhatsApp</a>
               <button type="button" role="menuitem" data-share-embed>${ICONS.code} Код для сайта</button>
@@ -913,8 +916,9 @@ function render(tracks: Track[]): void {
     heroEl.querySelector<HTMLButtonElement>("[data-share-copy]")!.onclick = async (e) => {
       e.stopPropagation();
       const url = trackShareUrl(track.id, true);
+      const payload = `${trackLabel(track.artist, track.title)}\n${url}`;
       try {
-        await navigator.clipboard.writeText(url);
+        await navigator.clipboard.writeText(payload);
         const btn = e.currentTarget as HTMLButtonElement;
         const prev = btn.innerHTML;
         btn.innerHTML = `${ICONS.copy} Скопировано`;
@@ -922,18 +926,21 @@ function render(tracks: Track[]): void {
           btn.innerHTML = prev;
         }, 1200);
       } catch {
-        openModal(`Ссылка · ${track.title}`, url);
+        openModal(`Ссылка: ${track.title}`, payload);
       }
+      closeShareMenu();
     };
 
-    heroEl.querySelectorAll<HTMLAnchorElement>("[data-share-tg], [data-share-vk], [data-share-wa]").forEach((a) => {
-      a.addEventListener("click", (e) => e.stopPropagation());
-    });
+    heroEl
+      .querySelectorAll<HTMLAnchorElement>("[data-share-tg], [data-share-tg-audio], [data-share-vk], [data-share-wa]")
+      .forEach((a) => {
+        a.addEventListener("click", (e) => e.stopPropagation());
+      });
 
     heroEl.querySelector<HTMLButtonElement>("[data-share-embed]")!.onclick = (e) => {
       e.stopPropagation();
       closeShareMenu();
-      openModal(`Встроить · ${track.title}`, trackEmbedSnippet(track.id, track.title));
+      openModal(`Встроить: ${track.title}`, trackEmbedSnippet(track.id, track.title));
     };
   }
 
@@ -1027,7 +1034,7 @@ function render(tracks: Track[]): void {
 
   function listCountLabel(items: Track[], total: number): string {
     const dur = formatTotalDuration(sumDuration(items));
-    return `${items.length} / ${total} · ${dur}`;
+    return `${items.length} / ${total}: ${dur}`;
   }
 
   function paintList(): void {
@@ -1062,7 +1069,7 @@ function render(tracks: Track[]): void {
     if (styleBtn?.dataset.style) {
       e.preventDefault();
       const track = tracks.find((t) => t.id === styleBtn.dataset.style);
-      if (track?.style) openModal(`Стиль · ${track.title}`, track.style);
+      if (track?.style) openModal(`Стиль: ${track.title}`, track.style);
       return;
     }
 
@@ -1070,7 +1077,7 @@ function render(tracks: Track[]): void {
     if (promptBtn?.dataset.prompt) {
       e.preventDefault();
       const track = tracks.find((t) => t.id === promptBtn.dataset.prompt);
-      if (track?.prompt) openModal(`Промпт · ${track.title}`, track.prompt);
+      if (track?.prompt) openModal(`Промпт: ${track.title}`, track.prompt);
       return;
     }
 

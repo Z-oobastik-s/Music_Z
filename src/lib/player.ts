@@ -318,7 +318,7 @@ export class AudioPlayer {
         const blocked = err instanceof DOMException && err.name === "NotAllowedError";
         this.cb.onError?.(
           track,
-          blocked ? "Нажми Play — браузер блокирует автозапуск" : "Не удалось начать воспроизведение",
+          blocked ? "Нажми Play: браузер блокирует автозапуск" : "Не удалось начать воспроизведение",
         );
       }
     } finally {
@@ -412,7 +412,7 @@ export class AudioPlayer {
           const blocked = err instanceof DOMException && err.name === "NotAllowedError";
           this.cb.onError?.(
             track,
-            blocked ? "Нажми Play — браузер блокирует автозапуск" : "Не удалось начать воспроизведение",
+            blocked ? "Нажми Play: браузер блокирует автозапуск" : "Не удалось начать воспроизведение",
           );
         }
       } finally {
