@@ -1284,14 +1284,6 @@ function render(tracks: Track[]): void {
   listEl.addEventListener("click", onTrackListClick);
   listMusicEl.addEventListener("click", onTrackListClick);
 
-  searchEl.addEventListener("input", () => {
-    const next = searchEl.value;
-    const prev = query;
-    query = next;
-    paintList();
-    runSearchCatFx(prev, next);
-  });
-
   const searchFx = app.querySelector<HTMLElement>("[data-search-fx]")!;
   const searchPaw = app.querySelector<HTMLElement>("[data-search-paw]")!;
   const searchTail = app.querySelector<HTMLElement>("[data-search-tail]")!;
@@ -1302,9 +1294,20 @@ function render(tracks: Track[]): void {
   let searchDeleteStreak = 0;
   let measureCtx: CanvasRenderingContext2D | null = null;
 
+  function syncSearchFxGeometry(): void {
+    const box = searchFx.querySelector(".search-box");
+    if (!box) return;
+    const r = box.getBoundingClientRect();
+    searchFx.style.setProperty("--search-left", `${r.left}px`);
+    searchFx.style.setProperty("--search-top", `${r.top}px`);
+    searchFx.style.setProperty("--search-width", `${r.width}px`);
+    searchFx.style.setProperty("--search-height", `${r.height}px`);
+  }
+
   function caretXInSearch(): number {
     const box = searchFx.querySelector(".search-box");
     if (!box) return 48;
+    syncSearchFxGeometry();
     const style = getComputedStyle(searchEl);
     if (!measureCtx) {
       const c = document.createElement("canvas");
@@ -1312,7 +1315,7 @@ function render(tracks: Track[]): void {
     }
     if (!measureCtx) return 48;
     measureCtx.font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
-    const caret = searchEl.selectionStart ?? nextLenSafe();
+    const caret = searchEl.selectionStart ?? searchEl.value.length;
     const text = searchEl.value.slice(0, caret);
     const iconPad = 34;
     const x = iconPad + measureCtx.measureText(text).width;
@@ -1320,21 +1323,18 @@ function render(tracks: Track[]): void {
     return Math.max(28, Math.min(max, x));
   }
 
-  function nextLenSafe(): number {
-    return searchEl.value.length;
-  }
-
   function runSearchPawBat(letter: string): void {
+    syncSearchFxGeometry();
     window.clearTimeout(searchPawTimer);
     searchFx.classList.remove("is-sweeping");
     searchFx.classList.add("is-batting");
     const x = caretXInSearch() + (Math.random() * 12 - 6);
-    searchPaw.style.setProperty("--paw-x", `${x}px`);
+    searchFx.style.setProperty("--paw-x", `${x}px`);
     if (letter && letter !== " ") {
       searchBat.hidden = false;
       searchBat.textContent = letter;
-      searchBat.style.setProperty("--bat-x", `${x}px`);
-      searchBat.style.setProperty("--bat-rot", `${Math.random() * 24 - 12}deg`);
+      searchFx.style.setProperty("--bat-x", `${x}px`);
+      searchFx.style.setProperty("--bat-rot", `${Math.random() * 24 - 12}deg`);
       searchBat.classList.remove("is-pop");
       void searchBat.offsetWidth;
       searchBat.classList.add("is-pop");
@@ -1356,6 +1356,7 @@ function render(tracks: Track[]): void {
   }
 
   function runSearchTailSweep(): void {
+    syncSearchFxGeometry();
     window.clearTimeout(searchTailTimer);
     searchFx.classList.remove("is-batting");
     searchPaw.dataset.frame = "0";
@@ -1375,6 +1376,7 @@ function render(tracks: Track[]): void {
   }
 
   function peekSearchSmirk(): void {
+    syncSearchFxGeometry();
     window.clearTimeout(searchSmirkTimer);
     searchFx.classList.add("is-smirking");
     searchSmirkTimer = window.setTimeout(() => {
@@ -1402,6 +1404,17 @@ function render(tracks: Track[]): void {
       }
     }
   }
+
+  searchEl.addEventListener("input", () => {
+    const next = searchEl.value;
+    const prev = query;
+    query = next;
+    paintList();
+    runSearchCatFx(prev, next);
+  });
+  searchEl.addEventListener("focus", syncSearchFxGeometry);
+  window.addEventListener("resize", syncSearchFxGeometry);
+  syncSearchFxGeometry();
 
   app.querySelector<HTMLButtonElement>("[data-theme-toggle]")!.addEventListener("click", () => {
     const btn = app.querySelector<HTMLButtonElement>("[data-theme-toggle]")!;
