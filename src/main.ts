@@ -728,6 +728,8 @@ function render(tracks: Track[]): void {
     if (modalMode === "queue" && !modal.hidden) openQueueModal();
   }
 
+  let loadingWatch = 0;
+
   /** Show loading UI immediately (before AudioContext / fetch). */
   function primeTrackLoading(track: Track): void {
     loadingId = track.id;
@@ -736,6 +738,13 @@ function render(tracks: Track[]): void {
     nowCover.src = assetUrl(track.cover);
     nowCover.hidden = false;
     paintLoadingUi();
+    window.clearTimeout(loadingWatch);
+    loadingWatch = window.setTimeout(() => {
+      if (!loadingId) return;
+      loadingId = null;
+      paintLoadingUi();
+      showToast("Нажми Play: загрузка заняла слишком долго");
+    }, 14000);
   }
 
   async function playTrack(
@@ -748,9 +757,16 @@ function render(tracks: Track[]): void {
     }
     primeTrackLoading(track);
     player.setQueue(opts?.queue ?? queueScope());
-    await armBeat();
-    if (opts?.toggle) player.toggle(track);
-    else await player.play(track);
+    try {
+      await armBeat();
+      if (opts?.toggle) player.toggle(track);
+      else await player.play(track);
+    } catch {
+      window.clearTimeout(loadingWatch);
+      loadingId = null;
+      paintLoadingUi();
+      showToast("Не удалось начать воспроизведение");
+    }
   }
 
   const beat = new BeatMotion(app);
@@ -785,6 +801,7 @@ function render(tracks: Track[]): void {
     },
     onLoading: (track, loading) => {
       loadingId = loading && track ? track.id : null;
+      if (!loading) window.clearTimeout(loadingWatch);
       if (track && loading) {
         focusId = track.id;
         nowTitle.textContent = track.title;
@@ -794,6 +811,7 @@ function render(tracks: Track[]): void {
       paintLoadingUi();
     },
     onError: (_track, message) => {
+      window.clearTimeout(loadingWatch);
       showToast(message);
       loadingId = null;
       paintLoadingUi();
@@ -855,19 +873,40 @@ function render(tracks: Track[]): void {
           <div class="share-wrap">
             <button type="button" class="btn btn-line btn-icon" data-hero-share title="Поделиться" aria-haspopup="menu" aria-expanded="false">${ICONS.more}</button>
             <div class="share-menu" data-share-menu hidden role="menu">
-              <button type="button" role="menuitem" data-share-copy>${ICONS.copy} Копировать ссылку</button>
-              <a role="menuitem" data-share-tg href="${telegramShareUrl(track.id, track.title, track.artist)}" target="_blank" rel="noopener noreferrer">${ICONS.share} Telegram: карточка</a>
-              <a role="menuitem" data-share-tg-audio href="${telegramAudioShareUrl(track.src, track.title, track.artist)}" target="_blank" rel="noopener noreferrer">${ICONS.share} Telegram: аудио</a>
-              <a role="menuitem" data-share-vk href="${vkShareUrl(track.id, track.title, track.artist)}" target="_blank" rel="noopener noreferrer">${ICONS.share} ВКонтакте</a>
-              <a role="menuitem" data-share-wa href="${whatsappShareUrl(track.id, track.title, track.artist)}" target="_blank" rel="noopener noreferrer">${ICONS.share} WhatsApp</a>
-              <button type="button" role="menuitem" data-share-embed>${ICONS.code} Код для сайта</button>
+              <div class="share-menu-head">Поделиться</div>
+              <button type="button" role="menuitem" class="share-item" data-share-copy>
+                <span class="share-ico">${ICONS.copy}</span>
+                <span class="share-item-text"><strong>Скопировать ссылку</strong><small>Карточка трека</small></span>
+              </button>
+              <div class="share-menu-label">Мессенджеры</div>
+              <a role="menuitem" class="share-item" data-share-tg href="${telegramShareUrl(track.id, track.title, track.artist)}" target="_blank" rel="noopener noreferrer">
+                <span class="share-ico">${ICONS.tg}</span>
+                <span class="share-item-text"><strong>Telegram</strong><small>Карточка с превью</small></span>
+              </a>
+              <a role="menuitem" class="share-item share-item--accent" data-share-tg-audio href="${telegramAudioShareUrl(track.src, track.title, track.artist)}" target="_blank" rel="noopener noreferrer">
+                <span class="share-ico">${ICONS.play}</span>
+                <span class="share-item-text"><strong>Telegram: аудио</strong><small>Слушать прямо в чате</small></span>
+              </a>
+              <a role="menuitem" class="share-item" data-share-vk href="${vkShareUrl(track.id, track.title, track.artist)}" target="_blank" rel="noopener noreferrer">
+                <span class="share-ico">${ICONS.share}</span>
+                <span class="share-item-text"><strong>ВКонтакте</strong><small>Пост со ссылкой</small></span>
+              </a>
+              <a role="menuitem" class="share-item" data-share-wa href="${whatsappShareUrl(track.id, track.title, track.artist)}" target="_blank" rel="noopener noreferrer">
+                <span class="share-ico">${ICONS.share}</span>
+                <span class="share-item-text"><strong>WhatsApp</strong><small>Сообщение со ссылкой</small></span>
+              </a>
+              <div class="share-menu-sep"></div>
+              <button type="button" role="menuitem" class="share-item" data-share-embed>
+                <span class="share-ico">${ICONS.code}</span>
+                <span class="share-item-text"><strong>Код для сайта</strong><small>iframe / встройка</small></span>
+              </button>
             </div>
           </div>
         </div>
       </div>
     `;
     heroEl.querySelector<HTMLButtonElement>("[data-hero-play]")!.onclick = () => {
-      if (loadingId) return;
+      // Allow retry even if a previous load is stuck
       void playTrack(track, { toggle: true });
     };
 
@@ -1206,11 +1245,22 @@ function render(tracks: Track[]): void {
       nowArtist.textContent = deepTrack.artist;
       nowCover.src = assetUrl(deepTrack.cover);
       nowCover.hidden = false;
-      // Consume deep-link once (keep track in URL, drop play flag after attempt)
+      // Consume play flag; Telegram redirect usually loses user gesture
       syncTrackInUrl(deepTrack.id, false);
 
       if (deep.play) {
-        void playTrack(deepTrack, { queue: tracks });
+        const canAuto =
+          typeof navigator !== "undefined" &&
+          "userActivation" in navigator &&
+          Boolean(
+            (navigator as Navigator & { userActivation?: { isActive?: boolean } }).userActivation
+              ?.isActive,
+          );
+        if (canAuto) {
+          void playTrack(deepTrack, { queue: tracks });
+        } else {
+          showToast("Нажми Play, чтобы слушать");
+        }
       }
     }
   }

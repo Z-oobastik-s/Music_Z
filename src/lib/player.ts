@@ -287,6 +287,46 @@ export class AudioPlayer {
     }
   }
 
+  /** Wait until element can play, or fail after timeout (avoids infinite «Загрузка…»). */
+  private waitCanPlay(el: HTMLAudioElement, gen: number, ms = 12000): Promise<boolean> {
+    if (el.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA) return Promise.resolve(true);
+    return new Promise((resolve) => {
+      let done = false;
+      const finish = (ok: boolean) => {
+        if (done) return;
+        done = true;
+        el.removeEventListener("canplay", onReady);
+        el.removeEventListener("loadeddata", onReady);
+        el.removeEventListener("error", onErr);
+        window.clearTimeout(timer);
+        resolve(ok && gen === this.playGen);
+      };
+      const onReady = () => finish(true);
+      const onErr = () => finish(false);
+      const timer = window.setTimeout(() => finish(false), ms);
+      el.addEventListener("canplay", onReady);
+      el.addEventListener("loadeddata", onReady);
+      el.addEventListener("error", onErr);
+    });
+  }
+
+  private async startElement(el: HTMLAudioElement, gen: number): Promise<boolean> {
+    if (!(await this.waitCanPlay(el, gen))) return false;
+    if (gen !== this.playGen) return false;
+    const playWait = el.play();
+    const timeout = new Promise<"timeout">((r) => window.setTimeout(() => r("timeout"), 10000));
+    const result = await Promise.race([playWait.then(() => "ok" as const), timeout]);
+    if (result === "timeout") {
+      try {
+        el.pause();
+      } catch {
+        /* ignore */
+      }
+      return false;
+    }
+    return gen === this.playGen;
+  }
+
   /** Hard switch without crossfade (fallback + cold start). */
   private async hardCutTo(track: Track, gen: number): Promise<void> {
     this.cancelCrossfade();
@@ -310,7 +350,14 @@ export class AudioPlayer {
 
     try {
       this.activeEl.currentTime = 0;
-      await this.activeEl.play();
+      const ok = await this.startElement(this.activeEl, gen);
+      if (!ok) {
+        if (gen === this.playGen) {
+          this.cb.onChange(this.track, false);
+          this.cb.onError?.(track, "Нажми Play: трек не успел загрузиться");
+        }
+        return;
+      }
       if (gen === this.playGen) this.prefetchNeighbors();
     } catch (err) {
       if (gen === this.playGen) {
@@ -350,7 +397,12 @@ export class AudioPlayer {
 
     try {
       inEl.currentTime = 0;
-      await inEl.play();
+      const ok = await this.startElement(inEl, gen);
+      if (!ok) {
+        this.resetCrossfadeState();
+        if (gen === this.playGen) this.setLoading(null, false);
+        return false;
+      }
     } catch {
       this.resetCrossfadeState();
       if (gen === this.playGen) this.setLoading(null, false);
@@ -404,7 +456,14 @@ export class AudioPlayer {
     if (this.track?.id === track.id) {
       this.setLoading(track, true);
       try {
-        await this.activeEl.play();
+        const ok = await this.startElement(this.activeEl, gen);
+        if (!ok) {
+          if (gen === this.playGen) {
+            this.cb.onChange(this.track, false);
+            this.cb.onError?.(track, "Нажми Play: трек не успел загрузиться");
+          }
+          return;
+        }
         if (gen === this.playGen) this.prefetchNeighbors();
       } catch (err) {
         if (gen === this.playGen) {

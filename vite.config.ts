@@ -67,22 +67,22 @@ function sharePageHtml(t: TrackRow): string {
   <meta name="twitter:title" content="${esc(title)}" />
   <meta name="twitter:description" content="${esc(desc)}" />
   <meta name="twitter:image" content="${esc(imageUrl)}" />
-  <meta http-equiv="refresh" content="0;url=${esc(appUrl)}" />
   <style>
     body{margin:0;min-height:100vh;display:grid;place-items:center;background:#000;color:#f0f0f0;
       font-family:system-ui,sans-serif;padding:1.5rem;text-align:center}
-    a{color:#e10600} .muted{color:#8a8a8a;font-size:.9rem}
-    audio{width:min(100%,420px);margin-top:1rem}
+    a.cta{display:inline-block;margin-top:1rem;padding:.75rem 1.25rem;background:#e10600;color:#fff;
+      text-decoration:none;font-weight:700;letter-spacing:.04em}
+    .muted{color:#8a8a8a;font-size:.9rem;margin:.4rem 0 0}
+    audio{width:min(100%,420px);margin-top:1.25rem}
   </style>
 </head>
 <body>
   <div>
     <p><strong>${esc(title)}</strong></p>
     <p class="muted">Music_Z</p>
-    <p><a href="${esc(appUrl)}">Открыть плеер</a></p>
+    <p><a class="cta" href="${esc(appUrl)}">Слушать на Music_Z</a></p>
     <audio controls preload="none" src="${esc(audioUrl)}"></audio>
   </div>
-  <script>location.replace(${JSON.stringify(appUrl)});</script>
 </body>
 </html>
 `;

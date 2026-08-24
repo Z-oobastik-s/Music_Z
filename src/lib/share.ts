@@ -148,7 +148,8 @@ export function telegramAudioShareUrl(trackSrc: string, title: string, artist: s
   const base = absBase();
   const clean = trackSrc.replace(/^\/+/, "");
   const audioUrl = `${base}${clean}`;
-  const text = `${trackLabel(artist, title)}\n${audioUrl}`;
+  // Only the label in text — Telegram already attaches `url` as the preview
+  const text = trackLabel(artist, title);
   return `https://t.me/share/url?url=${encodeURIComponent(audioUrl)}&text=${encodeURIComponent(text)}`;
 }
 

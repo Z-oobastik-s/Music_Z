@@ -788,51 +788,99 @@ button img, a img {
 .share-menu {
   position: fixed;
   z-index: 1200;
-  min-width: 13rem;
-  max-width: min(18rem, calc(100vw - 1rem));
-  max-height: min(70vh, 20rem);
+  width: min(17.5rem, calc(100vw - 1rem));
+  max-height: min(72vh, 26rem);
   overflow-y: auto;
-  padding: 0.35rem;
+  padding: 0.55rem 0.45rem 0.45rem;
   border: 1px solid var(--line);
-  border-radius: 0.4rem;
-  background: var(--surface);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+  border-radius: 2px;
+  background: var(--panel);
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
+  gap: 0.12rem;
+  scrollbar-width: none;
 }
+.share-menu::-webkit-scrollbar { display: none; }
 .share-menu[hidden] {
   display: none;
 }
-.share-menu button,
-.share-menu a {
+.share-menu-head {
+  padding: 0.15rem 0.55rem 0.45rem;
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 1.05rem;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
+.share-menu-label {
+  margin-top: 0.35rem;
+  padding: 0.35rem 0.55rem 0.2rem;
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.share-menu-sep {
+  height: 1px;
+  margin: 0.4rem 0.4rem 0.25rem;
+  background: var(--line);
+}
+.share-item {
   display: flex;
-  align-items: center;
-  gap: 0.45rem;
+  align-items: flex-start;
+  gap: 0.55rem;
   width: 100%;
-  border: 0;
-  border-radius: 0.28rem;
+  border: 1px solid transparent;
+  border-radius: 2px;
   background: transparent;
   color: var(--ink);
   font: inherit;
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
   text-align: left;
-  padding: 0.55rem 0.55rem;
+  padding: 0.5rem 0.5rem;
   cursor: pointer;
   text-decoration: none;
   box-sizing: border-box;
 }
-.share-menu button:hover,
-.share-menu a:hover {
-  background: color-mix(in srgb, var(--accent) 18%, transparent);
+.share-item:hover {
+  border-color: var(--line);
+  background: var(--surface-hover);
+}
+.share-item--accent {
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+.share-item--accent:hover {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+}
+.share-ico {
+  flex-shrink: 0;
+  width: 1.35rem;
+  height: 1.35rem;
+  margin-top: 0.05rem;
+  display: grid;
+  place-items: center;
   color: var(--accent);
 }
-.share-menu button svg,
-.share-menu a svg {
-  flex-shrink: 0;
-  opacity: 0.9;
+.share-ico svg {
+  display: block;
+}
+.share-item-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+  min-width: 0;
+}
+.share-item-text strong {
+  font-size: 0.78rem;
+  font-weight: 650;
+  letter-spacing: 0.01em;
+}
+.share-item-text small {
+  font-size: 0.64rem;
+  color: var(--muted);
+  font-weight: 500;
+  line-height: 1.25;
 }
 
 .btn {
