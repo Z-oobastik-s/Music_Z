@@ -954,7 +954,7 @@ button img, a img {
 .play-cat-btn.is-loading .play-cat-glyph {
   opacity: 1;
   z-index: 2;
-  color: #fff;
+  color: var(--accent);
 }
 
 @keyframes play-cat-breathe {
@@ -1494,7 +1494,7 @@ button img, a img {
   text-align: center;
 }
 .track-item.is-on .num { color: var(--accent); }
-.track-item img {
+.track-item .track-main > img {
   width: 40px;
   height: 40px;
   object-fit: cover;
@@ -1583,6 +1583,25 @@ button img, a img {
   cursor: pointer;
   color: var(--accent);
   padding: 0;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.ico-btn.ico-dl {
+  overflow: hidden;
+}
+.ico-dl .dl-fx {
+  width: 0.95rem;
+  height: 0.95rem;
+  max-width: 0.95rem;
+  max-height: 0.95rem;
+}
+.ico-dl .dl-sprite {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border: 0 !important;
 }
 
 /* Lyrics — centered, even lines */
@@ -1749,29 +1768,39 @@ button img, a img {
 .player-ctrl button:hover { color: var(--accent); }
 .player-ctrl button.is-active { color: var(--accent); }
 .player-ctrl .play-main {
-  width: 2.85rem;
-  height: 2.85rem;
-  background: var(--accent);
-  color: #fff;
-  margin: 0 0.15rem;
+  width: 2.65rem;
+  height: 2.65rem;
+  background: transparent;
+  color: var(--ink);
+  margin: 0 0.1rem;
   position: relative;
   overflow: visible;
+  border-radius: 0.45rem;
 }
-.player-ctrl .play-main:hover { background: var(--accent2); color: #fff; }
-.player-ctrl .play-main.is-active { color: #fff; }
+.player-ctrl .play-main:hover {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+}
+.player-ctrl .play-main.is-active {
+  color: var(--accent);
+}
 .player-ctrl .play-main.is-loading {
   pointer-events: none;
 }
 .player-ctrl .play-main.is-loading::after {
   content: "";
   position: absolute;
-  inset: -4px;
-  border-radius: 50%;
+  inset: -3px;
+  border-radius: 0.55rem;
   border: 2px solid transparent;
-  border-top-color: #fff;
-  border-right-color: color-mix(in srgb, #fff 35%, transparent);
+  border-top-color: var(--accent);
+  border-right-color: color-mix(in srgb, var(--accent) 35%, transparent);
   animation: play-load-ring 0.7s linear infinite;
   pointer-events: none;
+}
+.player-ctrl .play-main .play-cat--lg {
+  width: 2.35rem;
+  height: 2.35rem;
 }
 
 .icon-spin {
