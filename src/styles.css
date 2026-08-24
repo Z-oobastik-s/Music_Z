@@ -1132,18 +1132,27 @@ button img, a img {
 }
 .chip:hover { background: rgba(225, 6, 0, 0.12); }
 .chip-src {
-  border-color: transparent;
-  color: var(--muted);
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  text-transform: none;
-  opacity: 0.55;
-  padding: 0.2rem 0.35rem;
-}
-.chip-src:hover {
-  opacity: 1;
-  color: var(--accent);
+  border: 0;
   background: transparent;
+  color: var(--muted);
+  font-weight: 400;
+  font-size: 0.7rem;
+  line-height: 1;
+  letter-spacing: 0;
+  text-transform: none;
+  opacity: 0.12;
+  padding: 0.1rem 0.15rem;
+  min-width: 0.7rem;
+  justify-content: center;
+}
+.chip-src:hover,
+.chip-src:focus-visible {
+  opacity: 0.4;
+  color: var(--muted);
+  background: transparent;
+}
+.track-item.is-on .chip-src {
+  opacity: 0.16;
 }
 
 .ico-btn {

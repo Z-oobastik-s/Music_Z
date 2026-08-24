@@ -867,7 +867,7 @@ function render(tracks: Track[]): void {
     const promptBtn = t.prompt
       ? `<button type="button" class="chip" data-prompt="${t.id}" title="Промпт">Промпт</button>`
       : "";
-    const genBtn = `<a class="chip chip-src" href="${escapeHtml(src.url)}" target="_blank" rel="noopener noreferrer" data-src title="Сгенерировано на ${escapeHtml(src.name)}">${escapeHtml(src.name)}</a>`;
+    const genBtn = `<a class="chip chip-src" href="${escapeHtml(src.url)}" target="_blank" rel="noopener noreferrer" data-src title="Сгенерировано на ${escapeHtml(src.name)}">·</a>`;
     return `
       <li>
         <div class="track-item${on ? " is-on" : ""}" data-id="${t.id}">

@@ -24,6 +24,8 @@ export const DEFAULT_TRACK_SOURCE: TrackSource = {
   url: "https://musichero.ai/ru/app",
 };
 
+/** Default source is MusicHero unless a track sets `source` explicitly (e.g. AISong). */
+
 export function trackSource(track: Track): TrackSource {
   return track.source ?? DEFAULT_TRACK_SOURCE;
 }
