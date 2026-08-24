@@ -186,10 +186,29 @@ function render(tracks: Track[]): void {
           <div class="stage-mid">
             <header class="topbar kit-box">
               <button type="button" class="menu-btn" data-menu aria-label="Меню">☰</button>
-              <label class="search-box">
-                ${ICONS.search}
-                <input type="search" placeholder="Поиск трека, артиста…" data-search aria-label="Поиск" />
-              </label>
+              <div class="search-fx" data-search-fx>
+                <label class="search-box">
+                  ${ICONS.search}
+                  <input type="search" placeholder="Поиск трека, артиста…" data-search aria-label="Поиск" />
+                </label>
+                <span class="search-bat-letter" data-search-bat hidden aria-hidden="true"></span>
+                <div class="search-paw" data-search-paw data-frame="0" aria-hidden="true">
+                  <img class="search-paw-f search-paw-f--1" src="${assetUrl("mz-search-paw-01.png", BUILD)}" alt="" width="72" height="72" draggable="false" />
+                  <img class="search-paw-f search-paw-f--2" src="${assetUrl("mz-search-paw-02.png", BUILD)}" alt="" width="72" height="72" draggable="false" />
+                  <img class="search-paw-f search-paw-f--3" src="${assetUrl("mz-search-paw-03.png", BUILD)}" alt="" width="72" height="72" draggable="false" />
+                  <img class="search-paw-f search-paw-f--4" src="${assetUrl("mz-search-paw-04.png", BUILD)}" alt="" width="72" height="72" draggable="false" />
+                  <img class="search-paw-f search-paw-f--5" src="${assetUrl("mz-search-paw-05.png", BUILD)}" alt="" width="72" height="72" draggable="false" />
+                </div>
+                <div class="search-tail" data-search-tail data-frame="0" aria-hidden="true">
+                  <img class="search-tail-f search-tail-f--1" src="${assetUrl("mz-search-tail-01.png", BUILD)}" alt="" width="220" height="110" draggable="false" />
+                  <img class="search-tail-f search-tail-f--2" src="${assetUrl("mz-search-tail-02.png", BUILD)}" alt="" width="220" height="110" draggable="false" />
+                  <img class="search-tail-f search-tail-f--3" src="${assetUrl("mz-search-tail-03.png", BUILD)}" alt="" width="220" height="110" draggable="false" />
+                  <img class="search-tail-f search-tail-f--4" src="${assetUrl("mz-search-tail-04.png", BUILD)}" alt="" width="220" height="110" draggable="false" />
+                </div>
+                <div class="search-smirk" data-search-smirk aria-hidden="true">
+                  <img src="${assetUrl("mz-search-smirk.png", BUILD)}" alt="" width="64" height="64" draggable="false" />
+                </div>
+              </div>
               <div class="theme-cat-wrap" data-theme-root>
                 <button type="button" class="theme-cat-btn" data-theme-toggle aria-label="Сменить тему" title="Котик переключит тему">
                   <span class="theme-cat-stage" aria-hidden="true">
@@ -1266,9 +1285,123 @@ function render(tracks: Track[]): void {
   listMusicEl.addEventListener("click", onTrackListClick);
 
   searchEl.addEventListener("input", () => {
-    query = searchEl.value;
+    const next = searchEl.value;
+    const prev = query;
+    query = next;
     paintList();
+    runSearchCatFx(prev, next);
   });
+
+  const searchFx = app.querySelector<HTMLElement>("[data-search-fx]")!;
+  const searchPaw = app.querySelector<HTMLElement>("[data-search-paw]")!;
+  const searchTail = app.querySelector<HTMLElement>("[data-search-tail]")!;
+  const searchBat = app.querySelector<HTMLElement>("[data-search-bat]")!;
+  let searchPawTimer = 0;
+  let searchTailTimer = 0;
+  let searchSmirkTimer = 0;
+  let searchDeleteStreak = 0;
+  let measureCtx: CanvasRenderingContext2D | null = null;
+
+  function caretXInSearch(): number {
+    const box = searchFx.querySelector(".search-box");
+    if (!box) return 48;
+    const style = getComputedStyle(searchEl);
+    if (!measureCtx) {
+      const c = document.createElement("canvas");
+      measureCtx = c.getContext("2d");
+    }
+    if (!measureCtx) return 48;
+    measureCtx.font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+    const caret = searchEl.selectionStart ?? nextLenSafe();
+    const text = searchEl.value.slice(0, caret);
+    const iconPad = 34;
+    const x = iconPad + measureCtx.measureText(text).width;
+    const max = box.clientWidth - 28;
+    return Math.max(28, Math.min(max, x));
+  }
+
+  function nextLenSafe(): number {
+    return searchEl.value.length;
+  }
+
+  function runSearchPawBat(letter: string): void {
+    window.clearTimeout(searchPawTimer);
+    searchFx.classList.remove("is-sweeping");
+    searchFx.classList.add("is-batting");
+    const x = caretXInSearch() + (Math.random() * 12 - 6);
+    searchPaw.style.setProperty("--paw-x", `${x}px`);
+    if (letter && letter !== " ") {
+      searchBat.hidden = false;
+      searchBat.textContent = letter;
+      searchBat.style.setProperty("--bat-x", `${x}px`);
+      searchBat.style.setProperty("--bat-rot", `${Math.random() * 24 - 12}deg`);
+      searchBat.classList.remove("is-pop");
+      void searchBat.offsetWidth;
+      searchBat.classList.add("is-pop");
+    }
+    let frame = 1;
+    const tick = (): void => {
+      searchPaw.dataset.frame = String(frame);
+      frame += 1;
+      if (frame <= 5) {
+        searchPawTimer = window.setTimeout(tick, 88);
+      } else {
+        searchPaw.dataset.frame = "0";
+        searchFx.classList.remove("is-batting");
+        searchBat.hidden = true;
+        searchBat.classList.remove("is-pop");
+      }
+    };
+    tick();
+  }
+
+  function runSearchTailSweep(): void {
+    window.clearTimeout(searchTailTimer);
+    searchFx.classList.remove("is-batting");
+    searchPaw.dataset.frame = "0";
+    searchFx.classList.add("is-sweeping");
+    let frame = 1;
+    const tick = (): void => {
+      searchTail.dataset.frame = String(frame);
+      frame += 1;
+      if (frame <= 4) {
+        searchTailTimer = window.setTimeout(tick, 105);
+      } else {
+        searchTail.dataset.frame = "0";
+        searchFx.classList.remove("is-sweeping");
+      }
+    };
+    tick();
+  }
+
+  function peekSearchSmirk(): void {
+    window.clearTimeout(searchSmirkTimer);
+    searchFx.classList.add("is-smirking");
+    searchSmirkTimer = window.setTimeout(() => {
+      searchFx.classList.remove("is-smirking");
+    }, 1600);
+  }
+
+  function runSearchCatFx(prev: string, next: string): void {
+    if (next.length > prev.length) {
+      searchDeleteStreak = 0;
+      const added = next.slice(prev.length);
+      const letter = added.length === 1 ? added : next.slice(-1);
+      runSearchPawBat(letter);
+      return;
+    }
+    if (next.length < prev.length) {
+      searchDeleteStreak += 1;
+      runSearchTailSweep();
+      if (searchDeleteStreak >= 2 || Math.random() < 0.42) {
+        peekSearchSmirk();
+      }
+      if (next.length === 0) {
+        searchDeleteStreak = 0;
+        peekSearchSmirk();
+      }
+    }
+  }
 
   app.querySelector<HTMLButtonElement>("[data-theme-toggle]")!.addEventListener("click", () => {
     const btn = app.querySelector<HTMLButtonElement>("[data-theme-toggle]")!;
