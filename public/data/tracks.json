@@ -1585,5 +1585,77 @@
       "Ла-ла!",
       "А-а-а!"
     ]
+  },
+  {
+    "id": "merin",
+    "title": "Мерин",
+    "artist": "Zoobastiks",
+    "description": "Short western electronic cut — black horse groove.",
+    "durationSec": 180,
+    "tags": [
+      "western",
+      "edm",
+      "bass",
+      "russian"
+    ],
+    "cover": "covers/merin.svg",
+    "src": "tracks/merin.mp3",
+    "style": "western electronic, bass house, edm, modern dance, husky vocal, club energy",
+    "prompt": "",
+    "lyrics": []
+  },
+  {
+    "id": "oy-zhenskoe-telo",
+    "title": "Ой, женское тело",
+    "artist": "Zoobastiks",
+    "description": "Playful electronic with husky vocal hook.",
+    "durationSec": 237,
+    "tags": [
+      "edm",
+      "vocal",
+      "club",
+      "russian"
+    ],
+    "cover": "covers/oy-zhenskoe-telo.svg",
+    "src": "tracks/oy-zhenskoe-telo.mp3",
+    "style": "western electronic, bass house, edm, modern dance, husky vocal, club energy",
+    "prompt": "",
+    "lyrics": []
+  },
+  {
+    "id": "oooy-katit-chornyy-merin",
+    "title": "Ооой, катит чорний мерин",
+    "artist": "Zoobastiks",
+    "description": "Western electronic — black horse ride anthem.",
+    "durationSec": 262,
+    "tags": [
+      "western",
+      "bass house",
+      "edm",
+      "russian"
+    ],
+    "cover": "covers/oooy-katit-chornyy-merin.svg",
+    "src": "tracks/oooy-katit-chornyy-merin.mp3",
+    "style": "western electronic, bass house, edm, modern dance, husky vocal, club energy",
+    "prompt": "",
+    "lyrics": []
+  },
+  {
+    "id": "oooy-katit-chornyy-merin-v2",
+    "title": "Ооой, катит чорний мерин (v2)",
+    "artist": "Zoobastiks",
+    "description": "Western electronic — black horse ride anthem (v2).",
+    "durationSec": 224,
+    "tags": [
+      "western",
+      "bass house",
+      "edm",
+      "russian"
+    ],
+    "cover": "covers/oooy-katit-chornyy-merin.svg",
+    "src": "tracks/oooy-katit-chornyy-merin-v2.mp3",
+    "style": "western electronic, bass house, edm, modern dance, husky vocal, club energy",
+    "prompt": "",
+    "lyrics": []
   }
 ]
