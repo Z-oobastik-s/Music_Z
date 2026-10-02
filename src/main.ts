@@ -76,15 +76,7 @@ function warmCharacterCache(): void {
     "bg-japan-lit.webp",
     "bg-japan-dim.jpg",
     "bg-japan-lit.jpg",
-    "side-samurai/01.webp",
-    "side-samurai/02.webp",
-    "side-samurai/03.webp",
-    "side-samurai/04.webp",
-    "side-samurai/05.webp",
-    "side-samurai/06.webp",
-    "side-samurai/07.webp",
-    "side-samurai/08.webp",
-    "side-samurai/09.webp",
+    ...Array.from({ length: 17 }, (_, i) => `side-samurai/${String(i + 1).padStart(2, "0")}.webp`),
   ]);
 }
 if (typeof requestIdleCallback === "function") {
@@ -186,7 +178,7 @@ function render(tracks: Track[]): void {
       <aside class="side" data-side>
         <div class="side-fx" aria-hidden="true">
           <div class="side-fx-stage">
-            ${[1, 2, 3, 4, 5, 6, 7, 8, 9]
+            ${Array.from({ length: 17 }, (_, i) => i + 1)
               .map(
                 (n) => `
               <img

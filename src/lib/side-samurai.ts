@@ -1,6 +1,5 @@
 /**
- * Sidebar samurai — pose changes on tempo grid (not noisy kick onsets).
- * Ping-pong crossfade; step every 1–2 beats depending on BPM.
+ * Sidebar samurai — tempo-grid poses with underlay crossfade (no blink).
  */
 
 export class SideSamurai {
@@ -10,6 +9,7 @@ export class SideSamurai {
   private dir = 1;
   private playing = false;
   private lastStepAt = 0;
+  private swapTimer = 0;
 
   bind(root: HTMLElement): void {
     this.stage = root.querySelector(".side-fx-stage");
@@ -22,6 +22,8 @@ export class SideSamurai {
     this.dir = 1;
     this.index = 0;
     this.lastStepAt = 0;
+    window.clearTimeout(this.swapTimer);
+    this.swapTimer = 0;
     if (!on) {
       this.clear();
       return;
@@ -30,20 +32,22 @@ export class SideSamurai {
   }
 
   /** Called on each quarter-note from BeatMotion grid. */
-  onBeat(beatIndex: number, bpm: number): void {
+  onBeat(_beatIndex: number, bpm: number): void {
     if (!this.playing || this.frames.length < 2) return;
 
-    // More frames → step every beat for fluid dance; only skip on very fast tempos
-    const every = bpm >= 132 ? 2 : 1;
-    if (beatIndex % every !== 0) return;
+    const every = bpm >= 140 ? 2 : 1;
+    if (_beatIndex % every !== 0) return;
 
     const now = performance.now();
-    if (now - this.lastStepAt < 180) return;
+    // Wait for crossfade to settle a bit so we don't stack blinks
+    if (now - this.lastStepAt < 220) return;
     this.lastStepAt = now;
     this.step();
   }
 
   private clear(): void {
+    window.clearTimeout(this.swapTimer);
+    this.swapTimer = 0;
     this.frames.forEach((el) => el.classList.remove("is-on", "is-exit"));
   }
 
@@ -64,24 +68,29 @@ export class SideSamurai {
   private show(i: number, instant: boolean): void {
     const prev = this.index;
     this.index = Math.max(0, Math.min(this.frames.length - 1, i));
-    this.frames.forEach((el, idx) => {
-      const on = idx === this.index;
-      if (instant) {
-        el.classList.toggle("is-on", on);
+    const nextEl = this.frames[this.index];
+    if (!nextEl) return;
+
+    if (instant || prev === this.index) {
+      this.frames.forEach((el, idx) => {
+        el.classList.toggle("is-on", idx === this.index);
         el.classList.remove("is-exit");
-        return;
-      }
-      if (idx === prev && prev !== this.index) {
-        el.classList.add("is-exit");
-        el.classList.remove("is-on");
-        window.setTimeout(() => el.classList.remove("is-exit"), 320);
-      } else if (on) {
-        el.classList.add("is-on");
-        el.classList.remove("is-exit");
-      } else {
-        el.classList.remove("is-on");
-      }
-    });
+      });
+      return;
+    }
+
+    // Underlay crossfade: keep previous fully visible underneath,
+    // fade new on top, then drop previous — never a dark gap/flash.
+    window.clearTimeout(this.swapTimer);
+    nextEl.classList.add("is-on");
+    nextEl.classList.remove("is-exit");
+    this.swapTimer = window.setTimeout(() => {
+      this.frames.forEach((el, idx) => {
+        if (idx !== this.index) el.classList.remove("is-on", "is-exit");
+      });
+      this.swapTimer = 0;
+    }, 380);
+
     this.stage?.style.setProperty("--samurai-pose", String(this.index));
   }
 }

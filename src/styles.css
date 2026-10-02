@@ -231,16 +231,10 @@ button img, a img {
 }
 .side-fx-stage {
   position: absolute;
-  inset: -4%;
+  inset: -2%;
   transform-origin: 50% 58%;
-  will-change: transform, filter;
-  transform:
-    translate3d(0, calc(var(--kick, 0) * -2.5px), 0)
-    scale(calc(1.04 + var(--kick, 0) * 0.035 + var(--bass, 0) * 0.012));
-  filter:
-    brightness(calc(0.92 + var(--kick, 0) * 0.18 + var(--energy, 0) * 0.08))
-    saturate(calc(1 + var(--energy, 0) * 0.15));
-  transition: filter 0.08s linear;
+  transform: scale(1.03);
+  filter: none;
 }
 .side-fx-frame {
   position: absolute;
@@ -251,21 +245,16 @@ button img, a img {
   object-fit: cover;
   object-position: 52% 28%;
   opacity: 0;
-  transition: opacity 0.28s ease-in-out;
+  transition: opacity 0.38s ease;
   pointer-events: none;
   -webkit-user-drag: none;
   user-select: none;
   will-change: opacity;
+  z-index: 1;
 }
 .side-fx-frame.is-on {
   opacity: 1;
   z-index: 2;
-  transition: opacity 0.22s ease-in;
-}
-.side-fx-frame.is-exit {
-  opacity: 0;
-  z-index: 1;
-  transition: opacity 0.3s ease-out;
 }
 .side-fx-veil {
   position: absolute;
@@ -274,8 +263,7 @@ button img, a img {
   background:
     linear-gradient(180deg, rgba(0, 0, 0, 0.48) 0%, rgba(0, 0, 0, 0.14) 38%, rgba(0, 0, 0, 0.55) 100%),
     linear-gradient(90deg, rgba(0, 0, 0, 0.14), transparent 42%, transparent 58%, rgba(0, 0, 0, 0.16));
-  opacity: calc(0.92 - var(--kick, 0) * 0.18);
-  transition: opacity 0.1s linear;
+  opacity: 0.9;
 }
 #app.is-playing .side-fx {
   opacity: 1;
