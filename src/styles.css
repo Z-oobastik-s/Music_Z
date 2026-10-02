@@ -2,11 +2,12 @@
 :root,
 [data-theme="dark"] {
   --bg: #000;
-  --panel: rgba(5, 5, 5, 0.78);
-  --surface: rgba(5, 5, 5, 0.72);
-  --surface-2: rgba(7, 7, 7, 0.76);
-  --surface-hover: color-mix(in srgb, var(--accent) 10%, rgba(5, 5, 5, 0.82));
-  --surface-hero: linear-gradient(135deg, rgba(225, 6, 0, 0.16), transparent 55%), rgba(5, 5, 5, 0.7);
+  --panel: #050505;
+  --glass: rgba(5, 5, 5, 0.42);
+  --surface: rgba(5, 5, 5, 0.38);
+  --surface-2: rgba(7, 7, 7, 0.55);
+  --surface-hover: color-mix(in srgb, var(--accent) 12%, rgba(5, 5, 5, 0.5));
+  --surface-hero: linear-gradient(135deg, rgba(225, 6, 0, 0.14), transparent 55%), rgba(5, 5, 5, 0.28);
   --overlay: rgba(0, 0, 0, 0.82);
   --overlay-soft: rgba(0, 0, 0, 0.55);
   --ink: #f0f0f0;
@@ -15,7 +16,7 @@
   --accent2: #ff1f1f;
   --line: #3a0f0f;
   --line-soft: rgba(58, 15, 15, 0.55);
-  --player: rgba(5, 5, 5, 0.88);
+  --player: rgba(5, 5, 5, 0.72);
   --player-h: 92px;
   --side-w: 176px;
   --deco-w: 220px;
@@ -26,6 +27,7 @@
 [data-theme="light"] {
   --bg: #ececec;
   --panel: #fff;
+  --glass: rgba(255, 255, 255, 0.72);
   --surface: #fff;
   --surface-2: #f6f6f6;
   --surface-hover: color-mix(in srgb, var(--accent) 7%, #fff);
@@ -190,11 +192,12 @@ button img, a img {
 }
 
 /* Sidebar — boxed, не уезжает под плеер/контент */
+/* Sidebar — solid (не трогаем прозрачность) */
 .side {
   border: 1px solid var(--line);
   background: var(--panel);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   display: flex;
   flex-direction: column;
   padding: 0.75rem 0;
@@ -341,8 +344,11 @@ button img, a img {
   border: 1px solid var(--line);
   border-radius: 2px;
   padding: 0.4rem 0.75rem;
-  background: var(--bg);
+  background: rgba(0, 0, 0, 0.28);
   min-width: 0;
+}
+[data-theme="light"] .search-box {
+  background: rgba(255, 255, 255, 0.65);
 }
 .search-box svg { flex-shrink: 0; color: var(--accent); }
 .search-box input { flex: 1; min-width: 0; border: 0; background: transparent; outline: none; }
@@ -780,8 +786,24 @@ button img, a img {
   background: var(--panel);
   min-height: 0;
   min-width: 0;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+}
+
+/* Центральные окна — стекло, чтобы фон просвечивал */
+.topbar.kit-box,
+.hero.kit-box,
+.tracks-panel.kit-box,
+.page-panel.kit-box {
+  background: var(--glass);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Жёлтые окна — непрозрачные */
+.lyrics-panel.kit-box,
+.deco-panel.kit-box {
+  background: var(--panel);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 .hero {
@@ -803,7 +825,7 @@ button img, a img {
   height: clamp(100px, 15vh, 140px);
   border-bottom: 1px solid var(--line);
   overflow: hidden;
-  background: var(--surface);
+  background: transparent;
   padding: 0;
   display: flex;
   align-items: center;
@@ -1236,7 +1258,7 @@ button img, a img {
 .deco-panel {
   overflow: hidden;
   position: relative;
-  background: var(--surface);
+  background: var(--panel);
   min-height: 0;
   height: 100%;
 }
