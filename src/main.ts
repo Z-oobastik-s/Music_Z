@@ -81,6 +81,10 @@ function warmCharacterCache(): void {
     "side-samurai/03.webp",
     "side-samurai/04.webp",
     "side-samurai/05.webp",
+    "side-samurai/06.webp",
+    "side-samurai/07.webp",
+    "side-samurai/08.webp",
+    "side-samurai/09.webp",
   ]);
 }
 if (typeof requestIdleCallback === "function") {
@@ -182,12 +186,12 @@ function render(tracks: Track[]): void {
       <aside class="side" data-side>
         <div class="side-fx" aria-hidden="true">
           <div class="side-fx-stage">
-            ${[1, 2, 3, 4, 5]
+            ${[1, 2, 3, 4, 5, 6, 7, 8, 9]
               .map(
                 (n) => `
               <img
                 class="side-fx-frame"
-                src="${assetUrl(`side-samurai/0${n}.webp`, BUILD)}"
+                src="${assetUrl(`side-samurai/${String(n).padStart(2, "0")}.webp`, BUILD)}"
                 alt=""
                 draggable="false"
                 decoding="async"
@@ -240,7 +244,15 @@ function render(tracks: Track[]): void {
               />
             </svg>
             <div class="side-viz-nodes">
-              <i></i><i></i><i></i><i></i><i></i>
+              <i></i>
+              <i></i>
+              <i class="side-viz-core" data-viz-core>
+                <span class="side-viz-ring" aria-hidden="true"></span>
+                <span class="side-viz-ring side-viz-ring--late" aria-hidden="true"></span>
+                <b></b>
+              </i>
+              <i></i>
+              <i></i>
             </div>
           </div>
           © ${new Date().getFullYear()} Music_Z
@@ -935,7 +947,15 @@ function render(tracks: Track[]): void {
   let charCycle: CharacterCycle | null = null;
   const sideSamurai = new SideSamurai();
   sideSamurai.bind(app);
-  beat.setBeatHandler((beatIndex, bpm) => sideSamurai.onBeat(beatIndex, bpm));
+  beat.setBeatHandler((beatIndex, bpm) => {
+    sideSamurai.onBeat(beatIndex, bpm);
+    const core = app.querySelector<HTMLElement>("[data-viz-core]");
+    if (!core || !app.classList.contains("is-playing")) return;
+    core.classList.remove("is-hit");
+    // restart CSS hit animation
+    void core.offsetWidth;
+    core.classList.add("is-hit");
+  });
 
   const player = new AudioPlayer({
     onChange: (track, isPlaying) => {

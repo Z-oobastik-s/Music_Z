@@ -36,6 +36,10 @@ const PRECACHE = [
   "./side-samurai/03.webp",
   "./side-samurai/04.webp",
   "./side-samurai/05.webp",
+  "./side-samurai/06.webp",
+  "./side-samurai/07.webp",
+  "./side-samurai/08.webp",
+  "./side-samurai/09.webp",
 ];
 
 self.addEventListener("install", (event) => {
@@ -160,7 +164,7 @@ self.addEventListener("fetch", (event) => {
     /\/character\.png$/i.test(path) ||
     /\/hero-banner\.png$/i.test(path) ||
     /\/bg-japan-(dim|lit)\.(jpg|webp)$/i.test(path) ||
-    /\/side-samurai\/0[1-5]\.webp$/i.test(path) ||
+    /\/side-samurai\/0[1-9]\.webp$/i.test(path) ||
     /\/logo\.png$/i.test(path) ||
     /\/favicon\.(svg|png)$/i.test(path)
   ) {

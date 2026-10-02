@@ -33,13 +33,12 @@ export class SideSamurai {
   onBeat(beatIndex: number, bpm: number): void {
     if (!this.playing || this.frames.length < 2) return;
 
-    // Slow tracks: every beat. Faster: every 2 beats (half-note poses).
-    const every = bpm >= 112 ? 2 : 1;
+    // More frames → step every beat for fluid dance; only skip on very fast tempos
+    const every = bpm >= 132 ? 2 : 1;
     if (beatIndex % every !== 0) return;
 
     const now = performance.now();
-    // Hard floor so we never stutter even if grid double-fires
-    if (now - this.lastStepAt < 240) return;
+    if (now - this.lastStepAt < 180) return;
     this.lastStepAt = now;
     this.step();
   }
@@ -75,7 +74,7 @@ export class SideSamurai {
       if (idx === prev && prev !== this.index) {
         el.classList.add("is-exit");
         el.classList.remove("is-on");
-        window.setTimeout(() => el.classList.remove("is-exit"), 260);
+        window.setTimeout(() => el.classList.remove("is-exit"), 320);
       } else if (on) {
         el.classList.add("is-on");
         el.classList.remove("is-exit");
