@@ -207,8 +207,42 @@ function render(tracks: Track[]): void {
           <li><button type="button" data-nav="info"><span class="nav-ico">${ICONS.info}</span> Инфо</button></li>
         </ul>
         <div class="side-foot">
-          <div class="mini-wave" data-mini-wave>${waveBars(5)}</div>
-          <div class="barcode" aria-hidden="true"></div>
+          <div class="side-viz" data-mini-wave aria-hidden="true">
+            <div class="side-viz-bloom"></div>
+            <svg class="side-viz-svg" viewBox="0 0 160 40" preserveAspectRatio="none" aria-hidden="true">
+              <defs>
+                <linearGradient id="sideVizStroke" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#e10600" stop-opacity="0" />
+                  <stop offset="22%" stop-color="#ff2a2a" stop-opacity="0.85" />
+                  <stop offset="50%" stop-color="#ff5a5a" stop-opacity="1" />
+                  <stop offset="78%" stop-color="#ff2a2a" stop-opacity="0.85" />
+                  <stop offset="100%" stop-color="#e10600" stop-opacity="0" />
+                </linearGradient>
+                <filter id="sideVizGlow" x="-40%" y="-120%" width="180%" height="340%">
+                  <feGaussianBlur stdDeviation="1.6" result="b" />
+                  <feMerge>
+                    <feMergeNode in="b" />
+                    <feMergeNode in="SourceGraphic" />
+                  </feMerge>
+                </filter>
+              </defs>
+              <path
+                class="side-viz-path side-viz-path--ghost"
+                d="M6 26 C 34 10, 52 34, 80 16 S 126 32, 154 18"
+                fill="none"
+              />
+              <path
+                class="side-viz-path"
+                d="M6 26 C 34 10, 52 34, 80 16 S 126 32, 154 18"
+                fill="none"
+                stroke="url(#sideVizStroke)"
+                filter="url(#sideVizGlow)"
+              />
+            </svg>
+            <div class="side-viz-nodes">
+              <i></i><i></i><i></i><i></i><i></i>
+            </div>
+          </div>
           © ${new Date().getFullYear()} Music_Z
         </div>
       </aside>
