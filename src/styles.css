@@ -3,7 +3,7 @@
 [data-theme="dark"] {
   --bg: #000;
   --panel: #050505;
-  --glass: rgba(5, 5, 5, 0.42);
+  --glass: rgba(5, 5, 5, 0.28);
   --surface: rgba(5, 5, 5, 0.38);
   --surface-2: rgba(7, 7, 7, 0.55);
   --surface-hover: color-mix(in srgb, var(--accent) 12%, rgba(5, 5, 5, 0.5));
@@ -210,11 +210,14 @@ button img, a img {
 .side-logo {
   padding: 0.15rem 0.75rem 0.65rem;
   line-height: 0;
+  background: transparent;
 }
 .side-logo img {
   width: 100%;
   max-width: 150px;
   height: auto;
+  background: transparent;
+  mix-blend-mode: normal;
 }
 
 .nav { list-style: none; margin: 0; padding: 0 0.5rem; flex: 1; overflow: auto; }
@@ -841,6 +844,7 @@ button img, a img {
   margin: 0;
   object-fit: contain;
   object-position: center center;
+  background: transparent;
 }
 
 .hero-foot {

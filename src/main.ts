@@ -174,7 +174,7 @@ function render(tracks: Track[]): void {
     <div class="backdrop" data-backdrop></div>
     <div class="shell">
       <aside class="side" data-side>
-        <div class="side-logo"><img src="${assetUrl("logo.png")}" alt="Music_Z" /></div>
+        <div class="side-logo"><img src="${assetUrl("logo.png", BUILD)}" alt="Music_Z" /></div>
         <ul class="nav">
           <li><button type="button" class="is-on" data-nav="home"><span class="nav-ico">${ICONS.home}</span> Главная</button></li>
           <li><button type="button" data-nav="music"><span class="nav-ico">${ICONS.music}</span> Музыка</button></li>
@@ -970,7 +970,7 @@ function render(tracks: Track[]): void {
       Date.now() < playCatLockUntil ? playCatPose : loading ? "tap" : on ? "vibe" : "idle";
     heroEl.innerHTML = `
       <div class="hero-art">
-        <img class="brand-hero" src="${assetUrl("hero-banner.png")}" alt="Music_Z" />
+        <img class="brand-hero" src="${assetUrl("hero-banner.png", BUILD)}" alt="Music_Z" />
       </div>
       <div class="hero-foot">
         <div class="hero-actions">
