@@ -71,21 +71,22 @@ body {
 }
 .scene-layer {
   position: absolute;
-  inset: -2%;
+  inset: 0;
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
   transform-origin: 50% 42%;
-  will-change: opacity, filter, transform;
+  will-change: opacity, filter;
+  backface-visibility: hidden;
 }
 .scene-layer--dim {
   opacity: 1;
-  filter: brightness(0.95) saturate(0.9);
+  filter: none;
 }
 .scene-layer--lit {
   opacity: 0;
-  filter: brightness(1) saturate(1);
-  transition: opacity 0.55s ease, filter 0.35s ease;
+  filter: none;
+  transition: opacity 0.55s ease, filter 0.25s ease;
 }
 .scene-veil {
   position: absolute;
@@ -100,12 +101,10 @@ body {
   filter: grayscale(0.35) brightness(1.35);
 }
 #app.is-playing .scene-layer--lit {
-  opacity: calc(0.62 + var(--beat, 0) * 0.38);
+  opacity: calc(0.7 + var(--beat, 0) * 0.3);
   filter:
-    brightness(calc(1 + var(--kick, 0) * 0.22 + var(--bass, 0) * 0.08))
-    saturate(calc(1.05 + var(--energy, 0) * 0.35))
-    contrast(calc(1 + var(--kick, 0) * 0.06));
-  transform: scale(calc(1 + var(--kick, 0) * 0.012 + var(--bass, 0) * 0.004));
+    brightness(calc(1 + var(--kick, 0) * 0.12 + var(--bass, 0) * 0.05))
+    saturate(calc(1.02 + var(--energy, 0) * 0.2));
 }
 #app.is-playing .scene-layer--dim {
   opacity: 0.35;
@@ -123,9 +122,8 @@ body {
     transition: opacity 0.4s ease;
   }
   #app.is-playing .scene-layer--lit {
-    opacity: 0.85;
-    filter: brightness(1.08) saturate(1.15);
-    transform: none;
+    opacity: 0.88;
+    filter: brightness(1.05) saturate(1.1);
   }
 }
 

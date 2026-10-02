@@ -71,6 +71,8 @@ function warmCharacterCache(): void {
     "characters/07-breath.png",
     "hero-banner.png",
     "logo.png",
+    "bg-japan-dim.webp",
+    "bg-japan-lit.webp",
     "bg-japan-dim.jpg",
     "bg-japan-lit.jpg",
   ]);
@@ -165,8 +167,8 @@ function render(tracks: Track[]): void {
 
   app.innerHTML = `
     <div class="scene" aria-hidden="true">
-      <div class="scene-layer scene-layer--dim" style="background-image:url('${assetUrl("bg-japan-dim.jpg", BUILD)}')"></div>
-      <div class="scene-layer scene-layer--lit" style="background-image:url('${assetUrl("bg-japan-lit.jpg", BUILD)}')"></div>
+      <div class="scene-layer scene-layer--dim" style="background-image:image-set(url('${assetUrl("bg-japan-dim.webp", BUILD)}') type('image/webp'), url('${assetUrl("bg-japan-dim.jpg", BUILD)}') type('image/jpeg'))"></div>
+      <div class="scene-layer scene-layer--lit" style="background-image:image-set(url('${assetUrl("bg-japan-lit.webp", BUILD)}') type('image/webp'), url('${assetUrl("bg-japan-lit.jpg", BUILD)}') type('image/jpeg'))"></div>
       <div class="scene-veil"></div>
     </div>
     <div class="backdrop" data-backdrop></div>

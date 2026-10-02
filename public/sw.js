@@ -27,6 +27,8 @@ const PRECACHE = [
   "./characters/07-breath.png",
   "./logo.png",
   "./hero-banner.png",
+  "./bg-japan-dim.webp",
+  "./bg-japan-lit.webp",
   "./bg-japan-dim.jpg",
   "./bg-japan-lit.jpg",
 ];
@@ -152,7 +154,7 @@ self.addEventListener("fetch", (event) => {
     path.includes("/characters/") ||
     /\/character\.png$/i.test(path) ||
     /\/hero-banner\.png$/i.test(path) ||
-    /\/bg-japan-(dim|lit)\.jpg$/i.test(path) ||
+    /\/bg-japan-(dim|lit)\.(jpg|webp)$/i.test(path) ||
     /\/logo\.png$/i.test(path) ||
     /\/favicon\.(svg|png)$/i.test(path)
   ) {
