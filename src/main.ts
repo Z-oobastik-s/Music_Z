@@ -246,11 +246,7 @@ function render(tracks: Track[]): void {
             <div class="side-viz-nodes">
               <i></i>
               <i></i>
-              <i class="side-viz-core" data-viz-core>
-                <span class="side-viz-ring" aria-hidden="true"></span>
-                <span class="side-viz-ring side-viz-ring--late" aria-hidden="true"></span>
-                <b></b>
-              </i>
+              <i class="side-viz-core" data-viz-core><b></b></i>
               <i></i>
               <i></i>
             </div>
@@ -949,12 +945,6 @@ function render(tracks: Track[]): void {
   sideSamurai.bind(app);
   beat.setBeatHandler((beatIndex, bpm) => {
     sideSamurai.onBeat(beatIndex, bpm);
-    const core = app.querySelector<HTMLElement>("[data-viz-core]");
-    if (!core || !app.classList.contains("is-playing")) return;
-    core.classList.remove("is-hit");
-    // restart CSS hit animation
-    void core.offsetWidth;
-    core.classList.add("is-hit");
   });
 
   const player = new AudioPlayer({
