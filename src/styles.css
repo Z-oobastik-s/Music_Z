@@ -227,7 +227,7 @@ button img, a img {
   pointer-events: none;
   overflow: hidden;
   opacity: 0;
-  transition: opacity 0.45s ease;
+  transition: opacity 0.35s ease;
 }
 .side-fx-stage {
   position: absolute;
@@ -240,48 +240,31 @@ button img, a img {
   height: 100%;
   max-width: none;
   object-fit: cover;
-  object-position: 55% 35%;
+  object-position: 52% 28%;
   opacity: 0;
+  transition: opacity 0.05s linear;
   pointer-events: none;
   -webkit-user-drag: none;
   user-select: none;
+}
+.side-fx-frame.is-on {
+  opacity: 1;
 }
 .side-fx-veil {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(180deg, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.22) 42%, rgba(0, 0, 0, 0.58) 100%),
-    linear-gradient(90deg, rgba(0, 0, 0, 0.15), transparent 40%, transparent 60%, rgba(0, 0, 0, 0.2));
+    linear-gradient(180deg, rgba(0, 0, 0, 0.42) 0%, rgba(0, 0, 0, 0.12) 40%, rgba(0, 0, 0, 0.5) 100%),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.12), transparent 45%, transparent 55%, rgba(0, 0, 0, 0.15));
 }
 #app.is-playing .side-fx {
   opacity: 1;
 }
-#app.is-playing .side-fx-frame {
-  animation: side-samurai-frame 1.5s infinite;
-}
-#app.is-playing .side-fx-frame:nth-child(1) { animation-delay: 0s; }
-#app.is-playing .side-fx-frame:nth-child(2) { animation-delay: 0.3s; }
-#app.is-playing .side-fx-frame:nth-child(3) { animation-delay: 0.6s; }
-#app.is-playing .side-fx-frame:nth-child(4) { animation-delay: 0.9s; }
-#app.is-playing .side-fx-frame:nth-child(5) { animation-delay: 1.2s; }
 #app.is-playing .side {
-  background: rgba(5, 5, 5, 0.55);
+  background: rgba(5, 5, 5, 0.42);
 }
 [data-theme="light"] #app.is-playing .side {
-  background: rgba(255, 255, 255, 0.72);
-}
-@keyframes side-samurai-frame {
-  0%, 19.9% { opacity: 1; }
-  20%, 100% { opacity: 0; }
-}
-@media (prefers-reduced-motion: reduce) {
-  #app.is-playing .side-fx-frame {
-    animation: none;
-    opacity: 0;
-  }
-  #app.is-playing .side-fx-frame:first-child {
-    opacity: 1;
-  }
+  background: rgba(255, 255, 255, 0.7);
 }
 
 #app.is-playing .side .nav button,

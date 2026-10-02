@@ -75,11 +75,11 @@ function warmCharacterCache(): void {
     "bg-japan-lit.webp",
     "bg-japan-dim.jpg",
     "bg-japan-lit.jpg",
-    "side-samurai-01.webp",
-    "side-samurai-02.webp",
-    "side-samurai-03.webp",
-    "side-samurai-04.webp",
-    "side-samurai-05.webp",
+    "side-samurai/01.webp",
+    "side-samurai/02.webp",
+    "side-samurai/03.webp",
+    "side-samurai/04.webp",
+    "side-samurai/05.webp",
   ]);
 }
 if (typeof requestIdleCallback === "function") {
@@ -186,11 +186,10 @@ function render(tracks: Track[]): void {
                 (n) => `
               <img
                 class="side-fx-frame"
-                src="${assetUrl(`side-samurai-0${n}.webp`, BUILD)}"
+                src="${assetUrl(`side-samurai/0${n}.webp`, BUILD)}"
                 alt=""
                 draggable="false"
                 decoding="async"
-                onerror="this.onerror=null;this.src='${assetUrl(`side-samurai-0${n}.jpg`, BUILD)}'"
               />`,
               )
               .join("")}
@@ -899,6 +898,32 @@ function render(tracks: Track[]): void {
 
   const beat = new BeatMotion(app);
   let charCycle: CharacterCycle | null = null;
+  let sideFxTimer = 0;
+  let sideFxIndex = 0;
+
+  function setSideSamuraiPlaying(on: boolean): void {
+    const frames = Array.from(app.querySelectorAll<HTMLElement>(".side-fx-frame"));
+    window.clearInterval(sideFxTimer);
+    sideFxTimer = 0;
+    if (!frames.length) return;
+
+    const show = (i: number) => {
+      frames.forEach((el, idx) => el.classList.toggle("is-on", idx === i));
+    };
+
+    if (!on) {
+      show(-1);
+      return;
+    }
+
+    sideFxIndex = 0;
+    show(0);
+    sideFxTimer = window.setInterval(() => {
+      sideFxIndex = (sideFxIndex + 1) % frames.length;
+      show(sideFxIndex);
+    }, 260);
+  }
+
   const player = new AudioPlayer({
     onChange: (track, isPlaying) => {
       activeId = track?.id ?? null;
@@ -915,6 +940,7 @@ function render(tracks: Track[]): void {
       paintPlayButton();
       miniWave.classList.toggle("is-paused", !isPlaying);
       app.classList.toggle("is-playing", isPlaying);
+      setSideSamuraiPlaying(isPlaying);
       if (track && viewId !== "home") syncTrackInUrl(track.id);
       paintHero();
       paintList();

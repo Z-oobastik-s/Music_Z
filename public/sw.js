@@ -31,16 +31,11 @@ const PRECACHE = [
   "./bg-japan-lit.webp",
   "./bg-japan-dim.jpg",
   "./bg-japan-lit.jpg",
-  "./side-samurai-01.webp",
-  "./side-samurai-02.webp",
-  "./side-samurai-03.webp",
-  "./side-samurai-04.webp",
-  "./side-samurai-05.webp",
-  "./side-samurai-01.jpg",
-  "./side-samurai-02.jpg",
-  "./side-samurai-03.jpg",
-  "./side-samurai-04.jpg",
-  "./side-samurai-05.jpg",
+  "./side-samurai/01.webp",
+  "./side-samurai/02.webp",
+  "./side-samurai/03.webp",
+  "./side-samurai/04.webp",
+  "./side-samurai/05.webp",
 ];
 
 self.addEventListener("install", (event) => {
@@ -165,7 +160,7 @@ self.addEventListener("fetch", (event) => {
     /\/character\.png$/i.test(path) ||
     /\/hero-banner\.png$/i.test(path) ||
     /\/bg-japan-(dim|lit)\.(jpg|webp)$/i.test(path) ||
-    /\/side-samurai-0[1-5]\.(jpg|webp)$/i.test(path) ||
+    /\/side-samurai\/0[1-5]\.webp$/i.test(path) ||
     /\/logo\.png$/i.test(path) ||
     /\/favicon\.(svg|png)$/i.test(path)
   ) {
