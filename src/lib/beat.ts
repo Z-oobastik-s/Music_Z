@@ -26,11 +26,22 @@ export class BeatMotion {
   private prevBins: Float32Array | null = null;
 
   private readonly root: HTMLElement;
-
   private isLiveFn: (() => boolean) | null = null;
+  private onKickFn: ((strength: number) => void) | null = null;
+  private onPulseFn: (() => void) | null = null;
+  private fallbackPulseAt = 0;
 
   constructor(root: HTMLElement) {
     this.root = root;
+  }
+
+  setKickHandler(fn: ((strength: number) => void) | null): void {
+    this.onKickFn = fn;
+  }
+
+  /** Slow pulse when music is quiet (intro) so FX still breathes. */
+  setPulseHandler(fn: (() => void) | null): void {
+    this.onPulseFn = fn;
   }
 
   /** Use when AudioPlayer owns the Web Audio graph (dual-track crossfade). */
@@ -297,7 +308,11 @@ export class BeatMotion {
 
     // Kick pulse: snap up on onset, decay quickly
     if (onset > 0.08) {
+      const prevKick = this.kick;
       this.kick = Math.min(1, Math.max(this.kick, onset * 1.35));
+      if (this.kick - prevKick > 0.12 || onset > 0.22) {
+        this.onKickFn?.(Math.min(1, Math.max(onset, this.kick)));
+      }
     }
     this.kick *= 0.82;
 
@@ -307,5 +322,14 @@ export class BeatMotion {
     );
 
     this.apply(beat, this.envBass, this.envEnergy, this.envVoice, this.kick);
+
+    // Quiet passages: gentle pose pulse so FX isn't frozen
+    if (this.envEnergy < 0.18 && this.kick < 0.08) {
+      const t = performance.now();
+      if (t - this.fallbackPulseAt > 640) {
+        this.fallbackPulseAt = t;
+        this.onPulseFn?.();
+      }
+    }
   };
 }

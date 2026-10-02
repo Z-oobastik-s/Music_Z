@@ -2,6 +2,7 @@ import "./styles.css";
 import { BeatMotion } from "./lib/beat";
 import { CharacterCycle } from "./lib/character";
 import { AudioPlayer, type RepeatMode } from "./lib/player";
+import { SideSamurai } from "./lib/side-samurai";
 import {
   clearTrackInUrl,
   readDeepLink,
@@ -898,31 +899,10 @@ function render(tracks: Track[]): void {
 
   const beat = new BeatMotion(app);
   let charCycle: CharacterCycle | null = null;
-  let sideFxTimer = 0;
-  let sideFxIndex = 0;
-
-  function setSideSamuraiPlaying(on: boolean): void {
-    const frames = Array.from(app.querySelectorAll<HTMLElement>(".side-fx-frame"));
-    window.clearInterval(sideFxTimer);
-    sideFxTimer = 0;
-    if (!frames.length) return;
-
-    const show = (i: number) => {
-      frames.forEach((el, idx) => el.classList.toggle("is-on", idx === i));
-    };
-
-    if (!on) {
-      show(-1);
-      return;
-    }
-
-    sideFxIndex = 0;
-    show(0);
-    sideFxTimer = window.setInterval(() => {
-      sideFxIndex = (sideFxIndex + 1) % frames.length;
-      show(sideFxIndex);
-    }, 260);
-  }
+  const sideSamurai = new SideSamurai();
+  sideSamurai.bind(app);
+  beat.setKickHandler((strength) => sideSamurai.onKick(strength));
+  beat.setPulseHandler(() => sideSamurai.onFallbackPulse());
 
   const player = new AudioPlayer({
     onChange: (track, isPlaying) => {
@@ -940,7 +920,7 @@ function render(tracks: Track[]): void {
       paintPlayButton();
       miniWave.classList.toggle("is-paused", !isPlaying);
       app.classList.toggle("is-playing", isPlaying);
-      setSideSamuraiPlaying(isPlaying);
+      sideSamurai.setPlaying(isPlaying);
       if (track && viewId !== "home") syncTrackInUrl(track.id);
       paintHero();
       paintList();

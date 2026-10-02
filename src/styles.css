@@ -227,11 +227,20 @@ button img, a img {
   pointer-events: none;
   overflow: hidden;
   opacity: 0;
-  transition: opacity 0.35s ease;
+  transition: opacity 0.45s ease;
 }
 .side-fx-stage {
   position: absolute;
-  inset: 0;
+  inset: -4%;
+  transform-origin: 50% 58%;
+  will-change: transform, filter;
+  transform:
+    translate3d(0, calc(var(--kick, 0) * -2.5px), 0)
+    scale(calc(1.04 + var(--kick, 0) * 0.035 + var(--bass, 0) * 0.012));
+  filter:
+    brightness(calc(0.92 + var(--kick, 0) * 0.18 + var(--energy, 0) * 0.08))
+    saturate(calc(1 + var(--energy, 0) * 0.15));
+  transition: filter 0.08s linear;
 }
 .side-fx-frame {
   position: absolute;
@@ -242,29 +251,49 @@ button img, a img {
   object-fit: cover;
   object-position: 52% 28%;
   opacity: 0;
-  transition: opacity 0.05s linear;
+  transition: opacity 0.18s ease-out;
   pointer-events: none;
   -webkit-user-drag: none;
   user-select: none;
+  will-change: opacity;
 }
 .side-fx-frame.is-on {
   opacity: 1;
+  z-index: 2;
+  transition: opacity 0.14s ease-in;
+}
+.side-fx-frame.is-exit {
+  opacity: 0;
+  z-index: 1;
+  transition: opacity 0.2s ease-out;
 }
 .side-fx-veil {
   position: absolute;
   inset: 0;
+  z-index: 3;
   background:
-    linear-gradient(180deg, rgba(0, 0, 0, 0.42) 0%, rgba(0, 0, 0, 0.12) 40%, rgba(0, 0, 0, 0.5) 100%),
-    linear-gradient(90deg, rgba(0, 0, 0, 0.12), transparent 45%, transparent 55%, rgba(0, 0, 0, 0.15));
+    linear-gradient(180deg, rgba(0, 0, 0, 0.48) 0%, rgba(0, 0, 0, 0.14) 38%, rgba(0, 0, 0, 0.55) 100%),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.14), transparent 42%, transparent 58%, rgba(0, 0, 0, 0.16));
+  opacity: calc(0.92 - var(--kick, 0) * 0.18);
+  transition: opacity 0.1s linear;
 }
 #app.is-playing .side-fx {
   opacity: 1;
 }
 #app.is-playing .side {
-  background: rgba(5, 5, 5, 0.42);
+  background: rgba(5, 5, 5, 0.38);
 }
 [data-theme="light"] #app.is-playing .side {
   background: rgba(255, 255, 255, 0.7);
+}
+@media (prefers-reduced-motion: reduce) {
+  .side-fx-stage {
+    transform: none;
+    filter: none;
+  }
+  .side-fx-frame {
+    transition: none;
+  }
 }
 
 #app.is-playing .side .nav button,
