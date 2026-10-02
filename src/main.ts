@@ -75,6 +75,8 @@ function warmCharacterCache(): void {
     "bg-japan-lit.webp",
     "bg-japan-dim.jpg",
     "bg-japan-lit.jpg",
+    "side-samurai-sheet.webp",
+    "side-samurai-sheet.jpg",
   ]);
 }
 if (typeof requestIdleCallback === "function") {
@@ -174,6 +176,13 @@ function render(tracks: Track[]): void {
     <div class="backdrop" data-backdrop></div>
     <div class="shell">
       <aside class="side" data-side>
+        <div class="side-fx" aria-hidden="true">
+          <div
+            class="side-fx-sprite"
+            style="background-image:image-set(url('${assetUrl("side-samurai-sheet.webp", BUILD)}') type('image/webp'), url('${assetUrl("side-samurai-sheet.jpg", BUILD)}') type('image/jpeg'))"
+          ></div>
+          <div class="side-fx-veil"></div>
+        </div>
         <div class="side-logo"><img src="${assetUrl("logo.png", BUILD)}" alt="Music_Z" /></div>
         <ul class="nav">
           <li><button type="button" class="is-on" data-nav="home"><span class="nav-ico">${ICONS.home}</span> Главная</button></li>

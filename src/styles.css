@@ -199,9 +199,9 @@ button img, a img {
   box-sizing: border-box;
 }
 
-/* Sidebar — boxed, не уезжает под плеер/контент */
-/* Sidebar — solid (не трогаем прозрачность) */
+/* Sidebar — solid + samurai FX when playing */
 .side {
+  position: relative;
   border: 1px solid var(--line);
   background: var(--panel);
   backdrop-filter: none;
@@ -214,6 +214,70 @@ button img, a img {
   height: 100%;
   z-index: 40;
   overflow: hidden;
+}
+.side > :not(.side-fx) {
+  position: relative;
+  z-index: 1;
+}
+
+.side-fx {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+.side-fx-sprite {
+  position: absolute;
+  inset: 0;
+  background-repeat: no-repeat;
+  background-position: 0% 50%;
+  background-size: 500% 100%;
+  transform: scale(1.08);
+  transform-origin: 50% 55%;
+  filter: saturate(1.05) contrast(1.05);
+}
+.side-fx-veil {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.28) 42%, rgba(0, 0, 0, 0.62) 100%),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.2), transparent 35%, transparent 65%, rgba(0, 0, 0, 0.25));
+}
+#app.is-playing .side-fx {
+  opacity: 1;
+}
+#app.is-playing .side-fx-sprite {
+  animation: side-samurai-dance 1.4s infinite;
+}
+#app.is-playing .side {
+  background: rgba(5, 5, 5, 0.55);
+}
+[data-theme="light"] #app.is-playing .side {
+  background: rgba(255, 255, 255, 0.72);
+}
+@keyframes side-samurai-dance {
+  0%, 19.9% { background-position: 0% 50%; }
+  20%, 39.9% { background-position: 25% 50%; }
+  40%, 59.9% { background-position: 50% 50%; }
+  60%, 79.9% { background-position: 75% 50%; }
+  80%, 100% { background-position: 100% 50%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #app.is-playing .side-fx-sprite {
+    animation: none;
+    background-position: 0% 50%;
+  }
+}
+
+#app.is-playing .side .nav button,
+#app.is-playing .side .side-foot {
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
+}
+#app.is-playing .side .nav-ico {
+  background: rgba(0, 0, 0, 0.45);
 }
 
 .side-logo {
