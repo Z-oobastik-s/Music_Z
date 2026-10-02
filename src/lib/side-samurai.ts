@@ -1,5 +1,5 @@
 /**
- * Sidebar samurai — tempo-grid poses with underlay crossfade (no blink).
+ * Sidebar samurai — snaps pose on each beat (no fade lag).
  */
 
 export class SideSamurai {
@@ -9,7 +9,6 @@ export class SideSamurai {
   private dir = 1;
   private playing = false;
   private lastStepAt = 0;
-  private swapTimer = 0;
 
   bind(root: HTMLElement): void {
     this.stage = root.querySelector(".side-fx-stage");
@@ -22,31 +21,27 @@ export class SideSamurai {
     this.dir = 1;
     this.index = 0;
     this.lastStepAt = 0;
-    window.clearTimeout(this.swapTimer);
-    this.swapTimer = 0;
     if (!on) {
       this.clear();
       return;
     }
-    this.show(0, true);
+    this.show(0);
   }
 
-  /** Called on each quarter-note from BeatMotion grid. */
+  /** Called on each quarter-note from BeatMotion (already look-ahead compensated). */
   onBeat(_beatIndex: number, bpm: number): void {
     if (!this.playing || this.frames.length < 2) return;
 
     const period = 60000 / Math.max(70, Math.min(160, bpm || 96));
     const now = performance.now();
-    // Only ignore true double-fires — never skip a real beat
-    if (now - this.lastStepAt < period * 0.4) return;
+    // Guard only against true double-fires from the same kick
+    if (now - this.lastStepAt < Math.min(140, period * 0.28)) return;
     this.lastStepAt = now;
     this.step();
   }
 
   private clear(): void {
-    window.clearTimeout(this.swapTimer);
-    this.swapTimer = 0;
-    this.frames.forEach((el) => el.classList.remove("is-on", "is-exit"));
+    this.frames.forEach((el) => el.classList.remove("is-on"));
   }
 
   private step(): void {
@@ -60,34 +55,15 @@ export class SideSamurai {
       next = 0;
       this.dir = 1;
     }
-    this.show(next, false);
+    this.show(next);
   }
 
-  private show(i: number, instant: boolean): void {
-    const prev = this.index;
+  private show(i: number): void {
     this.index = Math.max(0, Math.min(this.frames.length - 1, i));
-    const nextEl = this.frames[this.index];
-    if (!nextEl) return;
-
-    if (instant || prev === this.index) {
-      this.frames.forEach((el, idx) => {
-        el.classList.toggle("is-on", idx === this.index);
-        el.classList.remove("is-exit");
-      });
-      return;
-    }
-
-    // Underlay crossfade: previous stays underneath, new snaps in quickly on beat
-    window.clearTimeout(this.swapTimer);
-    nextEl.classList.add("is-on");
-    nextEl.classList.remove("is-exit");
-    this.swapTimer = window.setTimeout(() => {
-      this.frames.forEach((el, idx) => {
-        if (idx !== this.index) el.classList.remove("is-on", "is-exit");
-      });
-      this.swapTimer = 0;
-    }, 120);
-
+    // Hard cut — fade made poses land after the kick
+    this.frames.forEach((el, idx) => {
+      el.classList.toggle("is-on", idx === this.index);
+    });
     this.stage?.style.setProperty("--samurai-pose", String(this.index));
   }
 }

@@ -245,11 +245,10 @@ button img, a img {
   object-fit: cover;
   object-position: 52% 28%;
   opacity: 0;
-  transition: opacity 0.1s linear;
+  transition: none;
   pointer-events: none;
   -webkit-user-drag: none;
   user-select: none;
-  will-change: opacity;
   z-index: 1;
 }
 .side-fx-frame.is-on {
