@@ -32,8 +32,8 @@ export class BeatMotion {
   private lastFiredAt = 0;
   private iois: number[] = [];
   private beatIndex = 0;
-  /** Fire visuals early to cover analyser + paint lag */
-  private readonly lookAheadMs = 120;
+  /** Fire pose slightly before the audible kick */
+  private readonly lookAheadMs = 90;
 
   private readonly root: HTMLElement;
   private isLiveFn: (() => boolean) | null = null;
@@ -229,10 +229,8 @@ export class BeatMotion {
     this.prevBass = bassMix * 0.7 + this.prevBass * 0.3;
     this.prevSub = sub * 0.7 + this.prevSub * 0.3;
 
-    // Visual onset (can be a bit looser)
     const onset = Math.min(1, bassJump * 4.2 + flux * 5.5 + subJump * 3);
 
-    // Tempo hits: low-end body; slightly open so phase lock doesn't starve
     const bassHit =
       sub > 0.16 &&
       subJump > 0.028 &&
@@ -289,57 +287,60 @@ export class BeatMotion {
     return s[Math.floor(s.length / 2)]!;
   }
 
-  /** Learn tempo from bass kicks; fire dance clock with look-ahead. */
+  /**
+   * Hits only train tempo/phase.
+   * Pose fires from a free-running clock (max 1 per frame) with look-ahead.
+   */
   private updateGrid(now: number, bassHit: boolean): void {
-    const period = this.beatPeriod;
-    const minGap = period * 0.42;
-
-    if (bassHit && now - this.lastHitAt > 120) {
+    if (bassHit && now - this.lastHitAt > 140) {
       if (this.lastHitAt > 0) {
         const ioi = now - this.lastHitAt;
-        if (ioi >= 260 && ioi <= 1100) {
+        if (ioi >= 280 && ioi <= 1050) {
           this.iois.push(ioi);
-          if (this.iois.length > 10) this.iois.shift();
+          if (this.iois.length > 8) this.iois.shift();
 
           let measuredPeriod = this.median(this.iois);
-          while (measuredPeriod < 420 && measuredPeriod * 2 <= 920) measuredPeriod *= 2;
-          while (measuredPeriod > 880) measuredPeriod *= 0.5;
+          while (measuredPeriod < 430 && measuredPeriod * 2 <= 900) measuredPeriod *= 2;
+          while (measuredPeriod > 860) measuredPeriod *= 0.5;
 
           const measured = 60000 / measuredPeriod;
-          const w = this.iois.length < 4 ? 0.5 : 0.25;
+          const w = this.iois.length < 3 ? 0.55 : 0.2;
           this.bpm = this.bpm * (1 - w) + measured * w;
-          this.bpm = Math.max(76, Math.min(140, this.bpm));
+          this.bpm = Math.max(78, Math.min(136, this.bpm));
           this.beatPeriod = 60000 / this.bpm;
         }
       }
       this.lastHitAt = now;
-      this.gridLocked = true;
 
-      // Kick IS the beat — snap dance to it (with no extra lag)
-      if (now - this.lastFiredAt >= minGap) {
-        this.fireBeat(now);
-        this.nextBeatAt = now + this.beatPeriod;
+      // Audible kick ≈ now (detection is a bit late). Schedule next fire
+      // so it lands lookAhead before the following kick — never fire here.
+      const period = this.beatPeriod;
+      if (!this.gridLocked) {
+        this.gridLocked = true;
+        this.nextBeatAt = now + period - this.lookAheadMs;
       } else {
-        // Already fired recently (look-ahead) — just re-phase the next slot
-        this.nextBeatAt = now + this.beatPeriod;
+        const until = this.nextBeatAt - now;
+        // Re-phase upcoming slot toward hit + period - lookAhead
+        const target = now + period - this.lookAheadMs;
+        if (until < period * 0.55) {
+          this.nextBeatAt = target;
+        } else {
+          this.nextBeatAt = this.nextBeatAt * 0.45 + target * 0.55;
+        }
       }
     }
 
-    if (!this.gridLocked) {
-      if (!this.nextBeatAt) this.nextBeatAt = now + this.beatPeriod;
+    if (!this.nextBeatAt) {
+      this.nextBeatAt = now + this.beatPeriod - this.lookAheadMs;
     }
 
-    // Free-running clock: fire EARLY so pose lands with the audible kick
-    let steps = 0;
-    while (now + this.lookAheadMs >= this.nextBeatAt && steps < 3) {
-      if (now - this.lastFiredAt < minGap) {
-        this.nextBeatAt += this.beatPeriod;
-        steps += 1;
-        continue;
-      }
+    // Exactly one pose change — never catch up with a burst of frames
+    if (now >= this.nextBeatAt && now - this.lastFiredAt >= this.beatPeriod * 0.55) {
       this.fireBeat(now);
+      this.nextBeatAt = Math.max(this.nextBeatAt + this.beatPeriod, now + this.beatPeriod * 0.55);
+    } else if (now >= this.nextBeatAt) {
+      // Too soon after last fire — skip this slot, keep clock alive
       this.nextBeatAt += this.beatPeriod;
-      steps += 1;
     }
 
     this.root.style.setProperty("--bpm", this.bpm.toFixed(1));

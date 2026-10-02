@@ -1,9 +1,9 @@
 /**
- * Sidebar samurai — snaps pose on each beat (no fade lag).
+ * Sidebar samurai — few key poses, hard cut on each beat (no flipbook).
  */
 
 export class SideSamurai {
-  private frames: HTMLElement[] = [];
+  private frames: HTMLImageElement[] = [];
   private stage: HTMLElement | null = null;
   private index = 0;
   private dir = 1;
@@ -12,7 +12,25 @@ export class SideSamurai {
 
   bind(root: HTMLElement): void {
     this.stage = root.querySelector(".side-fx-stage");
-    this.frames = Array.from(root.querySelectorAll<HTMLElement>(".side-fx-frame"));
+    const all = Array.from(root.querySelectorAll<HTMLImageElement>(".side-fx-frame"));
+    // Keep only distant key poses so each beat is a punch, not a film strip
+    const keys =
+      all.length >= 9
+        ? [0, 4, 8, 12, Math.min(all.length - 1, 16)].map((i) => all[i]!).filter(Boolean)
+        : all;
+
+    all.forEach((el) => {
+      el.classList.remove("is-on");
+      el.hidden = true;
+    });
+    keys.forEach((el) => {
+      el.hidden = false;
+      el.decoding = "sync";
+      // Warm decode so the first swap isn't blank
+      void el.decode().catch(() => undefined);
+    });
+
+    this.frames = keys;
     this.clear();
   }
 
@@ -25,17 +43,14 @@ export class SideSamurai {
       this.clear();
       return;
     }
-    this.show(0);
+    this.paint(0);
   }
 
-  /** Called on each quarter-note from BeatMotion (already look-ahead compensated). */
   onBeat(_beatIndex: number, bpm: number): void {
     if (!this.playing || this.frames.length < 2) return;
-
     const period = 60000 / Math.max(70, Math.min(160, bpm || 96));
     const now = performance.now();
-    // Guard only against true double-fires from the same kick
-    if (now - this.lastStepAt < Math.min(140, period * 0.28)) return;
+    if (now - this.lastStepAt < period * 0.5) return;
     this.lastStepAt = now;
     this.step();
   }
@@ -55,15 +70,21 @@ export class SideSamurai {
       next = 0;
       this.dir = 1;
     }
-    this.show(next);
+    this.paint(next);
   }
 
-  private show(i: number): void {
+  private paint(i: number): void {
     this.index = Math.max(0, Math.min(this.frames.length - 1, i));
-    // Hard cut — fade made poses land after the kick
-    this.frames.forEach((el, idx) => {
-      el.classList.toggle("is-on", idx === this.index);
-    });
+    const active = this.frames[this.index];
+    for (let k = 0; k < this.frames.length; k++) {
+      const el = this.frames[k]!;
+      const on = k === this.index;
+      // visibility avoids any opacity compositing that reads as a fade
+      el.classList.toggle("is-on", on);
+      el.style.visibility = on ? "visible" : "hidden";
+      el.style.opacity = on ? "1" : "0";
+    }
+    if (active) void active.decode().catch(() => undefined);
     this.stage?.style.setProperty("--samurai-pose", String(this.index));
   }
 }

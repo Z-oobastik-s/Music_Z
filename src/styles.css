@@ -245,7 +245,8 @@ button img, a img {
   object-fit: cover;
   object-position: 52% 28%;
   opacity: 0;
-  transition: none;
+  visibility: hidden;
+  transition: none !important;
   pointer-events: none;
   -webkit-user-drag: none;
   user-select: none;
@@ -253,6 +254,7 @@ button img, a img {
 }
 .side-fx-frame.is-on {
   opacity: 1;
+  visibility: visible;
   z-index: 2;
 }
 .side-fx-veil {
