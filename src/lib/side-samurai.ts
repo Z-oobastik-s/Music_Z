@@ -35,12 +35,10 @@ export class SideSamurai {
   onBeat(_beatIndex: number, bpm: number): void {
     if (!this.playing || this.frames.length < 2) return;
 
-    const every = bpm >= 140 ? 2 : 1;
-    if (_beatIndex % every !== 0) return;
-
+    const period = 60000 / Math.max(70, Math.min(160, bpm || 96));
     const now = performance.now();
-    // Wait for crossfade to settle a bit so we don't stack blinks
-    if (now - this.lastStepAt < 220) return;
+    // Only ignore true double-fires — never skip a real beat
+    if (now - this.lastStepAt < period * 0.4) return;
     this.lastStepAt = now;
     this.step();
   }
@@ -79,8 +77,7 @@ export class SideSamurai {
       return;
     }
 
-    // Underlay crossfade: keep previous fully visible underneath,
-    // fade new on top, then drop previous — never a dark gap/flash.
+    // Underlay crossfade: previous stays underneath, new snaps in quickly on beat
     window.clearTimeout(this.swapTimer);
     nextEl.classList.add("is-on");
     nextEl.classList.remove("is-exit");
@@ -89,7 +86,7 @@ export class SideSamurai {
         if (idx !== this.index) el.classList.remove("is-on", "is-exit");
       });
       this.swapTimer = 0;
-    }, 380);
+    }, 120);
 
     this.stage?.style.setProperty("--samurai-pose", String(this.index));
   }

@@ -24,8 +24,8 @@ export class BeatMotion {
   private prevBins: Float32Array | null = null;
 
   /** Tempo lock */
-  private bpm = 108;
-  private beatPeriod = 60000 / 108;
+  private bpm = 96;
+  private beatPeriod = 60000 / 96;
   private nextBeatAt = 0;
   private gridLocked = false;
   private lastHitAt = 0;
@@ -137,8 +137,8 @@ export class BeatMotion {
     this.lastHitAt = 0;
     this.iois = [];
     this.beatIndex = 0;
-    this.bpm = 108;
-    this.beatPeriod = 60000 / 108;
+    this.bpm = 96;
+    this.beatPeriod = 60000 / 96;
   }
 
   private hzToBin(hz: number): number {
@@ -287,22 +287,22 @@ export class BeatMotion {
 
   /** Learn tempo from sparse bass hits; drive a free-running beat clock. */
   private updateGrid(now: number, bassHit: boolean): void {
-    if (bassHit && now - this.lastHitAt > 170) {
+    if (bassHit && now - this.lastHitAt > 150) {
       if (this.lastHitAt > 0) {
         const ioi = now - this.lastHitAt;
-        // Accept quarter / eighth-ish intervals
-        if (ioi >= 260 && ioi <= 1200) {
+        if (ioi >= 280 && ioi <= 1100) {
           this.iois.push(ioi);
-          if (this.iois.length > 12) this.iois.shift();
+          if (this.iois.length > 10) this.iois.shift();
 
           let period = this.median(this.iois);
-          // Fold to ~70–150 BPM quarter notes
-          while (period < 400 && period * 2 <= 950) period *= 2;
-          while (period > 900) period *= 0.5;
+          while (period < 420 && period * 2 <= 920) period *= 2;
+          while (period > 880) period *= 0.5;
 
           const measured = 60000 / period;
-          this.bpm = this.bpm * 0.82 + measured * 0.18;
-          this.bpm = Math.max(72, Math.min(148, this.bpm));
+          // Learn faster early, then stabilize
+          const w = this.iois.length < 4 ? 0.45 : 0.22;
+          this.bpm = this.bpm * (1 - w) + measured * w;
+          this.bpm = Math.max(76, Math.min(140, this.bpm));
           this.beatPeriod = 60000 / this.bpm;
         }
       }
@@ -312,19 +312,27 @@ export class BeatMotion {
         this.gridLocked = true;
         this.nextBeatAt = now;
       } else {
-        // Phase correct toward this hit if near a grid line
         const period = this.beatPeriod;
-        const k = Math.round((now - this.nextBeatAt) / period);
-        const nearest = this.nextBeatAt + k * period;
-        const drift = now - nearest;
-        if (Math.abs(drift) < period * 0.22) {
-          this.nextBeatAt += drift * 0.35;
+        // Only pull the *upcoming* beat toward this hit — never yank past beats
+        const until = this.nextBeatAt - now;
+        if (until > 0 && until < period * 0.38) {
+          // Hit landed early: fire on this kick
+          this.nextBeatAt = now;
+        } else if (until <= 0 && until > -period * 0.22) {
+          // Hit landed just after we already ticked: nudge next slot earlier
+          this.nextBeatAt += until * 0.55;
+        } else {
+          const k = Math.round((now - this.nextBeatAt) / period);
+          const nearest = this.nextBeatAt + k * period;
+          const drift = now - nearest;
+          if (Math.abs(drift) < period * 0.18) {
+            this.nextBeatAt += drift * 0.4;
+          }
         }
       }
     }
 
     if (!this.gridLocked) {
-      // Until we hear a few hits, run a calm default clock
       if (!this.nextBeatAt) this.nextBeatAt = now + this.beatPeriod;
     }
 
@@ -334,7 +342,6 @@ export class BeatMotion {
       this.beatIndex += 1;
       steps += 1;
       this.onBeatFn?.(this.beatIndex, this.bpm);
-      // Soft visual kick on grid so punch feels regular
       this.kick = Math.max(this.kick, 0.72);
     }
 
