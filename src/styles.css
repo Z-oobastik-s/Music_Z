@@ -3,11 +3,11 @@
 [data-theme="dark"] {
   --bg: #000;
   --panel: #050505;
-  --glass: rgba(5, 5, 5, 0.28);
-  --surface: rgba(5, 5, 5, 0.38);
-  --surface-2: rgba(7, 7, 7, 0.55);
-  --surface-hover: color-mix(in srgb, var(--accent) 12%, rgba(5, 5, 5, 0.5));
-  --surface-hero: linear-gradient(135deg, rgba(225, 6, 0, 0.14), transparent 55%), rgba(5, 5, 5, 0.28);
+  --glass: rgba(5, 5, 5, 0.12);
+  --surface: rgba(5, 5, 5, 0.16);
+  --surface-2: rgba(7, 7, 7, 0.28);
+  --surface-hover: color-mix(in srgb, var(--accent) 10%, rgba(5, 5, 5, 0.22));
+  --surface-hero: linear-gradient(135deg, rgba(225, 6, 0, 0.1), transparent 55%), rgba(5, 5, 5, 0.08);
   --overlay: rgba(0, 0, 0, 0.82);
   --overlay-soft: rgba(0, 0, 0, 0.55);
   --ink: #f0f0f0;
@@ -16,18 +16,22 @@
   --accent2: #ff1f1f;
   --line: #3a0f0f;
   --line-soft: rgba(58, 15, 15, 0.55);
-  --player: rgba(5, 5, 5, 0.72);
+  --player: rgba(5, 5, 5, 0.45);
   --player-h: 92px;
   --side-w: 176px;
   --deco-w: 220px;
   --gap: 8px;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --radius-xs: 8px;
+  --radius-pill: 999px;
   color-scheme: dark;
 }
 
 [data-theme="light"] {
   --bg: #ececec;
   --panel: #fff;
-  --glass: rgba(255, 255, 255, 0.72);
+  --glass: rgba(255, 255, 255, 0.45);
   --surface: #fff;
   --surface-2: #f6f6f6;
   --surface-hover: color-mix(in srgb, var(--accent) 7%, #fff);
@@ -41,6 +45,10 @@
   --line: #7a4040;
   --line-soft: rgba(122, 64, 64, 0.35);
   --player: #fff;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --radius-xs: 8px;
+  --radius-pill: 999px;
   color-scheme: light;
 }
 
@@ -94,8 +102,8 @@ body {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse 70% 55% at 50% 38%, transparent 20%, rgba(0, 0, 0, 0.45) 100%),
-    linear-gradient(180deg, rgba(0, 0, 0, 0.35) 0%, transparent 28%, transparent 62%, rgba(0, 0, 0, 0.55) 100%);
+    radial-gradient(ellipse 70% 55% at 50% 38%, transparent 35%, rgba(0, 0, 0, 0.22) 100%),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.18) 0%, transparent 30%, transparent 68%, rgba(0, 0, 0, 0.28) 100%);
   transition: opacity 0.55s ease, background 0.35s ease;
 }
 [data-theme="light"] .scene {
@@ -112,11 +120,11 @@ body {
   opacity: 0.35;
 }
 #app.is-playing .scene-veil {
-  opacity: 0.55;
+  opacity: 0.7;
   background:
-    radial-gradient(ellipse 75% 60% at 50% 36%, rgba(225, 6, 0, 0.12) 0%, transparent 55%),
-    radial-gradient(ellipse 70% 55% at 50% 38%, transparent 25%, rgba(0, 0, 0, 0.32) 100%),
-    linear-gradient(180deg, rgba(0, 0, 0, 0.22) 0%, transparent 30%, transparent 65%, rgba(0, 0, 0, 0.48) 100%);
+    radial-gradient(ellipse 75% 60% at 50% 36%, rgba(225, 6, 0, 0.1) 0%, transparent 55%),
+    radial-gradient(ellipse 70% 55% at 50% 38%, transparent 40%, rgba(0, 0, 0, 0.16) 100%),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.1) 0%, transparent 32%, transparent 70%, rgba(0, 0, 0, 0.22) 100%);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -186,7 +194,7 @@ button img, a img {
   height: 100vh;
   overflow: hidden;
   padding: var(--gap);
-  padding-bottom: calc(var(--player-h) + var(--gap));
+  padding-bottom: calc(var(--player-h) + var(--gap) * 2);
   gap: var(--gap);
   box-sizing: border-box;
 }
@@ -198,6 +206,7 @@ button img, a img {
   background: var(--panel);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
+  border-radius: var(--radius);
   display: flex;
   flex-direction: column;
   padding: 0.75rem 0;
@@ -242,6 +251,7 @@ button img, a img {
   width: 28px;
   height: 28px;
   border: 1px solid var(--line);
+  border-radius: var(--radius-xs);
   display: grid;
   place-items: center;
   flex-shrink: 0;
@@ -334,6 +344,7 @@ button img, a img {
   width: 2.2rem;
   height: 2.2rem;
   border: 1px solid var(--line);
+  border-radius: var(--radius-xs);
   background: var(--bg);
   cursor: pointer;
   color: var(--accent);
@@ -345,9 +356,9 @@ button img, a img {
   align-items: center;
   gap: 0.45rem;
   border: 1px solid var(--line);
-  border-radius: 2px;
+  border-radius: var(--radius-sm);
   padding: 0.4rem 0.75rem;
-  background: rgba(0, 0, 0, 0.28);
+  background: rgba(0, 0, 0, 0.14);
   min-width: 0;
 }
 [data-theme="light"] .search-box {
@@ -787,18 +798,20 @@ button img, a img {
 .kit-box {
   border: 1px solid var(--line);
   background: var(--panel);
+  border-radius: var(--radius);
   min-height: 0;
   min-width: 0;
+  overflow: hidden;
 }
 
-/* Центральные окна — стекло, чтобы фон просвечивал */
+/* Центральные окна — прозрачные, без матового blur */
 .topbar.kit-box,
 .hero.kit-box,
 .tracks-panel.kit-box,
 .page-panel.kit-box {
   background: var(--glass);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 /* Жёлтые окна — непрозрачные */
@@ -1131,7 +1144,7 @@ button img, a img {
   overflow-y: auto;
   padding: 0.55rem 0.45rem 0.45rem;
   border: 1px solid var(--line);
-  border-radius: 2px;
+  border-radius: var(--radius-sm);
   background: var(--panel);
   display: flex;
   flex-direction: column;
@@ -1776,30 +1789,35 @@ button img, a img {
   padding: 2rem 1rem;
 }
 
-/* Player — like UI kit: info | controls | waveform | time | volume */
+/* Player — floating bar with rounded corners */
 .player {
   position: fixed;
-  inset: auto 0 0;
+  left: var(--gap);
+  right: var(--gap);
+  bottom: var(--gap);
   height: var(--player-h);
   z-index: 50;
   background: var(--player);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border-top: 1px solid var(--line);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
   padding: 0 1.1rem;
   display: flex;
   align-items: center;
+  box-sizing: border-box;
 }
 
 .toast {
   position: fixed;
   left: 50%;
-  bottom: calc(var(--player-h) + 12px);
+  bottom: calc(var(--player-h) + var(--gap) + 12px);
   transform: translateX(-50%);
   z-index: 80;
   max-width: min(92vw, 420px);
   padding: 0.55rem 0.9rem;
   border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
   background: var(--panel);
   color: var(--ink);
   font-size: 0.8rem;
@@ -2235,10 +2253,12 @@ button img, a img {
   width: min(720px, 100%);
   max-height: min(78vh, 680px);
   border: 1px solid var(--line);
+  border-radius: var(--radius);
   background: var(--panel);
   display: flex;
   flex-direction: column;
   box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
+  overflow: hidden;
 }
 .modal:has(.modal-card--queue) {
   align-items: end;
@@ -2341,13 +2361,13 @@ button img, a img {
     grid-template-columns: 1fr;
     height: auto;
     min-height: 100dvh;
-    padding-bottom: calc(var(--player-h) + var(--gap));
+    padding-bottom: calc(var(--player-h) + var(--gap) * 2);
   }
   .side {
     position: fixed;
     left: var(--gap);
     top: var(--gap);
-    bottom: calc(var(--player-h) + var(--gap));
+    bottom: calc(var(--player-h) + var(--gap) * 2);
     width: min(240px, 88vw);
     height: auto;
     transform: translateX(calc(-100% - var(--gap)));
