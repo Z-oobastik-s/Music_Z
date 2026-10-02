@@ -75,8 +75,11 @@ function warmCharacterCache(): void {
     "bg-japan-lit.webp",
     "bg-japan-dim.jpg",
     "bg-japan-lit.jpg",
-    "side-samurai-sheet.webp",
-    "side-samurai-sheet.jpg",
+    "side-samurai-01.webp",
+    "side-samurai-02.webp",
+    "side-samurai-03.webp",
+    "side-samurai-04.webp",
+    "side-samurai-05.webp",
   ]);
 }
 if (typeof requestIdleCallback === "function") {
@@ -177,10 +180,21 @@ function render(tracks: Track[]): void {
     <div class="shell">
       <aside class="side" data-side>
         <div class="side-fx" aria-hidden="true">
-          <div
-            class="side-fx-sprite"
-            style="background-image:image-set(url('${assetUrl("side-samurai-sheet.webp", BUILD)}') type('image/webp'), url('${assetUrl("side-samurai-sheet.jpg", BUILD)}') type('image/jpeg'))"
-          ></div>
+          <div class="side-fx-stage">
+            ${[1, 2, 3, 4, 5]
+              .map(
+                (n) => `
+              <img
+                class="side-fx-frame"
+                src="${assetUrl(`side-samurai-0${n}.webp`, BUILD)}"
+                alt=""
+                draggable="false"
+                decoding="async"
+                onerror="this.onerror=null;this.src='${assetUrl(`side-samurai-0${n}.jpg`, BUILD)}'"
+              />`,
+              )
+              .join("")}
+          </div>
           <div class="side-fx-veil"></div>
         </div>
         <div class="side-logo"><img src="${assetUrl("logo.png", BUILD)}" alt="Music_Z" /></div>
