@@ -71,6 +71,8 @@ function warmCharacterCache(): void {
     "characters/07-breath.png",
     "hero-banner.png",
     "logo.png",
+    "bg-japan-dim.jpg",
+    "bg-japan-lit.jpg",
   ]);
 }
 if (typeof requestIdleCallback === "function") {
@@ -162,6 +164,11 @@ function render(tracks: Track[]): void {
   let focusId = tracks[0]?.id ?? null;
 
   app.innerHTML = `
+    <div class="scene" aria-hidden="true">
+      <div class="scene-layer scene-layer--dim" style="background-image:url('${assetUrl("bg-japan-dim.jpg", BUILD)}')"></div>
+      <div class="scene-layer scene-layer--lit" style="background-image:url('${assetUrl("bg-japan-lit.jpg", BUILD)}')"></div>
+      <div class="scene-veil"></div>
+    </div>
     <div class="backdrop" data-backdrop></div>
     <div class="shell">
       <aside class="side" data-side>
