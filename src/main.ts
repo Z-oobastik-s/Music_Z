@@ -901,8 +901,7 @@ function render(tracks: Track[]): void {
   let charCycle: CharacterCycle | null = null;
   const sideSamurai = new SideSamurai();
   sideSamurai.bind(app);
-  beat.setKickHandler((strength) => sideSamurai.onKick(strength));
-  beat.setPulseHandler(() => sideSamurai.onFallbackPulse());
+  beat.setBeatHandler((beatIndex, bpm) => sideSamurai.onBeat(beatIndex, bpm));
 
   const player = new AudioPlayer({
     onChange: (track, isPlaying) => {

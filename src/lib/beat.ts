@@ -1,6 +1,6 @@
 /**
- * Music-reactive motion from real frequency + onset analysis.
- * Punch follows kicks/bass hits; sway follows mid/vocal energy — not a free-running pulse.
+ * Music-reactive motion + tempo-locked beat grid.
+ * Visual punch uses onsets; samurai / pose FX should use onBeat (stable grid).
  */
 
 export class BeatMotion {
@@ -14,37 +14,38 @@ export class BeatMotion {
   private enabled = false;
   private sampleRate = 44100;
 
-  /** Slow envelopes (release) */
   private envBass = 0;
   private envMid = 0;
   private envVoice = 0;
   private envEnergy = 0;
-  /** Onset / kick pulse with fast decay */
   private kick = 0;
   private prevBass = 0;
+  private prevSub = 0;
   private prevFlux = 0;
   private prevBins: Float32Array | null = null;
 
+  /** Tempo lock */
+  private bpm = 108;
+  private beatPeriod = 60000 / 108;
+  private nextBeatAt = 0;
+  private gridLocked = false;
+  private lastHitAt = 0;
+  private iois: number[] = [];
+  private beatIndex = 0;
+
   private readonly root: HTMLElement;
   private isLiveFn: (() => boolean) | null = null;
-  private onKickFn: ((strength: number) => void) | null = null;
-  private onPulseFn: (() => void) | null = null;
-  private fallbackPulseAt = 0;
+  private onBeatFn: ((beatIndex: number, bpm: number) => void) | null = null;
 
   constructor(root: HTMLElement) {
     this.root = root;
   }
 
-  setKickHandler(fn: ((strength: number) => void) | null): void {
-    this.onKickFn = fn;
+  /** Stable quarter-note grid (not raw noisy onsets). */
+  setBeatHandler(fn: ((beatIndex: number, bpm: number) => void) | null): void {
+    this.onBeatFn = fn;
   }
 
-  /** Slow pulse when music is quiet (intro) so FX still breathes. */
-  setPulseHandler(fn: (() => void) | null): void {
-    this.onPulseFn = fn;
-  }
-
-  /** Use when AudioPlayer owns the Web Audio graph (dual-track crossfade). */
   async attach(
     ctx: AudioContext,
     analyser: AnalyserNode,
@@ -79,7 +80,6 @@ export class BeatMotion {
 
       this.src = this.ctx.createMediaElementSource(audio);
       this.analyser = this.ctx.createAnalyser();
-      // More bins → cleaner low-end separation for kicks
       this.analyser.fftSize = 2048;
       this.analyser.smoothingTimeConstant = 0.28;
       this.analyser.minDecibels = -85;
@@ -91,7 +91,7 @@ export class BeatMotion {
       this.time = new Uint8Array(this.analyser.fftSize);
       this.prevBins = new Float32Array(this.analyser.frequencyBinCount);
     } catch {
-      /* analyser unavailable — soft music-like fallback only */
+      /* analyser unavailable */
     }
   }
 
@@ -109,6 +109,7 @@ export class BeatMotion {
   start(): void {
     this.enabled = true;
     this.root.classList.add("is-alive");
+    this.resetGrid();
     void this.resume();
     if (!this.raf) this.tick();
   }
@@ -122,12 +123,24 @@ export class BeatMotion {
     this.envEnergy = 0;
     this.kick = 0;
     this.prevBass = 0;
+    this.prevSub = 0;
     this.prevFlux = 0;
+    this.resetGrid();
     this.apply(0, 0, 0, 0, 0);
     if (this.raf) {
       cancelAnimationFrame(this.raf);
       this.raf = 0;
     }
+  }
+
+  private resetGrid(): void {
+    this.gridLocked = false;
+    this.nextBeatAt = 0;
+    this.lastHitAt = 0;
+    this.iois = [];
+    this.beatIndex = 0;
+    this.bpm = 108;
+    this.beatPeriod = 60000 / 108;
   }
 
   private hzToBin(hz: number): number {
@@ -145,7 +158,6 @@ export class BeatMotion {
     return sum / (b - a);
   }
 
-  /** Spectral flux in a band — rises on hits / note changes */
   private bandFlux(fromHz: number, toHz: number): number {
     if (!this.analyser || !this.freq || !this.prevBins) return 0;
     const a = this.hzToBin(fromHz);
@@ -172,25 +184,35 @@ export class BeatMotion {
   }
 
   private read(): {
+    sub: number;
     bass: number;
     mid: number;
     voice: number;
     energy: number;
     onset: number;
+    bassHit: boolean;
     alive: boolean;
   } {
     if (!this.analyser || !this.freq) {
-      return { bass: 0, mid: 0, voice: 0, energy: 0, onset: 0, alive: false };
+      return {
+        sub: 0,
+        bass: 0,
+        mid: 0,
+        voice: 0,
+        energy: 0,
+        onset: 0,
+        bassHit: false,
+        alive: false,
+      };
     }
 
     this.analyser.getByteFrequencyData(this.freq as Uint8Array<ArrayBuffer>);
 
-    // Musical bands (Hz)
-    const sub = this.bandAvg(25, 70); // sub / kick body
-    const bass = this.bandAvg(70, 160); // bassline
+    const sub = this.bandAvg(25, 70);
+    const bass = this.bandAvg(70, 160);
     const lowMid = this.bandAvg(160, 400);
     const mid = this.bandAvg(400, 1600);
-    const voice = this.bandAvg(300, 3200); // vocal presence
+    const voice = this.bandAvg(300, 3200);
     const high = this.bandAvg(4000, 10000);
     const level = this.rms();
 
@@ -199,49 +221,58 @@ export class BeatMotion {
     const voiceMix = Math.min(1, voice * 1.15);
     const energy = Math.min(1, level * 3.2 + high * 0.45 + midMix * 0.25);
 
-    // Kick / rhythm onset: bass jump + low spectral flux
-    const flux = this.bandFlux(30, 180);
+    const flux = this.bandFlux(30, 160);
     const bassJump = Math.max(0, bassMix - this.prevBass);
-    this.prevBass = bassMix * 0.65 + this.prevBass * 0.35;
-
-    const fluxJump = Math.max(0, flux - this.prevFlux * 0.5);
+    const subJump = Math.max(0, sub - this.prevSub);
+    this.prevBass = bassMix * 0.7 + this.prevBass * 0.3;
+    this.prevSub = sub * 0.7 + this.prevSub * 0.3;
     this.prevFlux = flux;
 
-    const onset = Math.min(1, bassJump * 4.2 + fluxJump * 6.5 + sub * bassJump * 2);
+    // Visual onset (can be a bit looser)
+    const onset = Math.min(1, bassJump * 4.2 + flux * 5.5 + subJump * 3);
+
+    // Tempo hits: stricter — need real low-end body, ignore hats/snares
+    const bassHit =
+      sub > 0.2 &&
+      subJump > 0.035 &&
+      bassJump > 0.028 &&
+      flux > 0.012 &&
+      midMix < bassMix * 1.85;
 
     const alive = bassMix + midMix + voiceMix + energy > 0.035;
     return {
+      sub,
       bass: bassMix,
       mid: midMix,
       voice: voiceMix,
       energy,
       onset,
+      bassHit,
       alive,
     };
   }
 
-  /**
-   * Only if analyser is dead — tempo-ish pulse from wall clock,
-   * still less "random" than multi-phase sines.
-   */
   private fallback(): {
+    sub: number;
     bass: number;
     mid: number;
     voice: number;
     energy: number;
     onset: number;
+    bassHit: boolean;
     alive: boolean;
   } {
     const t = performance.now() / 1000;
-    // ~128 BPM feel
-    const phase = (t * (128 / 60)) % 1;
+    const phase = (t * (this.bpm / 60)) % 1;
     const kick = Math.pow(1 - phase, 8);
     return {
+      sub: 0.3 + kick * 0.5,
       bass: 0.35 + kick * 0.55,
       mid: 0.22 + Math.sin(t * 2.1) * 0.08,
       voice: 0.18 + Math.sin(t * 3.4 + 1.2) * 0.1,
       energy: 0.3 + kick * 0.25,
       onset: kick > 0.55 ? kick : 0,
+      bassHit: kick > 0.72,
       alive: true,
     };
   }
@@ -251,11 +282,71 @@ export class BeatMotion {
     return current + (target - current) * k;
   }
 
+  private median(xs: number[]): number {
+    if (!xs.length) return this.beatPeriod;
+    const s = [...xs].sort((a, b) => a - b);
+    return s[Math.floor(s.length / 2)]!;
+  }
+
+  /** Learn tempo from sparse bass hits; drive a free-running beat clock. */
+  private updateGrid(now: number, bassHit: boolean): void {
+    if (bassHit && now - this.lastHitAt > 170) {
+      if (this.lastHitAt > 0) {
+        const ioi = now - this.lastHitAt;
+        // Accept quarter / eighth-ish intervals
+        if (ioi >= 260 && ioi <= 1200) {
+          this.iois.push(ioi);
+          if (this.iois.length > 12) this.iois.shift();
+
+          let period = this.median(this.iois);
+          // Fold to ~70–150 BPM quarter notes
+          while (period < 400 && period * 2 <= 950) period *= 2;
+          while (period > 900) period *= 0.5;
+
+          const measured = 60000 / period;
+          this.bpm = this.bpm * 0.82 + measured * 0.18;
+          this.bpm = Math.max(72, Math.min(148, this.bpm));
+          this.beatPeriod = 60000 / this.bpm;
+        }
+      }
+      this.lastHitAt = now;
+
+      if (!this.gridLocked) {
+        this.gridLocked = true;
+        this.nextBeatAt = now;
+      } else {
+        // Phase correct toward this hit if near a grid line
+        const period = this.beatPeriod;
+        const k = Math.round((now - this.nextBeatAt) / period);
+        const nearest = this.nextBeatAt + k * period;
+        const drift = now - nearest;
+        if (Math.abs(drift) < period * 0.22) {
+          this.nextBeatAt += drift * 0.35;
+        }
+      }
+    }
+
+    if (!this.gridLocked) {
+      // Until we hear a few hits, run a calm default clock
+      if (!this.nextBeatAt) this.nextBeatAt = now + this.beatPeriod;
+    }
+
+    let steps = 0;
+    while (now >= this.nextBeatAt && steps < 3) {
+      this.nextBeatAt += this.beatPeriod;
+      this.beatIndex += 1;
+      steps += 1;
+      this.onBeatFn?.(this.beatIndex, this.bpm);
+      // Soft visual kick on grid so punch feels regular
+      this.kick = Math.max(this.kick, 0.72);
+    }
+
+    this.root.style.setProperty("--bpm", this.bpm.toFixed(1));
+  }
+
   private apply(beat: number, bass: number, energy: number, voice: number, kick: number): void {
-    // Motion driven by music only — no free-running breathe/tilt
     const lift = -(kick * 5.5 + bass * 1.8 + voice * 0.6);
     const scale = kick * 0.028 + bass * 0.01 + energy * 0.006;
-    // Vocal / mid energy → tiny sway (locked to signal, not time)
     const tilt = (voice - 0.35) * 1.1 + (energy - 0.3) * 0.35;
 
     this.root.style.setProperty("--beat", beat.toFixed(3));
@@ -276,7 +367,7 @@ export class BeatMotion {
       return;
     }
 
-    let { bass, mid, voice, energy, onset, alive } = this.read();
+    let { bass, mid, voice, energy, onset, bassHit, alive } = this.read();
 
     const audioLive = this.isLiveFn
       ? this.isLiveFn()
@@ -296,25 +387,20 @@ export class BeatMotion {
     }
 
     if (!alive) {
-      // Real playback but analyser quiet (intro / decode) — soft fallback only then
-      ({ bass, mid, voice, energy, onset } = this.fallback());
+      ({ bass, mid, voice, energy, onset, bassHit } = this.fallback());
     }
 
-    // Fast attack / slower release → punches read as hits, not mush
     this.envBass = this.follow(this.envBass, bass, 0.55, 0.12);
     this.envMid = this.follow(this.envMid, mid, 0.4, 0.1);
     this.envVoice = this.follow(this.envVoice, voice, 0.35, 0.08);
     this.envEnergy = this.follow(this.envEnergy, energy, 0.45, 0.14);
 
-    // Kick pulse: snap up on onset, decay quickly
-    if (onset > 0.08) {
-      const prevKick = this.kick;
-      this.kick = Math.min(1, Math.max(this.kick, onset * 1.35));
-      if (this.kick - prevKick > 0.12 || onset > 0.22) {
-        this.onKickFn?.(Math.min(1, Math.max(onset, this.kick)));
-      }
+    if (onset > 0.1) {
+      this.kick = Math.min(1, Math.max(this.kick, onset * 1.2));
     }
     this.kick *= 0.82;
+
+    this.updateGrid(performance.now(), bassHit);
 
     const beat = Math.min(
       1,
@@ -322,14 +408,5 @@ export class BeatMotion {
     );
 
     this.apply(beat, this.envBass, this.envEnergy, this.envVoice, this.kick);
-
-    // Quiet passages: gentle pose pulse so FX isn't frozen
-    if (this.envEnergy < 0.18 && this.kick < 0.08) {
-      const t = performance.now();
-      if (t - this.fallbackPulseAt > 640) {
-        this.fallbackPulseAt = t;
-        this.onPulseFn?.();
-      }
-    }
   };
 }
