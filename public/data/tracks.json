@@ -1657,5 +1657,73 @@
     "style": "western electronic, bass house, edm, modern dance, husky vocal, club energy",
     "prompt": "",
     "lyrics": []
+  },
+  {
+    "id": "tishe-shagi-no-silnee-razryad",
+    "title": "Тише шаги, но сильнее разряд",
+    "artist": "Zoobastiks",
+    "description": "Trap / Dubstep / R&B — soft female vocal, hypnotic 808, unusual piano & violin.",
+    "durationSec": 228,
+    "tags": [
+      "trap",
+      "dubstep",
+      "r&b",
+      "female vocal",
+      "808",
+      "russian"
+    ],
+    "cover": "covers/tishe-shagi.svg",
+    "src": "tracks/tishe-shagi-no-silnee-razryad.mp3",
+    "style": "Trap, Dubstep, R&B, Groovy, Driving, Laid-Back, Pulsing, Energetic, Female Vocals, Harmonized Vocals, Vocal Effects",
+    "prompt": "[Intro short]\nЗзуббастик!\n[duration: 3-4 minutes]\n[bpm: 82]\n[key: D minor]\n[INTRO — IMMEDIATE GROOVE]\n[slow confident trap]\n[deep bouncing 808]\n[heavy sub bass]\n[wide punchy kick]\n[sharp snare]\n[sparse hi-hats]\n[slow hypnotic rhythm]\n[unusual piano texture]\n[piano sounds metallic, glassy and resonant]\n[unusual violin texture]\n[violin sounds deep, distorted and fluid]\n[no conventional piano]\n[no conventional violin]\n[no long intro]\n[VERSE 1]\n[Female Vocals]\n[very soft beautiful feminine voice]\n[young adult]\n[slightly babyface]\n[sweet]\n[airy]\n[warm]\n[clean]\n[pleasant]\n[emotionally expressive]\n[clear pronunciation]\n[natural intonation]\n[confident and intimate]\n[melodic singing]\n[do not drag words]\nНочь оставляет следы на стекле,\nГород качается где-то во мгле.\nЯ не ищу ни причин, ни огня,\nПросто сегодня ты ближе меня.\nТише шаги, но сильнее разряд,\nСердце не просит вернуть всё назад.\nЯ чувствую ритм прямо под кожей,\nИ этот момент ни на что не похожий.\n[PRE-DROP TRANSITION]\n[bass slowly disappears]\n[isolated unusual piano notes]\n[violin bends between notes]\n[short reverse vocal effect]\n[heartbeat-like kick]\n[one beat silence]\n[huge bass impact]\n[MEGA DROP — 60 SECONDS]\n[INSTRUMENTAL ONLY]\n[Trap]\n[Dubstep]\n[Groovy]\n[Driving]\n[Laid-Back]\n[EXTREME LOW END]\n[huge 808]\n[deep vibrating sub bass]\n[heavy elastic bassline]\n[bass physically sways with the rhythm]\n[slow powerful bounce]\n[half-time groove]\n[distorted bass movement]\n[bass slides]\n[bass growls]\n[bass stutters]\n[bass pulses]\n[bass switches every few phrases]\n[heavy kick]\n[sharp snare]\n[deep percussion]\n[slow trap hats]\n[unexpected rhythmic pauses]\n[UNIQUE PIANO]\n[piano becomes a rhythmic bass instrument]\n[short percussive piano strikes]\n[glitched piano resonance]\n[reversed piano tails]\n[metallic piano harmonics]\n[unusual pitch-bent piano]\n[piano rhythm follows the bass]\n[UNIQUE VIOLIN]\n[deep electric violin]\n[aggressive bow attacks]\n[long sliding notes used rhythmically]\n[stuttering violin phrases]\n[distorted violin harmonics]\n[reverse violin textures]\n[violin answers the bass]\n[violin NEVER sounds classical]\n[violin NEVER sounds like an orchestra]\n[DROP EVOLUTION]\n[first 15 seconds — heavy slow groove]\n[next 15 seconds — bass becomes deeper and more distorted]\n[next 15 seconds — halftime bass switch]\n[next 10 seconds — violin and piano battle over the bass]\n[last 5 seconds — everything cuts]\n[one beat silence]\n[final enormous 808 hit]\n[VOCAL RETURN]\n[Female Vocals]\n[soft clean voice]\n[beautiful airy tone]\n[emotional]\n[gentle]\n[immediately enters after the drop]\n[voice contrasts with the massive bass]\nЯ не знаю, куда нас несёт,\nНо этот ритм меня не отпустит.\nПока этот бас поднимается вверх,\nЯ слышу тебя даже сквозь шум.\n[SECOND DROP]\n[Trap]\n[Dubstep]\n[Groovy]\n[Driving]\n[EXTREME BASS]\n[huge 808]\n[slow heavy bounce]\n[distorted sub bass]\n[unique piano]\n[electric violin]\n[vocal chops]\n[maximum low-end impact]\n[long continuous groove]",
+    "lyrics": [
+      "Ночь оставляет следы на стекле,",
+      "Город качается где-то во мгле.",
+      "Я не ищу ни причин, ни огня,",
+      "Просто сегодня ты ближе меня.",
+      "Тише шаги, но сильнее разряд,",
+      "Сердце не просит вернуть всё назад.",
+      "Я чувствую ритм прямо под кожей,",
+      "И этот момент ни на что не похожий.",
+      "",
+      "Я не знаю, куда нас несёт,",
+      "Но этот ритм меня не отпустит.",
+      "Пока этот бас поднимается вверх,",
+      "Я слышу тебя даже сквозь шум."
+    ]
+  },
+  {
+    "id": "tishe-shagi-no-silnee-razryad-v2",
+    "title": "Тише шаги, но сильнее разряд (v2)",
+    "artist": "Zoobastiks",
+    "description": "Trap / Dubstep / R&B — soft female vocal, hypnotic 808, unusual piano & violin (v2).",
+    "durationSec": 242,
+    "tags": [
+      "trap",
+      "dubstep",
+      "r&b",
+      "female vocal",
+      "808",
+      "russian"
+    ],
+    "cover": "covers/tishe-shagi.svg",
+    "src": "tracks/tishe-shagi-no-silnee-razryad-v2.mp3",
+    "style": "Trap, Dubstep, R&B, Groovy, Driving, Laid-Back, Pulsing, Energetic, Female Vocals, Harmonized Vocals, Vocal Effects",
+    "prompt": "[Intro short]\nЗзуббастик!\n[duration: 3-4 minutes]\n[bpm: 82]\n[key: D minor]\n[INTRO — IMMEDIATE GROOVE]\n[slow confident trap]\n[deep bouncing 808]\n[heavy sub bass]\n[wide punchy kick]\n[sharp snare]\n[sparse hi-hats]\n[slow hypnotic rhythm]\n[unusual piano texture]\n[piano sounds metallic, glassy and resonant]\n[unusual violin texture]\n[violin sounds deep, distorted and fluid]\n[no conventional piano]\n[no conventional violin]\n[no long intro]\n[VERSE 1]\n[Female Vocals]\n[very soft beautiful feminine voice]\n[young adult]\n[slightly babyface]\n[sweet]\n[airy]\n[warm]\n[clean]\n[pleasant]\n[emotionally expressive]\n[clear pronunciation]\n[natural intonation]\n[confident and intimate]\n[melodic singing]\n[do not drag words]\nНочь оставляет следы на стекле,\nГород качается где-то во мгле.\nЯ не ищу ни причин, ни огня,\nПросто сегодня ты ближе меня.\nТише шаги, но сильнее разряд,\nСердце не просит вернуть всё назад.\nЯ чувствую ритм прямо под кожей,\nИ этот момент ни на что не похожий.\n[PRE-DROP TRANSITION]\n[bass slowly disappears]\n[isolated unusual piano notes]\n[violin bends between notes]\n[short reverse vocal effect]\n[heartbeat-like kick]\n[one beat silence]\n[huge bass impact]\n[MEGA DROP — 60 SECONDS]\n[INSTRUMENTAL ONLY]\n[Trap]\n[Dubstep]\n[Groovy]\n[Driving]\n[Laid-Back]\n[EXTREME LOW END]\n[huge 808]\n[deep vibrating sub bass]\n[heavy elastic bassline]\n[bass physically sways with the rhythm]\n[slow powerful bounce]\n[half-time groove]\n[distorted bass movement]\n[bass slides]\n[bass growls]\n[bass stutters]\n[bass pulses]\n[bass switches every few phrases]\n[heavy kick]\n[sharp snare]\n[deep percussion]\n[slow trap hats]\n[unexpected rhythmic pauses]\n[UNIQUE PIANO]\n[piano becomes a rhythmic bass instrument]\n[short percussive piano strikes]\n[glitched piano resonance]\n[reversed piano tails]\n[metallic piano harmonics]\n[unusual pitch-bent piano]\n[piano rhythm follows the bass]\n[UNIQUE VIOLIN]\n[deep electric violin]\n[aggressive bow attacks]\n[long sliding notes used rhythmically]\n[stuttering violin phrases]\n[distorted violin harmonics]\n[reverse violin textures]\n[violin answers the bass]\n[violin NEVER sounds classical]\n[violin NEVER sounds like an orchestra]\n[DROP EVOLUTION]\n[first 15 seconds — heavy slow groove]\n[next 15 seconds — bass becomes deeper and more distorted]\n[next 15 seconds — halftime bass switch]\n[next 10 seconds — violin and piano battle over the bass]\n[last 5 seconds — everything cuts]\n[one beat silence]\n[final enormous 808 hit]\n[VOCAL RETURN]\n[Female Vocals]\n[soft clean voice]\n[beautiful airy tone]\n[emotional]\n[gentle]\n[immediately enters after the drop]\n[voice contrasts with the massive bass]\nЯ не знаю, куда нас несёт,\nНо этот ритм меня не отпустит.\nПока этот бас поднимается вверх,\nЯ слышу тебя даже сквозь шум.\n[SECOND DROP]\n[Trap]\n[Dubstep]\n[Groovy]\n[Driving]\n[EXTREME BASS]\n[huge 808]\n[slow heavy bounce]\n[distorted sub bass]\n[unique piano]\n[electric violin]\n[vocal chops]\n[maximum low-end impact]\n[long continuous groove]",
+    "lyrics": [
+      "Ночь оставляет следы на стекле,",
+      "Город качается где-то во мгле.",
+      "Я не ищу ни причин, ни огня,",
+      "Просто сегодня ты ближе меня.",
+      "Тише шаги, но сильнее разряд,",
+      "Сердце не просит вернуть всё назад.",
+      "Я чувствую ритм прямо под кожей,",
+      "И этот момент ни на что не похожий.",
+      "",
+      "Я не знаю, куда нас несёт,",
+      "Но этот ритм меня не отпустит.",
+      "Пока этот бас поднимается вверх,",
+      "Я слышу тебя даже сквозь шум."
+    ]
   }
 ]
