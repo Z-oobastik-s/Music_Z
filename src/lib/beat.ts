@@ -21,7 +21,6 @@ export class BeatMotion {
   private kick = 0;
   private prevBass = 0;
   private prevSub = 0;
-  private prevFlux = 0;
   private prevBins: Float32Array | null = null;
 
   /** Tempo lock */
@@ -124,7 +123,6 @@ export class BeatMotion {
     this.kick = 0;
     this.prevBass = 0;
     this.prevSub = 0;
-    this.prevFlux = 0;
     this.resetGrid();
     this.apply(0, 0, 0, 0, 0);
     if (this.raf) {
@@ -226,7 +224,6 @@ export class BeatMotion {
     const subJump = Math.max(0, sub - this.prevSub);
     this.prevBass = bassMix * 0.7 + this.prevBass * 0.3;
     this.prevSub = sub * 0.7 + this.prevSub * 0.3;
-    this.prevFlux = flux;
 
     // Visual onset (can be a bit looser)
     const onset = Math.min(1, bassJump * 4.2 + flux * 5.5 + subJump * 3);
