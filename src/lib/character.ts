@@ -218,10 +218,14 @@ export class CharacterCycle {
   private armHair(): void {
     this.clearHairTimer();
     if (!this.playing) return;
-    // Faster hair steps when energy/kick high — read inline vars (cheap)
-    const root = document.getElementById("app");
-    const energy = Number.parseFloat(root?.style.getPropertyValue("--energy") || "0");
-    const kick = Number.parseFloat(root?.style.getPropertyValue("--kick") || "0");
+    // Faster hair steps when energy/kick high — vars live on deco panel
+    const host = this.stage.closest(".deco-panel") ?? document.querySelector(".deco-panel");
+    const energy = Number.parseFloat(
+      (host instanceof HTMLElement ? host.style.getPropertyValue("--energy") : "") || "0",
+    );
+    const kick = Number.parseFloat(
+      (host instanceof HTMLElement ? host.style.getPropertyValue("--kick") : "") || "0",
+    );
     const step = Math.max(260, HAIR_STEP_MS - energy * 120 - kick * 80);
     this.hairTimer = setTimeout(() => void this.nextHair(), step);
   }

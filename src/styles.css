@@ -86,8 +86,10 @@ body {
   background-size: cover;
   background-repeat: no-repeat;
   transform-origin: 50% 42%;
-  will-change: opacity, filter;
   backface-visibility: hidden;
+}
+#app.is-playing .scene-layer {
+  will-change: opacity, filter;
 }
 .scene-layer--dim {
   opacity: 1;
@@ -1068,7 +1070,7 @@ button img, a img {
     radial-gradient(ellipse 48% 70% at 78% 38%, rgba(225, 6, 0, 0.28) 0%, transparent 58%),
     radial-gradient(ellipse 40% 55% at 70% 70%, rgba(80, 0, 0, 0.2) 0%, transparent 60%),
     linear-gradient(100deg, rgba(0, 0, 0, 0.25) 0%, transparent 55%);
-  opacity: calc(0.7 + var(--kick, 0) * 0.4);
+  opacity: calc(0.7 + var(--kick, 0) * 0.35);
 }
 
 .hero-brand {
@@ -1916,6 +1918,10 @@ button img, a img {
   overflow: auto;
   flex: 1;
   min-height: 0;
+  /* Isolate scroll paint from beat-driven FX elsewhere */
+  contain: content;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .track-item {
@@ -1925,6 +1931,8 @@ button img, a img {
   align-items: center;
   padding: 0.4rem 0.55rem;
   border-bottom: 1px solid var(--line-soft);
+  content-visibility: auto;
+  contain-intrinsic-size: auto 56px;
 }
 .track-item:last-child { border-bottom: 0; }
 .track-item:hover { background: rgba(225, 6, 0, 0.06); }

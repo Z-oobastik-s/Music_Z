@@ -38,11 +38,21 @@ export class BeatMotion {
   private readonly lookAheadMs = 90;
 
   private readonly root: HTMLElement;
+  /** Only these hosts get --kick/--beat vars (NOT #app — that janks the whole UI). */
+  private readonly hosts: HTMLElement[];
   private isLiveFn: (() => boolean) | null = null;
   private onBeatFn: ((beatIndex: number, bpm: number) => void) | null = null;
+  private lastApplied = "";
 
   constructor(root: HTMLElement) {
     this.root = root;
+    this.hosts = [
+      root.querySelector<HTMLElement>(".scene"),
+      root.querySelector<HTMLElement>(".side"),
+      root.querySelector<HTMLElement>(".deco-panel"),
+      root.querySelector<HTMLElement>(".player"),
+      root.querySelector<HTMLElement>("[data-hero]"),
+    ].filter((el): el is HTMLElement => !!el);
   }
 
   /** Stable quarter-note grid (not raw noisy onsets). */
@@ -353,7 +363,7 @@ export class BeatMotion {
       this.nextBeatAt += this.beatPeriod;
     }
 
-    this.root.style.setProperty("--bpm", this.bpm.toFixed(1));
+    // keep bpm off #app — list scroll must not inherit beat vars
   }
 
   private fireBeat(now: number): void {
@@ -368,19 +378,33 @@ export class BeatMotion {
     const scale = kick * 0.028 + bass * 0.01 + energy * 0.006;
     const tilt = (voice - 0.35) * 1.1 + (energy - 0.3) * 0.35;
 
-    this.root.style.setProperty("--beat", beat.toFixed(3));
-    this.root.style.setProperty("--bass", bass.toFixed(3));
-    this.root.style.setProperty("--energy", energy.toFixed(3));
-    this.root.style.setProperty("--voice", voice.toFixed(3));
-    this.root.style.setProperty("--kick", kick.toFixed(3));
-    this.root.style.setProperty("--beat-x", "0");
-    this.root.style.setProperty("--beat-y", lift.toFixed(2));
-    this.root.style.setProperty("--beat-scale", Math.min(0.05, scale).toFixed(4));
-    this.root.style.setProperty("--beat-tilt", Math.max(-1.2, Math.min(1.2, tilt)).toFixed(3));
+    const beatS = beat.toFixed(3);
+    const bassS = bass.toFixed(3);
+    const energyS = energy.toFixed(3);
+    const voiceS = voice.toFixed(3);
+    const kickS = kick.toFixed(3);
+    const liftS = lift.toFixed(2);
+    const scaleS = Math.min(0.05, scale).toFixed(4);
+    const tiltS = Math.max(-1.2, Math.min(1.2, tilt)).toFixed(3);
+    const key = `${beatS}|${bassS}|${energyS}|${kickS}|${liftS}`;
+    if (key === this.lastApplied) return;
+    this.lastApplied = key;
+
+    for (const el of this.hosts) {
+      el.style.setProperty("--beat", beatS);
+      el.style.setProperty("--bass", bassS);
+      el.style.setProperty("--energy", energyS);
+      el.style.setProperty("--voice", voiceS);
+      el.style.setProperty("--kick", kickS);
+      el.style.setProperty("--beat-y", liftS);
+      el.style.setProperty("--beat-scale", scaleS);
+      el.style.setProperty("--beat-tilt", tiltS);
+    }
   }
 
   private tick = (): void => {
     this.raf = requestAnimationFrame(this.tick);
+    if (document.hidden) return;
     if (!this.enabled) {
       this.apply(0, 0, 0, 0, 0);
       return;
