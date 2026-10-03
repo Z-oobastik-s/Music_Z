@@ -79,7 +79,7 @@ function warmCharacterCache(): void {
     "bg-japan-dim.jpg",
     "bg-japan-lit.jpg",
     ...Array.from({ length: 17 }, (_, i) => `side-samurai/${String(i + 1).padStart(2, "0")}.webp`),
-    ...Array.from({ length: 3 }, (_, i) => `hero-girl/${String(i).padStart(2, "0")}.webp`),
+    "hero-girl/00.webp",
   ]);
 }
 if (typeof requestIdleCallback === "function") {
@@ -1047,18 +1047,13 @@ function render(tracks: Track[]): void {
         </div>
         <div class="hero-girl" data-hero-girl aria-hidden="true">
           <div class="hero-girl-stage">
-            ${[0, 1, 2]
-              .map(
-                (n) => `
-              <img
-                class="hero-girl-frame${n === 0 ? " is-on" : ""}"
-                src="${assetUrl(`hero-girl/${String(n).padStart(2, "0")}.webp`, BUILD)}"
-                alt=""
-                draggable="false"
-                decoding="sync"
-              />`,
-              )
-              .join("")}
+            <img
+              class="hero-girl-frame is-on"
+              src="${assetUrl("hero-girl/00.webp", BUILD)}"
+              alt=""
+              draggable="false"
+              decoding="sync"
+            />
           </div>
         </div>
       </div>
