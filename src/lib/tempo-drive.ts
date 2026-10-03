@@ -17,6 +17,7 @@ export class TempoDrive {
   private media: HTMLAudioElement | null = null;
   private bpm = 124;
   private playing = false;
+  private suspended = false;
   private raf = 0;
   private listeners = new Set<Listener>();
   private onVis: (() => void) | null = null;
@@ -41,6 +42,11 @@ export class TempoDrive {
     this.start();
   }
 
+  /** Pause visual ticks while user scrolls (keeps UI smooth). */
+  setSuspended(on: boolean): void {
+    this.suspended = on;
+  }
+
   private ensureVisHook(): void {
     if (this.onVis) return;
     this.onVis = () => {
@@ -63,7 +69,7 @@ export class TempoDrive {
 
   private tick = (): void => {
     this.raf = requestAnimationFrame(this.tick);
-    if (!this.playing || document.hidden || this.listeners.size === 0) return;
+    if (!this.playing || this.suspended || document.hidden || this.listeners.size === 0) return;
 
     const media = this.media;
     const time = media && !media.paused && !media.ended ? media.currentTime : 0;

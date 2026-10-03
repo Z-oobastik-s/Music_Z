@@ -43,6 +43,7 @@ export class BeatMotion {
   private isLiveFn: (() => boolean) | null = null;
   private onBeatFn: ((beatIndex: number, bpm: number) => void) | null = null;
   private lastApplied = "";
+  private suspended = false;
 
   constructor(root: HTMLElement) {
     this.root = root;
@@ -66,6 +67,11 @@ export class BeatMotion {
     this.tempoHint = n;
     this.bpm = n;
     this.beatPeriod = 60000 / n;
+  }
+
+  /** Freeze CSS beat writes while scrolling lists. */
+  setSuspended(on: boolean): void {
+    this.suspended = on;
   }
 
   async attach(
@@ -404,7 +410,7 @@ export class BeatMotion {
 
   private tick = (): void => {
     this.raf = requestAnimationFrame(this.tick);
-    if (document.hidden) return;
+    if (document.hidden || this.suspended) return;
     if (!this.enabled) {
       this.apply(0, 0, 0, 0, 0);
       return;

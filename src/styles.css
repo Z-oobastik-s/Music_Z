@@ -113,10 +113,9 @@ body {
   filter: grayscale(0.35) brightness(1.35);
 }
 #app.is-playing .scene-layer--lit {
-  opacity: calc(0.7 + var(--beat, 0) * 0.3);
-  filter:
-    brightness(calc(1 + var(--kick, 0) * 0.12 + var(--bass, 0) * 0.05))
-    saturate(calc(1.02 + var(--energy, 0) * 0.2));
+  /* Opacity only — per-frame filter on full-bleed BG kills scroll FPS */
+  opacity: calc(0.72 + var(--beat, 0) * 0.22);
+  filter: none;
 }
 #app.is-playing .scene-layer--dim {
   opacity: 0.35;
@@ -239,9 +238,11 @@ button img, a img {
   transform:
     scale(calc(1.03 + var(--samurai-nod, 0) * 0.025))
     translate3d(0, calc(var(--samurai-nod, 0) * 6px), 0);
-  filter: brightness(calc(1 + var(--samurai-nod, 0) * 0.06));
-  will-change: transform;
+  filter: none;
   transition: none !important;
+}
+#app.is-playing .side-fx-stage {
+  will-change: transform;
 }
 .side-fx-frame {
   position: absolute;
@@ -370,9 +371,10 @@ button img, a img {
   top: 42%;
   height: 18px;
   border-radius: 999px;
-  background: radial-gradient(ellipse at center, rgba(225, 6, 0, 0.45), transparent 70%);
-  opacity: calc(0.2 + var(--beat, 0) * 0.55);
-  filter: blur(6px);
+  background: radial-gradient(ellipse at center, rgba(225, 6, 0, 0.4), transparent 72%);
+  opacity: calc(0.2 + var(--beat, 0) * 0.45);
+  /* no live blur — expensive while scrolling */
+  filter: none;
   transform: scaleX(calc(0.72 + var(--energy, 0) * 0.45));
   pointer-events: none;
   z-index: 0;
@@ -1112,14 +1114,9 @@ button img, a img {
   min-width: 0;
   overflow: hidden;
   pointer-events: none;
-  -webkit-mask-image:
-    linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.35) 22%, #000 48%, #000 100%),
-    linear-gradient(180deg, transparent 0%, #000 18%, #000 78%, transparent 100%);
-  mask-image:
-    linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.35) 22%, #000 48%, #000 100%),
-    linear-gradient(180deg, transparent 0%, #000 18%, #000 78%, transparent 100%);
-  -webkit-mask-composite: source-in;
-  mask-composite: intersect;
+  /* Single mask — dual mask-composite is heavy on scroll */
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 28%, #000 100%);
+  mask-image: linear-gradient(90deg, transparent 0%, #000 28%, #000 100%);
 }
 .hero-girl-stage {
   --hero-girl-scale: 0.92;
@@ -1129,20 +1126,15 @@ button img, a img {
   position: absolute;
   inset: -6% -8% -18% -18%;
   transform-origin: 68% 18%;
-  will-change: transform;
-  filter: saturate(1.05) contrast(1.04);
+  filter: none;
   transition: none !important;
-  /* Locked to track BPM via --hero-nod-* (audio.currentTime × bpm) */
   transform:
     scale(calc(var(--hero-girl-scale) + var(--hero-nod-i, 0) * 0.02))
     translate3d(0, calc(var(--hero-nod-y, 0) * 1px), 0)
     rotate(calc(var(--hero-nod-r, 0) * 1deg));
 }
-#app.is-playing .hero-girl-stage.is-live {
-  filter:
-    saturate(calc(1.05 + var(--hero-nod-i, 0) * 0.15))
-    contrast(calc(1.04 + var(--hero-nod-i, 0) * 0.08))
-    brightness(calc(1 + var(--hero-nod-i, 0) * 0.08));
+#app.is-playing .hero-girl-stage {
+  will-change: transform;
 }
 .hero-girl-frame {
   position: absolute;

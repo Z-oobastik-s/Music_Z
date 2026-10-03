@@ -394,9 +394,9 @@ function render(tracks: Track[]): void {
         </div>
         <div class="wave-seek">
           <div class="wave-wrap">
-            <div class="wave-bars" aria-hidden="true">${waveBars(140)}</div>
+            <div class="wave-bars" aria-hidden="true">${waveBars(72)}</div>
             <div class="wave-fill" data-wave-fill style="width:0">
-              <div class="wave-bars" aria-hidden="true">${waveBars(140)}</div>
+              <div class="wave-bars" aria-hidden="true">${waveBars(72)}</div>
             </div>
             <input class="wave-input" type="range" min="0" max="1000" value="0" data-seek aria-label="Прогресс" />
           </div>
@@ -1281,13 +1281,7 @@ function render(tracks: Track[]): void {
             ${styleBtn}
             ${promptBtn}
             ${genBtn}
-            <button type="button" class="ico-btn ico-dl" data-dl="${escapeHtml(t.id)}" title="Скачать">
-              <span class="dl-fx dl-fx--sm" aria-hidden="true">
-                <img class="dl-sprite dl-sprite--idle" src="${assetUrl("mz-dl-idle.png", BUILD)}" alt="" width="14" height="14" draggable="false" />
-                <img class="dl-sprite dl-sprite--pull" src="${assetUrl("mz-dl-pull.png", BUILD)}" alt="" width="14" height="14" draggable="false" />
-                <img class="dl-sprite dl-sprite--done" src="${assetUrl("mz-dl-done.png", BUILD)}" alt="" width="14" height="14" draggable="false" />
-              </span>
-            </button>
+            <button type="button" class="ico-btn ico-dl" data-dl="${escapeHtml(t.id)}" title="Скачать">${ICONS.dl}</button>
           </div>
         </div>
       </li>
@@ -1313,14 +1307,18 @@ function render(tracks: Track[]): void {
     countMusicEl.textContent = listCountLabel(musicItems, musicTotal);
     countMusicEl.title = "Треков в списке · общая длительность";
 
-    const homeHtml = homeItems.length
-      ? homeItems.map((t, i) => trackRowHtml(t, i)).join("")
-      : `<li class="empty">Ничего не найдено</li>`;
-    const musicHtml = musicItems.length
-      ? musicItems.map((t, i) => trackRowHtml(t, i)).join("")
-      : `<li class="empty">Ничего не найдено</li>`;
-    listEl.innerHTML = homeHtml;
-    listMusicEl.innerHTML = musicHtml;
+    // Paint only the visible list — keeps scroll DOM light
+    if (viewId === "home") {
+      listEl.innerHTML = homeItems.length
+        ? homeItems.map((t, i) => trackRowHtml(t, i)).join("")
+        : `<li class="empty">Ничего не найдено</li>`;
+      if (listMusicEl.childElementCount) listMusicEl.innerHTML = "";
+    } else if (viewId === "music") {
+      listMusicEl.innerHTML = musicItems.length
+        ? musicItems.map((t, i) => trackRowHtml(t, i)).join("")
+        : `<li class="empty">Ничего не найдено</li>`;
+      if (listEl.childElementCount) listEl.innerHTML = "";
+    }
   }
 
   function onTrackListClick(e: MouseEvent): void {
@@ -1361,6 +1359,20 @@ function render(tracks: Track[]): void {
     animatePlayCat(willPlay);
     void playTrack(track, { toggle: true });
   }
+
+  // Pause beat/tempo FX while scrolling lists — biggest scroll smoothness win
+  let scrollFxTimer = 0;
+  const onListScroll = (): void => {
+    beat.setSuspended(true);
+    tempoDrive.setSuspended(true);
+    window.clearTimeout(scrollFxTimer);
+    scrollFxTimer = window.setTimeout(() => {
+      beat.setSuspended(false);
+      tempoDrive.setSuspended(false);
+    }, 140);
+  };
+  listEl.addEventListener("scroll", onListScroll, { passive: true });
+  listMusicEl.addEventListener("scroll", onListScroll, { passive: true });
 
   listEl.addEventListener("click", onTrackListClick);
   listMusicEl.addEventListener("click", onTrackListClick);
