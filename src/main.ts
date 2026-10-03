@@ -940,9 +940,8 @@ function render(tracks: Track[]): void {
   const sideSamurai = new SideSamurai();
   const heroGirl = new HeroGirl();
   sideSamurai.bind(app);
-  beat.setBeatHandler((beatIndex, bpm) => {
-    sideSamurai.onBeat(beatIndex, bpm);
-    heroGirl.onBeat(beatIndex, bpm);
+  beat.setBeatHandler((_beatIndex, _bpm) => {
+    /* Pose clocks use track BPM × audio.currentTime (see setClock). */
   });
 
   const player = new AudioPlayer({
@@ -961,8 +960,9 @@ function render(tracks: Track[]): void {
       paintPlayButton();
       miniWave.classList.toggle("is-paused", !isPlaying);
       app.classList.toggle("is-playing", isPlaying);
-      sideSamurai.setPlaying(isPlaying);
       const bpm = parseTrackBpm(track);
+      sideSamurai.setClock(player.media, bpm);
+      sideSamurai.setPlaying(isPlaying);
       heroGirl.setClock(player.media, bpm);
       heroGirl.setPlaying(isPlaying);
       if (track && viewId !== "home") syncTrackInUrl(track.id);

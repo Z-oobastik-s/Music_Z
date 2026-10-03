@@ -230,11 +230,16 @@ button img, a img {
   transition: opacity 0.45s ease;
 }
 .side-fx-stage {
+  --samurai-nod: 0;
   position: absolute;
   inset: -2%;
   transform-origin: 50% 58%;
-  transform: scale(1.03);
-  filter: none;
+  transform:
+    scale(calc(1.03 + var(--samurai-nod, 0) * 0.025))
+    translate3d(0, calc(var(--samurai-nod, 0) * 6px), 0);
+  filter: brightness(calc(1 + var(--samurai-nod, 0) * 0.06));
+  will-change: transform;
+  transition: none !important;
 }
 .side-fx-frame {
   position: absolute;
