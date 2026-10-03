@@ -25,6 +25,7 @@ import {
   formatTotalDuration,
   sumDuration,
   matchesQuery,
+  parseTrackBpm,
   trackSource,
   type Track,
 } from "./lib/tracks";
@@ -961,6 +962,8 @@ function render(tracks: Track[]): void {
       miniWave.classList.toggle("is-paused", !isPlaying);
       app.classList.toggle("is-playing", isPlaying);
       sideSamurai.setPlaying(isPlaying);
+      const bpm = parseTrackBpm(track);
+      heroGirl.setClock(player.media, bpm);
       heroGirl.setPlaying(isPlaying);
       if (track && viewId !== "home") syncTrackInUrl(track.id);
       paintHero();
@@ -969,6 +972,7 @@ function render(tracks: Track[]): void {
       paintDeco();
       charCycle?.setPlaying(isPlaying);
       if (isPlaying) {
+        beat.setTempo(bpm);
         void beat.connect(player.media).then(() => beat.start());
       } else {
         beat.stop();
@@ -1112,6 +1116,7 @@ function render(tracks: Track[]): void {
       </div>
     `;
     heroGirl.bind(heroEl.querySelector<HTMLElement>("[data-hero-girl]"));
+    heroGirl.setClock(player.media, parseTrackBpm(track));
     heroGirl.setPlaying(playing);
 
     heroEl.querySelector<HTMLButtonElement>("[data-hero-play]")!.onclick = () => {

@@ -15,9 +15,26 @@ export type Track = {
   lyrics?: string[];
   style?: string;
   prompt?: string;
+  /** Explicit tempo; otherwise parsed from prompt `[bpm: N]` */
+  bpm?: number;
   /** Where the track was AI-generated */
   source?: TrackSource;
 };
+
+/** Tempo from track field or prompt tag, e.g. `[bpm: 128]`. */
+export function parseTrackBpm(track: Track | null | undefined, fallback = 124): number {
+  if (!track) return fallback;
+  if (typeof track.bpm === "number" && Number.isFinite(track.bpm)) {
+    return Math.max(70, Math.min(180, track.bpm));
+  }
+  const raw = track.prompt ?? "";
+  const m = raw.match(/\[\s*bpm\s*:\s*(\d+(?:\.\d+)?)\s*\]/i);
+  if (m) {
+    const n = Number(m[1]);
+    if (Number.isFinite(n)) return Math.max(70, Math.min(180, n));
+  }
+  return fallback;
+}
 
 export const DEFAULT_TRACK_SOURCE: TrackSource = {
   name: "MusicHero",

@@ -26,6 +26,8 @@ export class BeatMotion {
   /** Tempo lock */
   private bpm = 96;
   private beatPeriod = 60000 / 96;
+  /** From track prompt `[bpm: N]` — seeds the grid instead of guessing */
+  private tempoHint = 96;
   private nextBeatAt = 0;
   private gridLocked = false;
   private lastHitAt = 0;
@@ -46,6 +48,14 @@ export class BeatMotion {
   /** Stable quarter-note grid (not raw noisy onsets). */
   setBeatHandler(fn: ((beatIndex: number, bpm: number) => void) | null): void {
     this.onBeatFn = fn;
+  }
+
+  /** Seed tempo from track metadata / prompt (e.g. 128). */
+  setTempo(bpm: number): void {
+    const n = Math.max(70, Math.min(180, bpm || 96));
+    this.tempoHint = n;
+    this.bpm = n;
+    this.beatPeriod = 60000 / n;
   }
 
   async attach(
@@ -141,8 +151,8 @@ export class BeatMotion {
     this.lastFiredAt = 0;
     this.iois = [];
     this.beatIndex = 0;
-    this.bpm = 96;
-    this.beatPeriod = 60000 / 96;
+    this.bpm = this.tempoHint;
+    this.beatPeriod = 60000 / this.bpm;
   }
 
   private hzToBin(hz: number): number {

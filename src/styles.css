@@ -1118,38 +1118,24 @@ button img, a img {
   --hero-girl-scale: 0.92;
   --hero-nod-y: 0;
   --hero-nod-r: 0;
+  --hero-nod-i: 0;
   position: absolute;
   inset: -6% -8% -18% -18%;
   transform-origin: 68% 18%;
   will-change: transform;
   filter: saturate(1.05) contrast(1.04);
   transition: none !important;
-  /* CSS envelopes (--kick/--bass from #app) + JS spring (--hero-nod-*) */
+  /* Locked to track BPM via --hero-nod-* (audio.currentTime × bpm) */
   transform:
-    scale(var(--hero-girl-scale))
-    translate3d(
-      0,
-      calc(
-        var(--hero-nod-y, 0) * 1px
-        + var(--kick, 0) * 14px
-        + var(--bass, 0) * 7px
-        + var(--beat, 0) * 3px
-      ),
-      0
-    )
-    rotate(
-      calc(
-        var(--hero-nod-r, 0) * 1deg
-        + var(--kick, 0) * 5.5deg
-        + var(--bass, 0) * 1.8deg
-      )
-    );
+    scale(calc(var(--hero-girl-scale) + var(--hero-nod-i, 0) * 0.02))
+    translate3d(0, calc(var(--hero-nod-y, 0) * 1px), 0)
+    rotate(calc(var(--hero-nod-r, 0) * 1deg));
 }
 #app.is-playing .hero-girl-stage.is-live {
   filter:
-    saturate(calc(1.05 + var(--kick, 0) * 0.12))
-    contrast(calc(1.04 + var(--kick, 0) * 0.06))
-    brightness(calc(1 + var(--kick, 0) * 0.06));
+    saturate(calc(1.05 + var(--hero-nod-i, 0) * 0.15))
+    contrast(calc(1.04 + var(--hero-nod-i, 0) * 0.08))
+    brightness(calc(1 + var(--hero-nod-i, 0) * 0.08));
 }
 .hero-girl-frame {
   position: absolute;
