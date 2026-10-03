@@ -3,6 +3,7 @@ import { BeatMotion } from "./lib/beat";
 import { CharacterCycle } from "./lib/character";
 import { AudioPlayer, type RepeatMode } from "./lib/player";
 import { SideSamurai } from "./lib/side-samurai";
+import { HeroGirl } from "./lib/hero-girl";
 import {
   clearTrackInUrl,
   readDeepLink,
@@ -71,12 +72,14 @@ function warmCharacterCache(): void {
     "characters/06-wind.png",
     "characters/07-breath.png",
     "hero-banner.png",
+    "hero-mark.png",
     "logo.png",
     "bg-japan-dim.webp",
     "bg-japan-lit.webp",
     "bg-japan-dim.jpg",
     "bg-japan-lit.jpg",
     ...Array.from({ length: 17 }, (_, i) => `side-samurai/${String(i + 1).padStart(2, "0")}.webp`),
+    ...Array.from({ length: 3 }, (_, i) => `hero-girl/${String(i).padStart(2, "0")}.webp`),
   ]);
 }
 if (typeof requestIdleCallback === "function") {
@@ -934,9 +937,11 @@ function render(tracks: Track[]): void {
   const beat = new BeatMotion(app);
   let charCycle: CharacterCycle | null = null;
   const sideSamurai = new SideSamurai();
+  const heroGirl = new HeroGirl();
   sideSamurai.bind(app);
   beat.setBeatHandler((beatIndex, bpm) => {
     sideSamurai.onBeat(beatIndex, bpm);
+    heroGirl.onBeat(beatIndex, bpm);
   });
 
   const player = new AudioPlayer({
@@ -956,6 +961,7 @@ function render(tracks: Track[]): void {
       miniWave.classList.toggle("is-paused", !isPlaying);
       app.classList.toggle("is-playing", isPlaying);
       sideSamurai.setPlaying(isPlaying);
+      heroGirl.setPlaying(isPlaying);
       if (track && viewId !== "home") syncTrackInUrl(track.id);
       paintHero();
       paintList();
@@ -1033,8 +1039,28 @@ function render(tracks: Track[]): void {
     const heroPose =
       Date.now() < playCatLockUntil ? playCatPose : loading ? "tap" : on ? "vibe" : "idle";
     heroEl.innerHTML = `
-      <div class="hero-art">
-        <img class="brand-hero" src="${assetUrl("hero-banner.png", BUILD)}" alt="Music_Z" />
+      <div class="hero-art hero-banner" data-hero-banner>
+        <div class="hero-banner-glow" aria-hidden="true"></div>
+        <div class="hero-brand">
+          <img class="hero-brand-mark" src="${assetUrl("hero-mark.png", BUILD)}" alt="Music_Z" draggable="false" />
+          <p class="hero-brand-tag">Музыка которая остаётся</p>
+        </div>
+        <div class="hero-girl" data-hero-girl aria-hidden="true">
+          <div class="hero-girl-stage">
+            ${[0, 1, 2]
+              .map(
+                (n) => `
+              <img
+                class="hero-girl-frame${n === 0 ? " is-on" : ""}"
+                src="${assetUrl(`hero-girl/${String(n).padStart(2, "0")}.webp`, BUILD)}"
+                alt=""
+                draggable="false"
+                decoding="sync"
+              />`,
+              )
+              .join("")}
+          </div>
+        </div>
       </div>
       <div class="hero-foot">
         <div class="hero-actions">
@@ -1090,6 +1116,9 @@ function render(tracks: Track[]): void {
         </div>
       </div>
     `;
+    heroGirl.bind(heroEl.querySelector<HTMLElement>("[data-hero-girl]"));
+    heroGirl.setPlaying(playing);
+
     heroEl.querySelector<HTMLButtonElement>("[data-hero-play]")!.onclick = () => {
       const willPlay = !(activeId === track.id && playing && !loadingId);
       animatePlayCat(willPlay);
