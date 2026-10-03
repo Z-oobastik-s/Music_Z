@@ -1109,17 +1109,18 @@ button img, a img {
 }
 .hero-girl-stage {
   position: absolute;
-  inset: -8% -4% -4% -10%;
-  transform-origin: 55% 28%;
+  inset: 0% -2% -12% 4%;
+  transform: scale(0.78);
+  transform-origin: 62% 22%;
   will-change: transform;
 }
 .hero-girl-stage.is-nod {
   animation: hero-girl-nod 0.22s cubic-bezier(0.2, 0.85, 0.25, 1) both;
 }
 @keyframes hero-girl-nod {
-  0%   { transform: translate3d(0, 0, 0) rotate(0deg); }
-  40%  { transform: translate3d(0, 9px, 0) rotate(3.2deg); }
-  100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  0%   { transform: scale(0.78) translate3d(0, 0, 0) rotate(0deg); }
+  40%  { transform: scale(0.78) translate3d(0, 7px, 0) rotate(2.6deg); }
+  100% { transform: scale(0.78) translate3d(0, 0, 0) rotate(0deg); }
 }
 .hero-girl-frame {
   position: absolute;
@@ -1127,7 +1128,7 @@ button img, a img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 58% 22%;
+  object-position: 52% 8%;
   opacity: 0;
   visibility: hidden;
   transition: none !important;
