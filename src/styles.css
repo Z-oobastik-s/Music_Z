@@ -1116,14 +1116,40 @@ button img, a img {
 }
 .hero-girl-stage {
   --hero-girl-scale: 0.92;
+  --hero-nod-y: 0;
+  --hero-nod-r: 0;
   position: absolute;
   inset: -6% -8% -18% -18%;
-  transform: scale(var(--hero-girl-scale)) translate3d(0, 0, 0) rotate(0deg);
   transform-origin: 68% 18%;
   will-change: transform;
   filter: saturate(1.05) contrast(1.04);
-  /* Motion is continuous via JS spring — never snap frames */
   transition: none !important;
+  /* CSS envelopes (--kick/--bass from #app) + JS spring (--hero-nod-*) */
+  transform:
+    scale(var(--hero-girl-scale))
+    translate3d(
+      0,
+      calc(
+        var(--hero-nod-y, 0) * 1px
+        + var(--kick, 0) * 14px
+        + var(--bass, 0) * 7px
+        + var(--beat, 0) * 3px
+      ),
+      0
+    )
+    rotate(
+      calc(
+        var(--hero-nod-r, 0) * 1deg
+        + var(--kick, 0) * 5.5deg
+        + var(--bass, 0) * 1.8deg
+      )
+    );
+}
+#app.is-playing .hero-girl-stage.is-live {
+  filter:
+    saturate(calc(1.05 + var(--kick, 0) * 0.12))
+    contrast(calc(1.04 + var(--kick, 0) * 0.06))
+    brightness(calc(1 + var(--kick, 0) * 0.06));
 }
 .hero-girl-frame {
   position: absolute;
@@ -1145,7 +1171,8 @@ button img, a img {
 }
 @media (prefers-reduced-motion: reduce) {
   .hero-girl-stage {
-    transform: scale(var(--hero-girl-scale)) !important;
+    transform: scale(var(--hero-girl-scale));
+    filter: saturate(1.05) contrast(1.04);
   }
 }
 
