@@ -6,15 +6,15 @@
  */
 const BUILD = new URL(self.location.href).searchParams.get("v") || "dev";
 const SHELL = `music-z-shell-${BUILD}`;
-const MEDIA = "music-z-media-v2";
+const MEDIA = "music-z-media-v3";
 
 const PRECACHE = [
   "./favicon.svg",
   "./favicon.png",
-  "./logo.png",
-  "./hero-mark.png",
+  "./logo.webp",
+  "./hero-mark.webp",
   "./hero-girl/00.webp",
-  // Scene: webp only (jpg is fallback in <img>/CSS, not precached)
+  // Scene: webp only (jpg is CSS fallback, not precached)
   "./bg-japan-dim.webp",
   "./bg-japan-lit.webp",
   // Sidebar key poses only
@@ -24,10 +24,10 @@ const PRECACHE = [
   "./side-samurai/13.webp",
   "./side-samurai/17.webp",
   // Character core frames (rest cache-on-demand)
-  "./characters/01-open.png",
-  "./characters/02-blink.png",
-  "./characters/hair-00.png",
-  "./characters/body-sway.png",
+  "./characters/01-open.webp",
+  "./characters/02-blink.webp",
+  "./characters/hair-00.webp",
+  "./characters/body-sway.webp",
 ];
 
 self.addEventListener("install", (event) => {

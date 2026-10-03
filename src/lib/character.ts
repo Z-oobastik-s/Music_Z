@@ -2,29 +2,29 @@ import { assetUrl } from "./tracks";
 
 /** Expression frames (same base pose, different face). */
 export const CHAR_FRAMES = [
-  "characters/01-open.png",
-  "characters/02-blink.png",
-  "characters/03-soft.png",
-  "characters/04-closed.png",
-  "characters/05-smirk.png",
+  "characters/01-open.webp",
+  "characters/02-blink.webp",
+  "characters/03-soft.webp",
+  "characters/04-closed.webp",
+  "characters/05-smirk.webp",
 ] as const;
 
 /** Hair wind loop — ping-pong for smoother motion. */
 const HAIR_FRAMES = [
-  "characters/hair-00.png",
-  "characters/hair-01.png",
-  "characters/hair-02.png",
-  "characters/hair-03.png",
-  "characters/hair-02.png",
-  "characters/hair-01.png",
+  "characters/hair-00.webp",
+  "characters/hair-01.webp",
+  "characters/hair-02.webp",
+  "characters/hair-03.webp",
+  "characters/hair-02.webp",
+  "characters/hair-01.webp",
 ] as const;
 
 /** Occasional head / body life. */
 const LIFE_FRAMES = [
-  "characters/head-turn.png",
-  "characters/body-sway.png",
-  "characters/06-wind.png",
-  "characters/07-breath.png",
+  "characters/head-turn.webp",
+  "characters/body-sway.webp",
+  "characters/06-wind.webp",
+  "characters/07-breath.webp",
 ] as const;
 
 const HOLD_MS = [4200, 220, 3800, 720, 4000];

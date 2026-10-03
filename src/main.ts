@@ -61,30 +61,35 @@ registerSw();
 /** Warm character frames into Cache API / memory after first paint */
 function warmCharacterCache(): void {
   prefetchMany([
-    "character.png",
-    "characters/01-open.png",
-    "characters/02-blink.png",
-    "characters/03-soft.png",
-    "characters/04-closed.png",
-    "characters/05-smirk.png",
-    "characters/hair-00.png",
-    "characters/hair-01.png",
-    "characters/hair-02.png",
-    "characters/hair-03.png",
-    "characters/head-turn.png",
-    "characters/body-sway.png",
-    "characters/06-wind.png",
-    "characters/07-breath.png",
-    "hero-banner.png",
-    "hero-mark.png",
-    "logo.png",
+    "characters/01-open.webp",
+    "characters/02-blink.webp",
+    "characters/03-soft.webp",
+    "characters/04-closed.webp",
+    "characters/05-smirk.webp",
+    "characters/hair-00.webp",
+    "characters/hair-01.webp",
+    "characters/hair-02.webp",
+    "characters/hair-03.webp",
+    "characters/head-turn.webp",
+    "characters/body-sway.webp",
+    "characters/06-wind.webp",
+    "characters/07-breath.webp",
+    "hero-mark.webp",
+    "logo.webp",
     "bg-japan-dim.webp",
     "bg-japan-lit.webp",
-    "bg-japan-dim.jpg",
-    "bg-japan-lit.jpg",
     // Only key poses used in the sidebar (not the full 17-frame strip)
     ...[1, 5, 9, 13, 17].map((n) => `side-samurai/${String(n).padStart(2, "0")}.webp`),
     "hero-girl/00.webp",
+    "mz-theme-cat-idle.webp",
+    "mz-theme-cat-tap.webp",
+    "mz-play-cat-01.webp",
+    "mz-play-cat-02.webp",
+    "mz-play-cat-03.webp",
+    "mz-play-cat-04.webp",
+    "mz-dl-idle.webp",
+    "mz-dl-pull.webp",
+    "mz-dl-done.webp",
   ]);
 }
 if (typeof requestIdleCallback === "function") {
@@ -201,7 +206,7 @@ function render(tracks: Track[]): void {
           </div>
           <div class="side-fx-veil"></div>
         </div>
-        <div class="side-logo"><img src="${assetUrl("logo.png", BUILD)}" alt="Music_Z" /></div>
+        <div class="side-logo"><img src="${assetUrl("logo.webp", BUILD)}" alt="Music_Z" /></div>
         <ul class="nav">
           <li><button type="button" class="is-on" data-nav="home"><span class="nav-ico">${ICONS.home}</span> Главная</button></li>
           <li><button type="button" data-nav="music"><span class="nav-ico">${ICONS.music}</span> Музыка</button></li>
@@ -259,8 +264,8 @@ function render(tracks: Track[]): void {
               <div class="theme-cat-wrap" data-theme-root>
                 <button type="button" class="theme-cat-btn" data-theme-toggle aria-label="Сменить тему" title="Котик переключит тему">
                   <span class="theme-cat-stage" aria-hidden="true">
-                    <img class="theme-cat-sprite theme-cat-sprite--idle" src="${assetUrl("mz-theme-cat-idle.png", BUILD)}" alt="" width="52" height="52" draggable="false" />
-                    <img class="theme-cat-sprite theme-cat-sprite--tap" src="${assetUrl("mz-theme-cat-tap.png", BUILD)}" alt="" width="52" height="52" draggable="false" />
+                    <img class="theme-cat-sprite theme-cat-sprite--idle" src="${assetUrl("mz-theme-cat-idle.webp", BUILD)}" alt="" width="52" height="52" draggable="false" />
+                    <img class="theme-cat-sprite theme-cat-sprite--tap" src="${assetUrl("mz-theme-cat-tap.webp", BUILD)}" alt="" width="52" height="52" draggable="false" />
                   </span>
                   <span class="theme-cat-pad">
                     <span class="theme-cat-icon theme-cat-icon--moon" aria-hidden="true">☾</span>
@@ -376,10 +381,10 @@ function render(tracks: Track[]): void {
           <button type="button" data-prev title="Назад">${ICONS.prev}</button>
           <button type="button" class="play-main play-cat-btn" data-toggle title="Play">
             <span class="play-cat play-cat--lg" data-play-cat data-pose="idle" aria-hidden="true">
-              <img class="play-cat-f play-cat-f--1" src="${assetUrl("mz-play-cat-01.png", BUILD)}" alt="" width="40" height="40" draggable="false" />
-              <img class="play-cat-f play-cat-f--2" src="${assetUrl("mz-play-cat-02.png", BUILD)}" alt="" width="40" height="40" draggable="false" />
-              <img class="play-cat-f play-cat-f--3" src="${assetUrl("mz-play-cat-03.png", BUILD)}" alt="" width="40" height="40" draggable="false" />
-              <img class="play-cat-f play-cat-f--4" src="${assetUrl("mz-play-cat-04.png", BUILD)}" alt="" width="40" height="40" draggable="false" />
+              <img class="play-cat-f play-cat-f--1" src="${assetUrl("mz-play-cat-01.webp", BUILD)}" alt="" width="40" height="40" draggable="false" />
+              <img class="play-cat-f play-cat-f--2" src="${assetUrl("mz-play-cat-02.webp", BUILD)}" alt="" width="40" height="40" draggable="false" />
+              <img class="play-cat-f play-cat-f--3" src="${assetUrl("mz-play-cat-03.webp", BUILD)}" alt="" width="40" height="40" draggable="false" />
+              <img class="play-cat-f play-cat-f--4" src="${assetUrl("mz-play-cat-04.webp", BUILD)}" alt="" width="40" height="40" draggable="false" />
             </span>
             <span class="play-cat-glyph" data-toggle-glyph>${ICONS.playBig}</span>
           </button>
@@ -1093,7 +1098,7 @@ function render(tracks: Track[]): void {
       <div class="hero-art hero-banner" data-hero-banner>
         <div class="hero-banner-glow" aria-hidden="true"></div>
         <div class="hero-brand">
-          <img class="hero-brand-mark" src="${assetUrl("hero-mark.png", BUILD)}" alt="Music_Z" draggable="false" />
+          <img class="hero-brand-mark" src="${assetUrl("hero-mark.webp", BUILD)}" alt="Music_Z" draggable="false" />
           <p class="hero-brand-tag">Музыка которая остаётся</p>
         </div>
         <div class="hero-girl" data-hero-girl aria-hidden="true">
@@ -1112,18 +1117,18 @@ function render(tracks: Track[]): void {
         <div class="hero-actions">
           <button type="button" class="btn btn-line btn-play-cat${loading ? " is-loading" : ""}" data-hero-play ${loading ? 'aria-busy="true"' : ""}>
             <span class="play-cat play-cat--md" data-play-cat data-pose="${heroPose}" aria-hidden="true">
-              <img class="play-cat-f play-cat-f--1" src="${assetUrl("mz-play-cat-01.png", BUILD)}" alt="" width="28" height="28" draggable="false" />
-              <img class="play-cat-f play-cat-f--2" src="${assetUrl("mz-play-cat-02.png", BUILD)}" alt="" width="28" height="28" draggable="false" />
-              <img class="play-cat-f play-cat-f--3" src="${assetUrl("mz-play-cat-03.png", BUILD)}" alt="" width="28" height="28" draggable="false" />
-              <img class="play-cat-f play-cat-f--4" src="${assetUrl("mz-play-cat-04.png", BUILD)}" alt="" width="28" height="28" draggable="false" />
+              <img class="play-cat-f play-cat-f--1" src="${assetUrl("mz-play-cat-01.webp", BUILD)}" alt="" width="28" height="28" draggable="false" />
+              <img class="play-cat-f play-cat-f--2" src="${assetUrl("mz-play-cat-02.webp", BUILD)}" alt="" width="28" height="28" draggable="false" />
+              <img class="play-cat-f play-cat-f--3" src="${assetUrl("mz-play-cat-03.webp", BUILD)}" alt="" width="28" height="28" draggable="false" />
+              <img class="play-cat-f play-cat-f--4" src="${assetUrl("mz-play-cat-04.webp", BUILD)}" alt="" width="28" height="28" draggable="false" />
             </span>
             <span class="btn-play-label">${heroLabel}</span>
           </button>
           <button type="button" class="btn btn-line btn-dl" data-hero-dl title="Скачать трек">
             <span class="dl-fx" aria-hidden="true">
-              <img class="dl-sprite dl-sprite--idle" src="${assetUrl("mz-dl-idle.png", BUILD)}" alt="" width="22" height="22" draggable="false" />
-              <img class="dl-sprite dl-sprite--pull" src="${assetUrl("mz-dl-pull.png", BUILD)}" alt="" width="22" height="22" draggable="false" />
-              <img class="dl-sprite dl-sprite--done" src="${assetUrl("mz-dl-done.png", BUILD)}" alt="" width="22" height="22" draggable="false" />
+              <img class="dl-sprite dl-sprite--idle" src="${assetUrl("mz-dl-idle.webp", BUILD)}" alt="" width="22" height="22" draggable="false" />
+              <img class="dl-sprite dl-sprite--pull" src="${assetUrl("mz-dl-pull.webp", BUILD)}" alt="" width="22" height="22" draggable="false" />
+              <img class="dl-sprite dl-sprite--done" src="${assetUrl("mz-dl-done.webp", BUILD)}" alt="" width="22" height="22" draggable="false" />
             </span>
             <span class="dl-label">Скачать</span>
           </button>
