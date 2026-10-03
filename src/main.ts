@@ -4,6 +4,7 @@ import { CharacterCycle } from "./lib/character";
 import { AudioPlayer, type RepeatMode } from "./lib/player";
 import { SideSamurai } from "./lib/side-samurai";
 import { HeroGirl } from "./lib/hero-girl";
+import { tempoDrive } from "./lib/tempo-drive";
 import {
   clearTrackInUrl,
   readDeepLink,
@@ -79,7 +80,8 @@ function warmCharacterCache(): void {
     "bg-japan-lit.webp",
     "bg-japan-dim.jpg",
     "bg-japan-lit.jpg",
-    ...Array.from({ length: 17 }, (_, i) => `side-samurai/${String(i + 1).padStart(2, "0")}.webp`),
+    // Only key poses used in the sidebar (not the full 17-frame strip)
+    ...[1, 5, 9, 13, 17].map((n) => `side-samurai/${String(n).padStart(2, "0")}.webp`),
     "hero-girl/00.webp",
   ]);
 }
@@ -182,7 +184,7 @@ function render(tracks: Track[]): void {
       <aside class="side" data-side>
         <div class="side-fx" aria-hidden="true">
           <div class="side-fx-stage">
-            ${Array.from({ length: 17 }, (_, i) => i + 1)
+            ${[1, 5, 9, 13, 17]
               .map(
                 (n) => `
               <img
@@ -940,9 +942,6 @@ function render(tracks: Track[]): void {
   const sideSamurai = new SideSamurai();
   const heroGirl = new HeroGirl();
   sideSamurai.bind(app);
-  beat.setBeatHandler((_beatIndex, _bpm) => {
-    /* Pose clocks use track BPM × audio.currentTime (see setClock). */
-  });
 
   const player = new AudioPlayer({
     onChange: (track, isPlaying) => {
@@ -961,9 +960,9 @@ function render(tracks: Track[]): void {
       miniWave.classList.toggle("is-paused", !isPlaying);
       app.classList.toggle("is-playing", isPlaying);
       const bpm = parseTrackBpm(track);
-      sideSamurai.setClock(player.media, bpm);
+      tempoDrive.setClock(player.media, bpm);
+      tempoDrive.setPlaying(isPlaying);
       sideSamurai.setPlaying(isPlaying);
-      heroGirl.setClock(player.media, bpm);
       heroGirl.setPlaying(isPlaying);
       if (track && viewId !== "home") syncTrackInUrl(track.id);
       paintHero();
@@ -1116,7 +1115,6 @@ function render(tracks: Track[]): void {
       </div>
     `;
     heroGirl.bind(heroEl.querySelector<HTMLElement>("[data-hero-girl]"));
-    heroGirl.setClock(player.media, parseTrackBpm(track));
     heroGirl.setPlaying(playing);
 
     heroEl.querySelector<HTMLButtonElement>("[data-hero-play]")!.onclick = () => {
