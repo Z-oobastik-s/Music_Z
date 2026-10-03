@@ -2383,5 +2383,113 @@
       "",
       "Ещё."
     ]
+  },
+  {
+    "id": "glubzhe",
+    "title": "Глубже",
+    "artist": "Zoobastiks",
+    "description": "Minimal techno / deep house — hypnotic kick-sub groove, almost no vocals.",
+    "durationSec": 275,
+    "tags": [
+      "minimal techno",
+      "deep house",
+      "house",
+      "dubstep",
+      "hypnotic",
+      "groovy",
+      "energetic",
+      "vocal effects",
+      "russian"
+    ],
+    "cover": "covers/glubzhe.svg",
+    "src": "tracks/glubzhe.mp3",
+    "style": "Minimal Techno, House, Deep House, Dubstep, Pulsing, Driving, Groovy, Hypnotic, Energetic, Vocal Effects",
+    "prompt": "[Intro short]\nЗзуббастик!\n\n[duration: 3-4 minutes]\n[bpm: 128]\n[key: F minor]\n\n[CORE: MINIMAL TECHNO]\n[dark minimal club groove]\n[deep house sub pressure]\n[clean modern underground production]\n[VERY FEW VOCALS]\n[90% INSTRUMENTAL]\n[NO VERSE]\n[NO CHORUS]\n[NO POP STRUCTURE]\n[NO MELODIC EDM]\n[NO JAZZ]\n[NO TRAP]\n\n[INTRO — 12 sec]\n[instant 4/4 minimal techno kick]\n[dry powerful kick]\n[low rumbling sub appears underneath]\n[small click percussion]\n[closed hi-hat]\n[one hypnotic synth pulse]\n\n[every 2 bars add one tiny element]\n[keep huge empty space]\n[bass slowly becomes physical]\n\n[Female Vocal Chop]\nГлубже.\n\n[SUB DROP]\n\n[MAIN GROOVE — 20 sec]\n[MINIMAL TECHNO]\n[huge club kick]\n[VERY DEEP SUB BASS]\n[rolling rumble bass]\n[short elastic bass pulse]\n[dry percussion]\n[metallic click]\n[hypnotic 2-note synth]\n\n[KICK]\n[SUB]\n[KICK]\n[BASS PULSE]\n[KICK]\n[SUB]\n[KICK]\n[BASS-BASS]\n\n[no melody]\n[no unnecessary layers]\n[let kick and bass dominate]\n\n[BUILD — 8 sec]\n[remove sub]\n[kick continues alone]\n[high-pass percussion]\n[tiny repeating synth]\n[tension without riser]\n\n[one beat silence]\n\n[Female Whisper Chop]\nСейчас.\n\n[DROP 1 — 80 sec]\n[MASSIVE MINIMAL TECHNO DROP]\n[BASS MUST BE PHYSICAL]\n[SUB MUST DOMINATE THE CLUB MIX]\n[POWERFUL KICK + SUB RELATIONSHIP]\n[HEAD-NODDING GROOVE]\n[HYPNOTIC BUT NOT BORING]\n\n[huge dry kick]\n[deep rumble underneath]\n[fat mono sub bass]\n[short dirty mid-bass pulse]\n[minimal percussion]\n\n[MAIN HOOK IS THE BASS RHYTHM]\n[no melodic lead]\n\n[KICK — SUB]\n[KICK — short bass]\n[KICK — SUB]\n[KICK — bass-bass]\n\n[8 bars]\n\n[small bass variation]\n[one extra low note]\n[groove immediately continues]\n\n[8 bars]\n\n[LOW FILTERED SYNTH STAB]\n[bass rhythm changes slightly]\n[open hat appears]\n\n[8 bars]\n\n[BASS MUTATION]\n[mid-bass suddenly twists]\n[short dubstep-like growl]\n[BRR-WAAM]\n\n[ONLY ONE BAR]\n\n[IMMEDIATELY BACK TO MINIMAL TECHNO]\n\n[16 bars]\n[relentless 4/4 kick]\n[deep rolling bass]\n[hypnotic percussion]\n[tiny evolving details]\n\n[unexpected half-beat silence]\n\n[SUB SLAMS BACK HARDER]\n\n[new bass rhythm]\n[lower note]\n[heavier rumble]\n[short acid-like pulse]\n\n[8 bars]\n\n[SECOND BASS MUTATION]\n[reverse suction]\n[low distorted WRAH]\n[pitch dive into sub]\n\n[ONE BAR ONLY]\n\n[TECHNO GROOVE RETURNS IMMEDIATELY]\n\n[percussion becomes wider]\n[ride appears quietly]\n[sub stays enormous]\n[kick stays clean]\n\n[FINAL 16 BARS]\n[maximum low-end pressure]\n[minimum musical elements]\n[small changes every 4 bars]\n[one metallic hit]\n[one bass fill]\n[one percussion change]\n[one filter movement]\n[never destroy the groove]\n\n[BREAK — 12 sec]\n[kick disappears]\n[only rumble]\n[low heartbeat-like pulse]\n[distant metallic percussion]\n\n[very short processed voice]\nЕщё ниже.\n\n[SUB DESCENDS]\n\n[complete silence]\n\n[KICK]\n\n[DROP 2 — 85 sec]\n[HEAVIER MINIMAL TECHNO]\n[NEW BASSLINE]\n[NO VOCALS]\n\n[huge kick]\n[extremely deep sub]\n[rolling techno rumble]\n[elastic low mid-bass]\n[short hypnotic synth pulse]\n\n[NEW BASS HOOK]\n[three-note low rhythm]\n[simple]\n[dirty]\n[catchy]\n[physical]\n\n[16 bars]\n[keep groove locked]\n[percussion slowly evolves]\n\n[REMOVE HI-HATS]\n[kick + bass only]\n[4 bars]\n\n[HI-HATS SLAM BACK]\n[extra percussion]\n[bass gets dirtier]\n\n[8 bars]\n\n[FAKE MOMENT]\n[sub disappears]\n[kick continues for 2 bars]\n\n[LOW BASS GROWL APPROACHES]\n\n[WRAAAHM]\n\n[SUB RETURNS UNDER THE NEXT KICK]\n\n[16 bars]\n[deep house style sub movement]\n[minimal techno drums]\n[small acid pulse]\n[metallic percussion]\n[hypnotic repetition]\n\n[BASS MUTATION]\n[granular low growl]\n[stutter]\n[pitch down]\n\n[ONE BAR]\n\n[BACK TO PURE MINIMAL TECHNO]\n\n[FINAL 25 sec]\n[huge kick]\n[maximum sub pressure]\n[rumble bass]\n[minimal synth]\n[open hat]\n[ride]\n[small percussion]\n[no vocals]\n[no melody taking attention]\n[no breakdown]\n[relentless groove]\n[club system energy]\n[bass felt physically in the chest]\n\n[last 4 bars remove elements one by one]\n\n[kick + sub]\n\n[kick + sub]\n\n[kick]\n\n[SUB HIT]\n\n[END]",
+    "lyrics": [
+      "Глубже.",
+      "",
+      "Сейчас.",
+      "",
+      "Ещё ниже."
+    ]
+  },
+  {
+    "id": "glubzhe-v2",
+    "title": "Глубже (v2)",
+    "artist": "Zoobastiks",
+    "description": "Minimal techno / deep house — hypnotic kick-sub groove (v2).",
+    "durationSec": 256,
+    "tags": [
+      "minimal techno",
+      "deep house",
+      "house",
+      "dubstep",
+      "hypnotic",
+      "groovy",
+      "energetic",
+      "vocal effects",
+      "russian"
+    ],
+    "cover": "covers/glubzhe.svg",
+    "src": "tracks/glubzhe-v2.mp3",
+    "style": "Minimal Techno, House, Deep House, Dubstep, Pulsing, Driving, Groovy, Hypnotic, Energetic, Vocal Effects",
+    "prompt": "[Intro short]\nЗзуббастик!\n\n[duration: 3-4 minutes]\n[bpm: 128]\n[key: F minor]\n\n[CORE: MINIMAL TECHNO]\n[dark minimal club groove]\n[deep house sub pressure]\n[clean modern underground production]\n[VERY FEW VOCALS]\n[90% INSTRUMENTAL]\n[NO VERSE]\n[NO CHORUS]\n[NO POP STRUCTURE]\n[NO MELODIC EDM]\n[NO JAZZ]\n[NO TRAP]\n\n[INTRO — 12 sec]\n[instant 4/4 minimal techno kick]\n[dry powerful kick]\n[low rumbling sub appears underneath]\n[small click percussion]\n[closed hi-hat]\n[one hypnotic synth pulse]\n\n[every 2 bars add one tiny element]\n[keep huge empty space]\n[bass slowly becomes physical]\n\n[Female Vocal Chop]\nГлубже.\n\n[SUB DROP]\n\n[MAIN GROOVE — 20 sec]\n[MINIMAL TECHNO]\n[huge club kick]\n[VERY DEEP SUB BASS]\n[rolling rumble bass]\n[short elastic bass pulse]\n[dry percussion]\n[metallic click]\n[hypnotic 2-note synth]\n\n[KICK]\n[SUB]\n[KICK]\n[BASS PULSE]\n[KICK]\n[SUB]\n[KICK]\n[BASS-BASS]\n\n[no melody]\n[no unnecessary layers]\n[let kick and bass dominate]\n\n[BUILD — 8 sec]\n[remove sub]\n[kick continues alone]\n[high-pass percussion]\n[tiny repeating synth]\n[tension without riser]\n\n[one beat silence]\n\n[Female Whisper Chop]\nСейчас.\n\n[DROP 1 — 80 sec]\n[MASSIVE MINIMAL TECHNO DROP]\n[BASS MUST BE PHYSICAL]\n[SUB MUST DOMINATE THE CLUB MIX]\n[POWERFUL KICK + SUB RELATIONSHIP]\n[HEAD-NODDING GROOVE]\n[HYPNOTIC BUT NOT BORING]\n\n[huge dry kick]\n[deep rumble underneath]\n[fat mono sub bass]\n[short dirty mid-bass pulse]\n[minimal percussion]\n\n[MAIN HOOK IS THE BASS RHYTHM]\n[no melodic lead]\n\n[KICK — SUB]\n[KICK — short bass]\n[KICK — SUB]\n[KICK — bass-bass]\n\n[8 bars]\n\n[small bass variation]\n[one extra low note]\n[groove immediately continues]\n\n[8 bars]\n\n[LOW FILTERED SYNTH STAB]\n[bass rhythm changes slightly]\n[open hat appears]\n\n[8 bars]\n\n[BASS MUTATION]\n[mid-bass suddenly twists]\n[short dubstep-like growl]\n[BRR-WAAM]\n\n[ONLY ONE BAR]\n\n[IMMEDIATELY BACK TO MINIMAL TECHNO]\n\n[16 bars]\n[relentless 4/4 kick]\n[deep rolling bass]\n[hypnotic percussion]\n[tiny evolving details]\n\n[unexpected half-beat silence]\n\n[SUB SLAMS BACK HARDER]\n\n[new bass rhythm]\n[lower note]\n[heavier rumble]\n[short acid-like pulse]\n\n[8 bars]\n\n[SECOND BASS MUTATION]\n[reverse suction]\n[low distorted WRAH]\n[pitch dive into sub]\n\n[ONE BAR ONLY]\n\n[TECHNO GROOVE RETURNS IMMEDIATELY]\n\n[percussion becomes wider]\n[ride appears quietly]\n[sub stays enormous]\n[kick stays clean]\n\n[FINAL 16 BARS]\n[maximum low-end pressure]\n[minimum musical elements]\n[small changes every 4 bars]\n[one metallic hit]\n[one bass fill]\n[one percussion change]\n[one filter movement]\n[never destroy the groove]\n\n[BREAK — 12 sec]\n[kick disappears]\n[only rumble]\n[low heartbeat-like pulse]\n[distant metallic percussion]\n\n[very short processed voice]\nЕщё ниже.\n\n[SUB DESCENDS]\n\n[complete silence]\n\n[KICK]\n\n[DROP 2 — 85 sec]\n[HEAVIER MINIMAL TECHNO]\n[NEW BASSLINE]\n[NO VOCALS]\n\n[huge kick]\n[extremely deep sub]\n[rolling techno rumble]\n[elastic low mid-bass]\n[short hypnotic synth pulse]\n\n[NEW BASS HOOK]\n[three-note low rhythm]\n[simple]\n[dirty]\n[catchy]\n[physical]\n\n[16 bars]\n[keep groove locked]\n[percussion slowly evolves]\n\n[REMOVE HI-HATS]\n[kick + bass only]\n[4 bars]\n\n[HI-HATS SLAM BACK]\n[extra percussion]\n[bass gets dirtier]\n\n[8 bars]\n\n[FAKE MOMENT]\n[sub disappears]\n[kick continues for 2 bars]\n\n[LOW BASS GROWL APPROACHES]\n\n[WRAAAHM]\n\n[SUB RETURNS UNDER THE NEXT KICK]\n\n[16 bars]\n[deep house style sub movement]\n[minimal techno drums]\n[small acid pulse]\n[metallic percussion]\n[hypnotic repetition]\n\n[BASS MUTATION]\n[granular low growl]\n[stutter]\n[pitch down]\n\n[ONE BAR]\n\n[BACK TO PURE MINIMAL TECHNO]\n\n[FINAL 25 sec]\n[huge kick]\n[maximum sub pressure]\n[rumble bass]\n[minimal synth]\n[open hat]\n[ride]\n[small percussion]\n[no vocals]\n[no melody taking attention]\n[no breakdown]\n[relentless groove]\n[club system energy]\n[bass felt physically in the chest]\n\n[last 4 bars remove elements one by one]\n\n[kick + sub]\n\n[kick + sub]\n\n[kick]\n\n[SUB HIT]\n\n[END]",
+    "lyrics": [
+      "Глубже.",
+      "",
+      "Сейчас.",
+      "",
+      "Ещё ниже."
+    ]
+  },
+  {
+    "id": "ty-tozhe-eto-poymal",
+    "title": "Ты тоже это поймал?",
+    "artist": "Zoobastiks",
+    "description": "Minimal techno / tech house — bouncy bass groove, almost no vocals.",
+    "durationSec": 259,
+    "tags": [
+      "minimal techno",
+      "tech house",
+      "deep house",
+      "funk",
+      "drum and bass",
+      "groovy",
+      "erratic",
+      "vocal effects",
+      "russian"
+    ],
+    "cover": "covers/ty-tozhe-eto-poymal.svg",
+    "src": "tracks/ty-tozhe-eto-poymal.mp3",
+    "style": "Minimal Techno, Tech House, Deep House, Funk, Drum and Bass, Erratic, Groovy, Pulsing, Driving, Vocal Effects",
+    "prompt": "[Intro short]\nЗзуббастик!\n\n[duration: 3-4 minutes]\n[bpm: 127]\n[key: G minor]\n\n[MAIN GENRE: MINIMAL TECHNO]\n[SECONDARY: TECH HOUSE + DEEP HOUSE]\n[FUNK ONLY FOR BASS GROOVE]\n[DRUM AND BASS ONLY FOR MICRO FILLS]\n[95% INSTRUMENTAL]\n[NO FULL VERSES]\n[NO CHORUS]\n[NO SINGING]\n[NO TRAP]\n[NO DUBSTEP STRUCTURE]\n[NO BIG EDM BUILDUP]\n[NO SAD ATMOSPHERE]\n\n[START IMMEDIATELY]\n\n[hard round techno kick]\n[fat warm sub]\n[tight bass pluck between kicks]\n[dry clap]\n[shuffled closed hats]\n[small click percussion]\n\n[KICK — bass]\n[KICK — ba-bass]\n[KICK — bass]\n[KICK — empty]\n\n[groove locks immediately]\n\n[8 bars]\n\n[second bass note appears]\n[short funky movement]\n[hats change accent]\n\n[4 bars]\n\n[low filtered synth]\n[TAK... TAK-TAK]\n\n[bass answers]\n\n[DROP 1]\n\n[NO BUILDUP]\n[JUST GROOVE BECOMES HUGE]\n\n[hard kick]\n[deep sub pressure]\n[rolling low rumble]\n[bouncy tech house bass]\n[shuffled percussion]\n\n[MAIN RHYTHM]\n[KICK — WUM]\n[KICK — WUM-WUM]\n[KICK — WUM]\n[KICK — ...]\n\n[repeat 4 bars]\n\n[change last bass hit]\n\n[KICK — WUM]\n[KICK — WUM-WUM]\n[KICK — BRUM-BUM]\n[KICK — ...]\n\n[8 bars]\n\n[unexpected percussion burst]\n[fast DnB-style ghost notes for HALF A BAR]\n\n[immediately back]\n\n[WUM — WUM]\n\n[8 bars]\n\n[BASS HOOK CHANGES]\n\n[short low bass]\n[high rubber bass]\n[short low bass]\n[EMPTY SPACE]\n\n[BUM]\n[wu-BUM]\n[BUM]\n[...]\n\n[groove continues]\n\n[4 bars]\n\n[one strange distorted bass note]\n[WRRRAUP]\n\n[immediately clean again]\n\n[8 bars]\n\n[REMOVE RUMBLE]\n[kick becomes dry]\n[sub becomes cleaner]\n[funky bass becomes more audible]\n\n[NEW GROOVE]\n\n[KICK]\n[bass after kick]\n\n[KICK]\n[double bass BEFORE next kick]\n\n[KICK]\n[empty]\n\n[KICK]\n[low slide]\n\n[8 bars]\n\n[FAST PERCUSSION FILL — HALF BAR]\n\n[everything lands together]\n\n[SUB HIT]\n\n[NEW SECTION]\n\n[techno kick stays unchanged]\n[bass completely changes rhythm]\n\n[three-note bass motif]\n[BUM-BUM ... BUM]\n[KICK]\n[BUM ... BUM-BUM]\n[KICK]\n\n[metallic click answers every second phrase]\n\n[8 bars]\n\n[FAKE ACCIDENT]\n\n[bass arrives too early]\n\n[hard stop]\n\n[one kick]\n\n[groove catches itself again]\n\n[16 bars]\n\n[small changes every 2 bars]\n[hat accent]\n[bass ghost note]\n[click]\n[sub slide]\n[percussion fill]\n[empty beat]\n\n[NEVER REPEAT IDENTICAL 8 BARS]\n\n[BREAK — 7 sec]\n\n[kick continues]\n[everything else removed]\n\n[KICK]\n[KICK]\n[KICK]\n\n[processed spoken vocal]\nТы тоже это поймал?\n\n[KICK]\n\n[BASS RETURNS ON WRONG BEAT]\n\n[DROP 2]\n\n[NEW RHYTHM]\n[MORE BOUNCE]\n[MORE SUB]\n[LESS SYNTH]\n\n[huge kick]\n[deep house sub]\n[short funky bass]\n[shuffled tech house hats]\n\n[BASS HOOK]\n[BUM ... ba-BUM]\n[... BUM]\n[BUM-BUM ...]\n[empty]\n\n[8 bars]\n\n[bass octave jumps once]\n\n[8 bars]\n\n[low rumble slowly gets dirtier]\n\n[half-bar drum fill]\n\n[NEW GROOVE IMMEDIATELY]\n\n[bass becomes syncopated]\n[kick remains straight]\n\n[KICK — bass-bass]\n[KICK — empty]\n[KICK — bass]\n[KICK — bass before kick]\n\n[12 bars]\n\n[SUDDEN LOW-END CUT]\n\n[only kick + hats]\n\n[2 bars]\n\n[SUB RETURNS FIRST]\n\n[then bass]\n\n[then percussion]\n\n[NO EXPLOSION]\n[groove simply becomes enormous]\n\n[16 bars]\n\n[MINIMAL TECHNO HYPNOSIS]\n[very few sounds]\n[each sound has strong rhythm]\n[huge space between elements]\n[fat bass]\n[physical sub]\n[tight kick]\n\n[FINAL RHYTHM MUTATION]\n\n[DnB-style percussion ghosts appear around 127 BPM groove]\n[main tempo DOES NOT CHANGE]\n[bass remains slow and heavy]\n\n[KICK]\n[BRUM]\n[fast ghost fill]\n[KICK]\n[BRUM-BUM]\n[click-click]\n[KICK]\n[empty]\n[KICK]\n[SUB SLIDE]\n\n[8 bars]\n\n[remove ghost percussion]\n\n[pure Minimal Techno again]\n\n[FINAL 24 sec]\n[hard kick]\n[deep rumble]\n[fat bouncing bass]\n[shuffled hats]\n[one minimal synth click]\n[no vocals]\n[no melody]\n[no breakdown]\n\n[bass rhythm changes every 4 bars]\n[groove never stops]\n[physical club low-end]\n[rhythmic]\n[bouncy]\n[minimal]\n[dirty]\n[addictive]\n\n[last bar]\n\n[KICK]\n[BASS]\n[KICK]\n[BASS-BASS]\n\n[hard cut]",
+    "lyrics": [
+      "Ты тоже это поймал?"
+    ]
+  },
+  {
+    "id": "ty-tozhe-eto-poymal-v2",
+    "title": "Ты тоже это поймал? (v2)",
+    "artist": "Zoobastiks",
+    "description": "Minimal techno / tech house — bouncy bass groove (v2).",
+    "durationSec": 246,
+    "tags": [
+      "minimal techno",
+      "tech house",
+      "deep house",
+      "funk",
+      "drum and bass",
+      "groovy",
+      "erratic",
+      "vocal effects",
+      "russian"
+    ],
+    "cover": "covers/ty-tozhe-eto-poymal.svg",
+    "src": "tracks/ty-tozhe-eto-poymal-v2.mp3",
+    "style": "Minimal Techno, Tech House, Deep House, Funk, Drum and Bass, Erratic, Groovy, Pulsing, Driving, Vocal Effects",
+    "prompt": "[Intro short]\nЗзуббастик!\n\n[duration: 3-4 minutes]\n[bpm: 127]\n[key: G minor]\n\n[MAIN GENRE: MINIMAL TECHNO]\n[SECONDARY: TECH HOUSE + DEEP HOUSE]\n[FUNK ONLY FOR BASS GROOVE]\n[DRUM AND BASS ONLY FOR MICRO FILLS]\n[95% INSTRUMENTAL]\n[NO FULL VERSES]\n[NO CHORUS]\n[NO SINGING]\n[NO TRAP]\n[NO DUBSTEP STRUCTURE]\n[NO BIG EDM BUILDUP]\n[NO SAD ATMOSPHERE]\n\n[START IMMEDIATELY]\n\n[hard round techno kick]\n[fat warm sub]\n[tight bass pluck between kicks]\n[dry clap]\n[shuffled closed hats]\n[small click percussion]\n\n[KICK — bass]\n[KICK — ba-bass]\n[KICK — bass]\n[KICK — empty]\n\n[groove locks immediately]\n\n[8 bars]\n\n[second bass note appears]\n[short funky movement]\n[hats change accent]\n\n[4 bars]\n\n[low filtered synth]\n[TAK... TAK-TAK]\n\n[bass answers]\n\n[DROP 1]\n\n[NO BUILDUP]\n[JUST GROOVE BECOMES HUGE]\n\n[hard kick]\n[deep sub pressure]\n[rolling low rumble]\n[bouncy tech house bass]\n[shuffled percussion]\n\n[MAIN RHYTHM]\n[KICK — WUM]\n[KICK — WUM-WUM]\n[KICK — WUM]\n[KICK — ...]\n\n[repeat 4 bars]\n\n[change last bass hit]\n\n[KICK — WUM]\n[KICK — WUM-WUM]\n[KICK — BRUM-BUM]\n[KICK — ...]\n\n[8 bars]\n\n[unexpected percussion burst]\n[fast DnB-style ghost notes for HALF A BAR]\n\n[immediately back]\n\n[WUM — WUM]\n\n[8 bars]\n\n[BASS HOOK CHANGES]\n\n[short low bass]\n[high rubber bass]\n[short low bass]\n[EMPTY SPACE]\n\n[BUM]\n[wu-BUM]\n[BUM]\n[...]\n\n[groove continues]\n\n[4 bars]\n\n[one strange distorted bass note]\n[WRRRAUP]\n\n[immediately clean again]\n\n[8 bars]\n\n[REMOVE RUMBLE]\n[kick becomes dry]\n[sub becomes cleaner]\n[funky bass becomes more audible]\n\n[NEW GROOVE]\n\n[KICK]\n[bass after kick]\n\n[KICK]\n[double bass BEFORE next kick]\n\n[KICK]\n[empty]\n\n[KICK]\n[low slide]\n\n[8 bars]\n\n[FAST PERCUSSION FILL — HALF BAR]\n\n[everything lands together]\n\n[SUB HIT]\n\n[NEW SECTION]\n\n[techno kick stays unchanged]\n[bass completely changes rhythm]\n\n[three-note bass motif]\n[BUM-BUM ... BUM]\n[KICK]\n[BUM ... BUM-BUM]\n[KICK]\n\n[metallic click answers every second phrase]\n\n[8 bars]\n\n[FAKE ACCIDENT]\n\n[bass arrives too early]\n\n[hard stop]\n\n[one kick]\n\n[groove catches itself again]\n\n[16 bars]\n\n[small changes every 2 bars]\n[hat accent]\n[bass ghost note]\n[click]\n[sub slide]\n[percussion fill]\n[empty beat]\n\n[NEVER REPEAT IDENTICAL 8 BARS]\n\n[BREAK — 7 sec]\n\n[kick continues]\n[everything else removed]\n\n[KICK]\n[KICK]\n[KICK]\n\n[processed spoken vocal]\nТы тоже это поймал?\n\n[KICK]\n\n[BASS RETURNS ON WRONG BEAT]\n\n[DROP 2]\n\n[NEW RHYTHM]\n[MORE BOUNCE]\n[MORE SUB]\n[LESS SYNTH]\n\n[huge kick]\n[deep house sub]\n[short funky bass]\n[shuffled tech house hats]\n\n[BASS HOOK]\n[BUM ... ba-BUM]\n[... BUM]\n[BUM-BUM ...]\n[empty]\n\n[8 bars]\n\n[bass octave jumps once]\n\n[8 bars]\n\n[low rumble slowly gets dirtier]\n\n[half-bar drum fill]\n\n[NEW GROOVE IMMEDIATELY]\n\n[bass becomes syncopated]\n[kick remains straight]\n\n[KICK — bass-bass]\n[KICK — empty]\n[KICK — bass]\n[KICK — bass before kick]\n\n[12 bars]\n\n[SUDDEN LOW-END CUT]\n\n[only kick + hats]\n\n[2 bars]\n\n[SUB RETURNS FIRST]\n\n[then bass]\n\n[then percussion]\n\n[NO EXPLOSION]\n[groove simply becomes enormous]\n\n[16 bars]\n\n[MINIMAL TECHNO HYPNOSIS]\n[very few sounds]\n[each sound has strong rhythm]\n[huge space between elements]\n[fat bass]\n[physical sub]\n[tight kick]\n\n[FINAL RHYTHM MUTATION]\n\n[DnB-style percussion ghosts appear around 127 BPM groove]\n[main tempo DOES NOT CHANGE]\n[bass remains slow and heavy]\n\n[KICK]\n[BRUM]\n[fast ghost fill]\n[KICK]\n[BRUM-BUM]\n[click-click]\n[KICK]\n[empty]\n[KICK]\n[SUB SLIDE]\n\n[8 bars]\n\n[remove ghost percussion]\n\n[pure Minimal Techno again]\n\n[FINAL 24 sec]\n[hard kick]\n[deep rumble]\n[fat bouncing bass]\n[shuffled hats]\n[one minimal synth click]\n[no vocals]\n[no melody]\n[no breakdown]\n\n[bass rhythm changes every 4 bars]\n[groove never stops]\n[physical club low-end]\n[rhythmic]\n[bouncy]\n[minimal]\n[dirty]\n[addictive]\n\n[last bar]\n\n[KICK]\n[BASS]\n[KICK]\n[BASS-BASS]\n\n[hard cut]",
+    "lyrics": [
+      "Ты тоже это поймал?"
+    ]
   }
 ]

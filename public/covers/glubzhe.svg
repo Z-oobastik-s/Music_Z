@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="640" viewBox="0 0 640 640">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="48%" r="75%">
+      <stop offset="0%" stop-color="#120818"/>
+      <stop offset="55%" stop-color="#07040c"/>
+      <stop offset="100%" stop-color="#030205"/>
+    </radialGradient>
+  </defs>
+  <rect width="640" height="640" fill="url(#bg)"/>
+  <circle cx="320" cy="300" r="180" fill="none" stroke="#e10600" stroke-width="2" opacity="0.18"/>
+  <circle cx="320" cy="300" r="110" fill="none" stroke="#e10600" stroke-width="3" opacity="0.28"/>
+  <circle cx="320" cy="300" r="48" fill="#e10600" opacity="0.16"/>
+  <circle cx="320" cy="300" r="16" fill="#ff2a2a" opacity="0.35"/>
+  <rect x="90" y="470" width="14" height="70" fill="#e10600" opacity="0.55" rx="3"/>
+  <rect x="130" y="430" width="14" height="110" fill="#e10600" opacity="0.4" rx="3"/>
+  <rect x="170" y="490" width="14" height="50" fill="#ff2a2a" opacity="0.45" rx="3"/>
+  <rect x="210" y="450" width="14" height="90" fill="#e10600" opacity="0.35" rx="3"/>
+  <rect x="250" y="410" width="14" height="130" fill="#e10600" opacity="0.5" rx="3"/>
+  <rect x="290" y="440" width="14" height="100" fill="#ff2a2a" opacity="0.4" rx="3"/>
+  <rect x="330" y="400" width="14" height="140" fill="#e10600" opacity="0.55" rx="3"/>
+  <rect x="370" y="460" width="14" height="80" fill="#e10600" opacity="0.35" rx="3"/>
+  <rect x="410" y="420" width="14" height="120" fill="#ff2a2a" opacity="0.42" rx="3"/>
+  <rect x="450" y="480" width="14" height="60" fill="#e10600" opacity="0.4" rx="3"/>
+  <rect x="490" y="440" width="14" height="100" fill="#e10600" opacity="0.3" rx="3"/>
+  <rect x="530" y="500" width="14" height="40" fill="#ff2a2a" opacity="0.35" rx="3"/>
+</svg>
