@@ -105,7 +105,7 @@ function versionPlugin(): Plugin {
       const outDir = resolve(dir, "t");
       mkdirSync(outDir, { recursive: true });
       for (const t of tracks) {
-        if (!t?.id) continue;
+        if (!t?.id || !/^[a-z0-9][a-z0-9_-]{0,80}$/i.test(t.id)) continue;
         writeFileSync(resolve(outDir, `${t.id}.html`), sharePageHtml(t), "utf8");
       }
       console.log(`[music-z] share pages: ${tracks.length} → dist/t/`);

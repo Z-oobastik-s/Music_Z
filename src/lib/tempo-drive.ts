@@ -19,6 +19,7 @@ export class TempoDrive {
   private playing = false;
   private suspended = false;
   private raf = 0;
+  private lastTickAt = 0;
   private listeners = new Set<Listener>();
   private onVis: (() => void) | null = null;
 
@@ -70,6 +71,10 @@ export class TempoDrive {
   private tick = (): void => {
     this.raf = requestAnimationFrame(this.tick);
     if (!this.playing || this.suspended || document.hidden || this.listeners.size === 0) return;
+
+    const now = performance.now();
+    if (now - this.lastTickAt < 32) return; // ~30fps
+    this.lastTickAt = now;
 
     const media = this.media;
     const time = media && !media.paused && !media.ended ? media.currentTime : 0;

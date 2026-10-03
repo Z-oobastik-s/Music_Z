@@ -6,48 +6,28 @@
  */
 const BUILD = new URL(self.location.href).searchParams.get("v") || "dev";
 const SHELL = `music-z-shell-${BUILD}`;
-const MEDIA = "music-z-media-v1";
+const MEDIA = "music-z-media-v2";
 
 const PRECACHE = [
   "./favicon.svg",
   "./favicon.png",
-  "./character.png",
-  "./characters/01-open.png",
-  "./characters/02-blink.png",
-  "./characters/03-soft.png",
-  "./characters/04-closed.png",
-  "./characters/05-smirk.png",
-  "./characters/hair-00.png",
-  "./characters/hair-01.png",
-  "./characters/hair-02.png",
-  "./characters/hair-03.png",
-  "./characters/head-turn.png",
-  "./characters/body-sway.png",
-  "./characters/06-wind.png",
-  "./characters/07-breath.png",
   "./logo.png",
-  "./hero-banner.png",
+  "./hero-mark.png",
+  "./hero-girl/00.webp",
+  // Scene: webp only (jpg is fallback in <img>/CSS, not precached)
   "./bg-japan-dim.webp",
   "./bg-japan-lit.webp",
-  "./bg-japan-dim.jpg",
-  "./bg-japan-lit.jpg",
+  // Sidebar key poses only
   "./side-samurai/01.webp",
-  "./side-samurai/02.webp",
-  "./side-samurai/03.webp",
-  "./side-samurai/04.webp",
   "./side-samurai/05.webp",
-  "./side-samurai/06.webp",
-  "./side-samurai/07.webp",
-  "./side-samurai/08.webp",
   "./side-samurai/09.webp",
-  "./side-samurai/10.webp",
-  "./side-samurai/11.webp",
-  "./side-samurai/12.webp",
   "./side-samurai/13.webp",
-  "./side-samurai/14.webp",
-  "./side-samurai/15.webp",
-  "./side-samurai/16.webp",
   "./side-samurai/17.webp",
+  // Character core frames (rest cache-on-demand)
+  "./characters/01-open.png",
+  "./characters/02-blink.png",
+  "./characters/hair-00.png",
+  "./characters/body-sway.png",
 ];
 
 self.addEventListener("install", (event) => {
@@ -126,24 +106,8 @@ async function networkFirst(req, cacheName) {
   } catch {
     const hit = await cache.match(req);
     if (hit) return hit;
-    return new Response("Offline", { status: 503, statusText: "Offline" });
+    throw new Error("offline");
   }
-}
-
-/**
- * @param {Request} req
- * @param {string} cacheName
- */
-async function staleWhileRevalidate(req, cacheName) {
-  const cache = await caches.open(cacheName);
-  const hit = await cache.match(req);
-  const refreshing = fetch(req)
-    .then((res) => {
-      if (res.ok) void cache.put(req, res.clone());
-      return res;
-    })
-    .catch(() => hit);
-  return hit || refreshing;
 }
 
 self.addEventListener("fetch", (event) => {
@@ -156,46 +120,33 @@ self.addEventListener("fetch", (event) => {
 
   const path = url.pathname;
 
-  if (path.endsWith("/version.json") || path.endsWith("/tracks.json")) {
+  // Never SW-cache live catalog / version
+  if (path.endsWith("/tracks.json") || path.endsWith("/version.json") || path.endsWith("/data/tracks.json")) {
     return;
   }
 
-  if (/mz-theme-cat|mz-play-cat|mz-dl-|mz-search-/i.test(path)) {
-    e.respondWith(staleWhileRevalidate(req, MEDIA));
-    return;
-  }
-
-  if (
-    path.includes("/tracks/") ||
-    path.includes("/covers/") ||
-    path.includes("/characters/") ||
-    /\/character\.png$/i.test(path) ||
-    /\/hero-banner\.png$/i.test(path) ||
-    /\/bg-japan-(dim|lit)\.(jpg|webp)$/i.test(path) ||
-    /\/side-samurai\/\d{2}\.webp$/i.test(path) ||
-    /\/logo\.png$/i.test(path) ||
-    /\/favicon\.(svg|png)$/i.test(path)
-  ) {
-    if (path.includes("/tracks/") && req.headers.has("Range")) {
-      e.respondWith(fetch(req));
-      return;
-    }
-    e.respondWith(cacheFirst(req, MEDIA));
-    return;
-  }
-
-  const underApp = path.includes("/Music_Z/") || path.endsWith("/Music_Z");
-  if (!underApp) return;
-
-  // Navigation / HTML — never prefer stale shell (black screen after deploy)
-  const isNav = req.mode === "navigate" || path.endsWith(".html") || /\/Music_Z\/?$/.test(path);
-  if (isNav) {
+  // Navigations / HTML: network-first
+  if (req.mode === "navigate" || req.destination === "document" || path.endsWith(".html")) {
     e.respondWith(networkFirst(req, SHELL));
     return;
   }
 
-  // Hashed JS/CSS bundles
+  // Built hashed assets
   if (path.includes("/assets/")) {
     e.respondWith(cacheFirst(req, SHELL));
+    return;
+  }
+
+  // Media + static images
+  if (
+    path.includes("/tracks/") ||
+    path.includes("/covers/") ||
+    path.includes("/characters/") ||
+    path.includes("/side-samurai/") ||
+    path.includes("/hero-girl/") ||
+    /\.(?:mp3|webp|png|jpg|jpeg|svg)$/i.test(path)
+  ) {
+    e.respondWith(cacheFirst(req, MEDIA));
+    return;
   }
 });

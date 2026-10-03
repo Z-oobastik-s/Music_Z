@@ -27,6 +27,8 @@ import {
   sumDuration,
   matchesQuery,
   parseTrackBpm,
+  safeHttpUrl,
+  safeTrackId,
   trackSource,
   type Track,
 } from "./lib/tracks";
@@ -220,13 +222,6 @@ function render(tracks: Track[]): void {
                   <stop offset="78%" stop-color="#ff2a2a" stop-opacity="0.85" />
                   <stop offset="100%" stop-color="#e10600" stop-opacity="0" />
                 </linearGradient>
-                <filter id="sideVizGlow" x="-40%" y="-120%" width="180%" height="340%">
-                  <feGaussianBlur stdDeviation="1.6" result="b" />
-                  <feMerge>
-                    <feMergeNode in="b" />
-                    <feMergeNode in="SourceGraphic" />
-                  </feMerge>
-                </filter>
               </defs>
               <path
                 class="side-viz-path side-viz-path--ghost"
@@ -238,7 +233,6 @@ function render(tracks: Track[]): void {
                 d="M6 26 C 34 10, 52 34, 80 16 S 126 32, 154 18"
                 fill="none"
                 stroke="url(#sideVizStroke)"
-                filter="url(#sideVizGlow)"
               />
             </svg>
             <div class="side-viz-nodes">
@@ -846,9 +840,61 @@ function render(tracks: Track[]): void {
     nowStatus.hidden = !on;
     nowArtist.hidden = on;
     paintPlayButton();
-    paintList();
-    paintHero();
+    syncListPlayState();
+    if (!heroEl.querySelector("[data-hero-banner]")) paintHero();
+    else syncHeroPlayState();
     if (modalMode === "queue" && !modal.hidden) openQueueModal();
+  }
+
+  /** Patch play/loading classes without wiping the scroll list. */
+  function syncListPlayState(): void {
+    const lists = [listEl, listMusicEl];
+    for (const list of lists) {
+      list.querySelectorAll<HTMLElement>(".track-item").forEach((row) => {
+        const id = row.dataset.id ?? "";
+        const on = id === (activeId ?? focusId);
+        const loading = id === loadingId;
+        row.classList.toggle("is-on", on);
+        row.classList.toggle("is-loading", loading);
+        const main = row.querySelector<HTMLElement>(".track-main");
+        if (main) {
+          if (loading) main.setAttribute("aria-busy", "true");
+          else main.removeAttribute("aria-busy");
+        }
+        const metaP = row.querySelector(".track-meta p");
+        if (metaP) {
+          const track = tracks.find((t) => t.id === id);
+          metaP.textContent = loading ? "Загрузка…" : (track?.artist ?? "");
+        }
+        const ico = row.querySelector(".track-main > .ico-btn");
+        if (ico) {
+          ico.classList.toggle("is-loading", loading);
+          ico.innerHTML = loading
+            ? ICONS.spinnerSm
+            : on && playing
+              ? ICONS.pause
+              : ICONS.play;
+        }
+      });
+    }
+  }
+
+  function syncHeroPlayState(): void {
+    const track = currentTrack();
+    if (!track) return;
+    const on = activeId === track.id && playing;
+    const loading = loadingId === track.id;
+    const heroLabel = loading ? "Загрузка…" : on ? "Пауза" : "Воспроизвести";
+    const playBtn = heroEl.querySelector<HTMLButtonElement>("[data-hero-play]");
+    const label = heroEl.querySelector(".btn-play-label");
+    if (label) label.textContent = heroLabel;
+    if (playBtn) {
+      playBtn.classList.toggle("is-loading", loading);
+      if (loading) playBtn.setAttribute("aria-busy", "true");
+      else playBtn.removeAttribute("aria-busy");
+    }
+    heroGirl.setPlaying(playing);
+    syncPlayCatPose();
   }
 
   let loadingWatch = 0;
@@ -965,8 +1011,10 @@ function render(tracks: Track[]): void {
       sideSamurai.setPlaying(isPlaying);
       heroGirl.setPlaying(isPlaying);
       if (track && viewId !== "home") syncTrackInUrl(track.id);
-      paintHero();
-      paintList();
+      // Avoid full list/hero rebuild on every play tick — patch state in place
+      if (!heroEl.querySelector("[data-hero-banner]")) paintHero();
+      else syncHeroPlayState();
+      syncListPlayState();
       paintLyrics();
       paintDeco();
       charCycle?.setPlaying(isPlaying);
@@ -1248,17 +1296,21 @@ function render(tracks: Track[]): void {
   }
 
   function trackRowHtml(t: Track, i: number): string {
+    const id = safeTrackId(t.id);
     const on = t.id === (activeId ?? focusId);
     const loading = t.id === loadingId;
     const num = String(i + 1).padStart(2, "0");
     const src = trackSource(t);
+    const srcUrl = safeHttpUrl(src.url);
     const styleBtn = t.style
-      ? `<button type="button" class="chip" data-style="${t.id}" title="Стиль">Стиль</button>`
+      ? `<button type="button" class="chip" data-style="${escapeHtml(id)}" title="Стиль">Стиль</button>`
       : "";
     const promptBtn = t.prompt
-      ? `<button type="button" class="chip" data-prompt="${t.id}" title="Промпт">Промпт</button>`
+      ? `<button type="button" class="chip" data-prompt="${escapeHtml(id)}" title="Промпт">Промпт</button>`
       : "";
-    const genBtn = `<a class="chip chip-src" href="${escapeHtml(src.url)}" target="_blank" rel="noopener noreferrer" data-src title="Сгенерировано на ${escapeHtml(src.name)}">·</a>`;
+    const genBtn = srcUrl
+      ? `<a class="chip chip-src" href="${escapeHtml(srcUrl)}" target="_blank" rel="noopener noreferrer" data-src title="Сгенерировано на ${escapeHtml(src.name)}">·</a>`
+      : "";
     const stateIcon = loading
       ? ICONS.spinnerSm
       : on && playing
@@ -1266,10 +1318,10 @@ function render(tracks: Track[]): void {
         : ICONS.play;
     return `
       <li>
-        <div class="track-item${on ? " is-on" : ""}${loading ? " is-loading" : ""}" data-id="${t.id}">
-          <button type="button" class="track-main" data-play-id="${t.id}" ${loading ? 'aria-busy="true"' : ""}>
+        <div class="track-item${on ? " is-on" : ""}${loading ? " is-loading" : ""}" data-id="${escapeHtml(id)}">
+          <button type="button" class="track-main" data-play-id="${escapeHtml(id)}" ${loading ? 'aria-busy="true"' : ""}>
             <span class="num">${num}</span>
-            <img src="${assetUrl(t.cover)}" alt="" width="48" height="48" loading="lazy" />
+            <img src="${assetUrl(t.cover)}" alt="" width="48" height="48" loading="lazy" decoding="async" />
             <div class="track-meta">
               <h4>${escapeHtml(t.title)}</h4>
               <p>${loading ? "Загрузка…" : escapeHtml(t.artist)}</p>
@@ -1281,7 +1333,7 @@ function render(tracks: Track[]): void {
             ${styleBtn}
             ${promptBtn}
             ${genBtn}
-            <button type="button" class="ico-btn ico-dl" data-dl="${escapeHtml(t.id)}" title="Скачать">${ICONS.dl}</button>
+            <button type="button" class="ico-btn ico-dl" data-dl="${escapeHtml(id)}" title="Скачать">${ICONS.dl}</button>
           </div>
         </div>
       </li>
@@ -1360,19 +1412,22 @@ function render(tracks: Track[]): void {
     void playTrack(track, { toggle: true });
   }
 
-  // Pause beat/tempo FX while scrolling lists — biggest scroll smoothness win
+  // Freeze beat/tempo FX on any main scroll — keeps list/lyrics buttery
   let scrollFxTimer = 0;
-  const onListScroll = (): void => {
+  const onUiScroll = (): void => {
+    document.documentElement.classList.add("is-scrolling");
     beat.setSuspended(true);
     tempoDrive.setSuspended(true);
     window.clearTimeout(scrollFxTimer);
     scrollFxTimer = window.setTimeout(() => {
+      document.documentElement.classList.remove("is-scrolling");
       beat.setSuspended(false);
       tempoDrive.setSuspended(false);
-    }, 140);
+    }, 320);
   };
-  listEl.addEventListener("scroll", onListScroll, { passive: true });
-  listMusicEl.addEventListener("scroll", onListScroll, { passive: true });
+  for (const el of [listEl, listMusicEl, lyricsEl, app.querySelector(".stage-mid")].filter(Boolean)) {
+    el!.addEventListener("scroll", onUiScroll, { passive: true });
+  }
 
   listEl.addEventListener("click", onTrackListClick);
   listMusicEl.addEventListener("click", onTrackListClick);

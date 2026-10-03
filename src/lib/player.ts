@@ -162,7 +162,7 @@ export class AudioPlayer {
 
     this.ctx = new AC();
     this.analyser = this.ctx.createAnalyser();
-    this.analyser.fftSize = 1024;
+    this.analyser.fftSize = 512;
     this.analyser.smoothingTimeConstant = 0.08;
     this.analyser.minDecibels = -80;
     this.analyser.maxDecibels = -28;

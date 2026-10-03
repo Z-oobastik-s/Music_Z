@@ -44,6 +44,7 @@ export class BeatMotion {
   private onBeatFn: ((beatIndex: number, bpm: number) => void) | null = null;
   private lastApplied = "";
   private suspended = false;
+  private lastApplyAt = 0;
 
   constructor(root: HTMLElement) {
     this.root = root;
@@ -108,7 +109,7 @@ export class BeatMotion {
 
       this.src = this.ctx.createMediaElementSource(audio);
       this.analyser = this.ctx.createAnalyser();
-      this.analyser.fftSize = 1024;
+      this.analyser.fftSize = 512;
       this.analyser.smoothingTimeConstant = 0.08;
       this.analyser.minDecibels = -80;
       this.analyser.maxDecibels = -28;
@@ -415,6 +416,11 @@ export class BeatMotion {
       this.apply(0, 0, 0, 0, 0);
       return;
     }
+
+    // Cap visual/analyser work ~30fps — scroll stays smoother
+    const nowFrame = performance.now();
+    if (nowFrame - this.lastApplyAt < 32) return;
+    this.lastApplyAt = nowFrame;
 
     let { bass, mid, voice, energy, onset, bassHit, alive } = this.read();
 

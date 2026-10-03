@@ -72,9 +72,40 @@ export function sumDuration(list: Track[]): number {
 
 export function assetUrl(path: string, bust?: string): string {
   const base = import.meta.env.BASE_URL;
-  const clean = path.replace(/^\/+/, "");
+  // Block path escape / absolute / javascript URLs in catalog assets
+  const clean = path.replace(/^\/+/, "").replace(/\\/g, "/");
+  const allowed =
+    !!clean &&
+    !clean.includes("..") &&
+    !/^[a-z]+:/i.test(clean) &&
+    (clean.startsWith("tracks/") ||
+      clean.startsWith("covers/") ||
+      clean.startsWith("characters/") ||
+      clean.startsWith("side-samurai/") ||
+      clean.startsWith("hero-girl/") ||
+      clean.startsWith("data/") ||
+      clean === "version.json" ||
+      /^[\w.-]+\.(png|webp|jpg|jpeg|svg|mp3|json)$/i.test(clean));
+  if (!allowed) return `${base}favicon.svg`;
   const url = `${base}${clean}`;
   return bust ? `${url}?v=${encodeURIComponent(bust)}` : url;
+}
+
+/** Safe external https URL for catalog `source.url` (blocks javascript:). */
+export function safeHttpUrl(url: string | undefined | null): string | null {
+  if (!url) return null;
+  try {
+    const u = new URL(url);
+    if (u.protocol !== "https:" && u.protocol !== "http:") return null;
+    return u.href;
+  } catch {
+    return null;
+  }
+}
+
+/** Catalog ids used in HTML attrs / filenames. */
+export function safeTrackId(id: string): string {
+  return /^[a-z0-9][a-z0-9_-]{0,80}$/i.test(id) ? id : "track";
 }
 
 export function matchesQuery(track: Track, query: string): boolean {
