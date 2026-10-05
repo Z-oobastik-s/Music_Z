@@ -2923,5 +2923,69 @@
       "Не нужно историй и правильных слов.",
       "Сегодня достаточно пары шагов."
     ]
+  },
+  {
+    "id": "no-pervyy-zhe-raund",
+    "title": "Но первый же раунд",
+    "artist": "Zoobastiks",
+    "description": "Brutal hard trap / heavy bass house — dominant kick, crushing drums, short male vocal.",
+    "durationSec": 185,
+    "bpm": 140,
+    "tags": [
+      "hard trap",
+      "hybrid trap",
+      "bass house",
+      "underground",
+      "mid tempo",
+      "brutal",
+      "dominant kick",
+      "instrumental",
+      "male vocals",
+      "russian"
+    ],
+    "cover": "covers/no-pervyy-zhe-raund.svg",
+    "src": "tracks/no-pervyy-zhe-raund.mp3",
+    "style": "Hard Trap, Hybrid Trap, Heavy Bass House, Deep Minimal Influence, Underground Club Trap, Mid Tempo, Brutal, Aggressive, Raw, Heavy, Bouncy, Head Banging, Dominant Kick, Crushing Drums, Controlled Sub Bass, Dark Percussion, Instrumental Focus",
+    "prompt": "[Intro short, instant start, huge dry kick, hard percussion]\nЗзуббастик!\n\n[duration: 3-4 minutes]\n[bpm: 140]\n[key: E minor]\n\n[Male Vocals, young deep clean voice, confident, rough attitude, energetic, natural, short delivery, no singing, no rasp]\n\nГромче.\n\nКто много базарил, становится тише.\nМы делаем громче, нас слышат всё выше.\nЗдесь каждый уверен, пока не прижмёт.\nНо первый же раунд расставит всё в счёт.\n\n[Instrumental section: 18 seconds, vocals end completely, huge dry kick, hard snare, heavy percussion, controlled sub, aggressive groove develops]\n\n[Build: 10 seconds, drums become increasingly violent, kick pattern grows heavier, toms enter, snare pressure rises, low end reduces before impact]\n\n[Pre drop: 3 seconds, heavy tom rhythm, enormous tension]\n\n[DROP 1: 55 SECONDS, INSTRUMENTAL ONLY, NO VOCALS, brutal hard trap and heavy bass house hybrid, enormous chest hitting kick, crushing drums, hard snare, controlled short sub, raw percussion, broken rhythmic groove, aggressive masculine energy, no melodic lead]\n\n[Immediate impact: enormous kick and snare combination, short sub reinforcement, heavy tom response, raw percussion, full power from the first beat]\n\n[Main hook: create one extremely addictive heavy rhythm using kick, snare and toms. The kick must feel physical and dominant. Use short bass impacts only to reinforce selected kicks]\n\n[The groove must make the listener anticipate every next kick. Alternate straight heavy impacts with syncopated kick responses. Keep large spaces between selected hits so every impact feels enormous]\n\n[Every 8 bars change the drum attack dramatically. Introduce double kick accents, sudden tom answers, snare variations, triplet percussion fills and unexpected rhythmic turns while maintaining continuous momentum]\n\n[Mid drop switch: completely change the kick pocket into a harder stomping rhythm. Drums become heavier, not faster. Add short distorted percussion impacts and aggressive low mid hits]\n\n[Second half: combine stomping club weight with broken trap rhythm. Kick remains louder and harder than every other element. Sub remains clean and restrained]\n\n[Final 15 seconds: most brutal groove, enormous kick impacts, crushing snare, heavy toms, unpredictable drum answers, hard rhythmic switches, relentless head banging movement]\n\n[Hard stop]\n\n[Instrumental reset: 14 seconds, hard kick groove immediately continues, new tom rhythm, dry snare, controlled sub, no atmosphere, no vocals]\n\n[Build: 9 seconds, kick and tom pattern intensifies, snare fills become heavier, tension rises quickly]\n\n[DROP 2: 60 SECONDS, INSTRUMENTAL ONLY, NO VOCALS, harder evolution, brutal hybrid trap, heavy bass house weight, broken deep minimal groove influence, massive dominant kick, crushing drums, controlled sub, raw percussion]\n\n[Immediate impact with a completely different kick rhythm. No soft entrance. No melodic introduction. Full drum pressure instantly]\n\n[Main groove: enormous kick, hard snare, heavy tom response and short controlled sub create a primitive addictive rhythm. Make every impact distinct and physical]\n\n[First switch: kick rhythm becomes syncopated and unpredictable, snare answers harder, tom fills connect phrases without stopping momentum]\n\n[Second switch: introduce a heavy stomping pocket with huge spaces between impacts, then suddenly answer with a short broken trap rhythm]\n\n[Third switch: combine both grooves. Alternate stomping impacts with aggressive syncopated drum phrases. Keep bass minimal and drums dominant]\n\n[FINAL 18 SECONDS: maximum physical pressure, biggest kick of the track, crushing snare, brutal tom fills, broken rhythmic accents, continuous head banging groove, no vocals, no melody, no calm sections]\n\n[Final massive impact]\n[Hard stop]",
+    "lyrics": [
+      "Громче.",
+      "",
+      "Кто много базарил, становится тише.",
+      "Мы делаем громче, нас слышат всё выше.",
+      "Здесь каждый уверен, пока не прижмёт.",
+      "Но первый же раунд расставит всё в счёт."
+    ]
+  },
+  {
+    "id": "no-pervyy-zhe-raund-v2",
+    "title": "Но первый же раунд (v2)",
+    "artist": "Zoobastiks",
+    "description": "Brutal hard trap / heavy bass house — dominant kick, crushing drums (v2).",
+    "durationSec": 188,
+    "bpm": 140,
+    "tags": [
+      "hard trap",
+      "hybrid trap",
+      "bass house",
+      "underground",
+      "mid tempo",
+      "brutal",
+      "dominant kick",
+      "instrumental",
+      "male vocals",
+      "russian"
+    ],
+    "cover": "covers/no-pervyy-zhe-raund.svg",
+    "src": "tracks/no-pervyy-zhe-raund-v2.mp3",
+    "style": "Hard Trap, Hybrid Trap, Heavy Bass House, Deep Minimal Influence, Underground Club Trap, Mid Tempo, Brutal, Aggressive, Raw, Heavy, Bouncy, Head Banging, Dominant Kick, Crushing Drums, Controlled Sub Bass, Dark Percussion, Instrumental Focus",
+    "prompt": "[Intro short, instant start, huge dry kick, hard percussion]\nЗзуббастик!\n\n[duration: 3-4 minutes]\n[bpm: 140]\n[key: E minor]\n\n[Male Vocals, young deep clean voice, confident, rough attitude, energetic, natural, short delivery, no singing, no rasp]\n\nГромче.\n\nКто много базарил, становится тише.\nМы делаем громче, нас слышат всё выше.\nЗдесь каждый уверен, пока не прижмёт.\nНо первый же раунд расставит всё в счёт.\n\n[Instrumental section: 18 seconds, vocals end completely, huge dry kick, hard snare, heavy percussion, controlled sub, aggressive groove develops]\n\n[Build: 10 seconds, drums become increasingly violent, kick pattern grows heavier, toms enter, snare pressure rises, low end reduces before impact]\n\n[Pre drop: 3 seconds, heavy tom rhythm, enormous tension]\n\n[DROP 1: 55 SECONDS, INSTRUMENTAL ONLY, NO VOCALS, brutal hard trap and heavy bass house hybrid, enormous chest hitting kick, crushing drums, hard snare, controlled short sub, raw percussion, broken rhythmic groove, aggressive masculine energy, no melodic lead]\n\n[Immediate impact: enormous kick and snare combination, short sub reinforcement, heavy tom response, raw percussion, full power from the first beat]\n\n[Main hook: create one extremely addictive heavy rhythm using kick, snare and toms. The kick must feel physical and dominant. Use short bass impacts only to reinforce selected kicks]\n\n[The groove must make the listener anticipate every next kick. Alternate straight heavy impacts with syncopated kick responses. Keep large spaces between selected hits so every impact feels enormous]\n\n[Every 8 bars change the drum attack dramatically. Introduce double kick accents, sudden tom answers, snare variations, triplet percussion fills and unexpected rhythmic turns while maintaining continuous momentum]\n\n[Mid drop switch: completely change the kick pocket into a harder stomping rhythm. Drums become heavier, not faster. Add short distorted percussion impacts and aggressive low mid hits]\n\n[Second half: combine stomping club weight with broken trap rhythm. Kick remains louder and harder than every other element. Sub remains clean and restrained]\n\n[Final 15 seconds: most brutal groove, enormous kick impacts, crushing snare, heavy toms, unpredictable drum answers, hard rhythmic switches, relentless head banging movement]\n\n[Hard stop]\n\n[Instrumental reset: 14 seconds, hard kick groove immediately continues, new tom rhythm, dry snare, controlled sub, no atmosphere, no vocals]\n\n[Build: 9 seconds, kick and tom pattern intensifies, snare fills become heavier, tension rises quickly]\n\n[DROP 2: 60 SECONDS, INSTRUMENTAL ONLY, NO VOCALS, harder evolution, brutal hybrid trap, heavy bass house weight, broken deep minimal groove influence, massive dominant kick, crushing drums, controlled sub, raw percussion]\n\n[Immediate impact with a completely different kick rhythm. No soft entrance. No melodic introduction. Full drum pressure instantly]\n\n[Main groove: enormous kick, hard snare, heavy tom response and short controlled sub create a primitive addictive rhythm. Make every impact distinct and physical]\n\n[First switch: kick rhythm becomes syncopated and unpredictable, snare answers harder, tom fills connect phrases without stopping momentum]\n\n[Second switch: introduce a heavy stomping pocket with huge spaces between impacts, then suddenly answer with a short broken trap rhythm]\n\n[Third switch: combine both grooves. Alternate stomping impacts with aggressive syncopated drum phrases. Keep bass minimal and drums dominant]\n\n[FINAL 18 SECONDS: maximum physical pressure, biggest kick of the track, crushing snare, brutal tom fills, broken rhythmic accents, continuous head banging groove, no vocals, no melody, no calm sections]\n\n[Final massive impact]\n[Hard stop]",
+    "lyrics": [
+      "Громче.",
+      "",
+      "Кто много базарил, становится тише.",
+      "Мы делаем громче, нас слышат всё выше.",
+      "Здесь каждый уверен, пока не прижмёт.",
+      "Но первый же раунд расставит всё в счёт."
+    ]
   }
 ]
