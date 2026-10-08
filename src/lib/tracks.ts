@@ -108,6 +108,19 @@ export function safeTrackId(id: string): string {
   return /^[a-z0-9][a-z0-9_-]{0,80}$/i.test(id) ? id : "track";
 }
 
+/** Alt takes (`…-v2`) stay in catalog but out of the main library UI. */
+export function isAltVersion(track: Track): boolean {
+  return /(?:^|-)v\d+$/i.test(track.id) || /\(v\d+\)\s*$/i.test(track.title);
+}
+
+export function originalsOnly(tracks: Track[]): Track[] {
+  return tracks.filter((t) => !isAltVersion(t));
+}
+
+export function altVersionsOnly(tracks: Track[]): Track[] {
+  return tracks.filter((t) => isAltVersion(t));
+}
+
 export function matchesQuery(track: Track, query: string): boolean {
   const q = query.trim().toLowerCase();
   if (!q) return true;

@@ -19,13 +19,16 @@ import {
 } from "./lib/share";
 import { applyTheme, getTheme, toggleTheme } from "./lib/theme";
 import {
+  altVersionsOnly,
   assetUrl,
   defaultLyrics,
   escapeHtml,
   formatDuration,
   formatTotalDuration,
+  isAltVersion,
   sumDuration,
   matchesQuery,
+  originalsOnly,
   parseTrackBpm,
   safeHttpUrl,
   safeTrackId,
@@ -174,11 +177,13 @@ async function loadTracks(): Promise<Track[]> {
 }
 
 function render(tracks: Track[]): void {
+  const originals = originalsOnly(tracks);
+  const alts = altVersionsOnly(tracks);
   let query = "";
   let activeId: string | null = null;
   let playing = false;
   let loadingId: string | null = null;
-  let focusId = tracks[0]?.id ?? null;
+  let focusId = originals[0]?.id ?? tracks[0]?.id ?? null;
 
   app.innerHTML = `
     <div class="scene" aria-hidden="true">
@@ -577,10 +582,8 @@ function render(tracks: Track[]): void {
   }
 
   function paintPlaylists(): void {
-    const v1 = tracks.filter((t) => !t.id.endsWith("-v2"));
-    const v2 = tracks.filter((t) => t.id.endsWith("-v2"));
     const tagMap = new Map<string, Track[]>();
-    for (const t of tracks) {
+    for (const t of originals) {
       for (const tag of t.tags.slice(0, 3)) {
         const arr = tagMap.get(tag) ?? [];
         if (!arr.some((x) => x.id === t.id)) arr.push(t);
@@ -594,25 +597,25 @@ function render(tracks: Track[]): void {
 
     const cards: { id: string; title: string; sub: string; list: Track[]; cover: string }[] = [
       {
-        id: "all",
-        title: "Все треки",
-        sub: `${tracks.length} треков · полный каталог`,
-        list: tracks,
-        cover: tracks[0]?.cover ?? "covers/zhizn.svg",
-      },
-      {
         id: "v1",
         title: "Оригиналы",
-        sub: `${v1.length} треков · без v2`,
-        list: v1,
-        cover: v1[0]?.cover ?? "covers/zhizn.svg",
+        sub: `${originals.length} треков · основная библиотека`,
+        list: originals,
+        cover: originals[0]?.cover ?? "covers/zhizn.svg",
       },
       {
         id: "v2",
-        title: "Версии v2",
-        sub: `${v2.length} треков · альтернативы`,
-        list: v2,
-        cover: v2[0]?.cover ?? "covers/zhizn.svg",
+        title: "Другие версии",
+        sub: `${alts.length} треков · альтернативы (v2)`,
+        list: alts,
+        cover: alts[0]?.cover ?? originals[0]?.cover ?? "covers/zhizn.svg",
+      },
+      {
+        id: "all",
+        title: "Все треки",
+        sub: `${tracks.length} треков · оригиналы + версии`,
+        list: tracks,
+        cover: originals[0]?.cover ?? "covers/zhizn.svg",
       },
       ...tagPlaylists.map(([tag, list]) => ({
         id: `tag-${tag}`,
@@ -654,7 +657,7 @@ function render(tracks: Track[]): void {
 
   function paintArtists(): void {
     const map = new Map<string, Track[]>();
-    for (const t of tracks) {
+    for (const t of originals) {
       const arr = map.get(t.artist) ?? [];
       arr.push(t);
       map.set(t.artist, arr);
@@ -692,7 +695,7 @@ function render(tracks: Track[]): void {
 
   function paintGenres(): void {
     const map = new Map<string, Track[]>();
-    for (const t of tracks) {
+    for (const t of originals) {
       for (const tag of t.tags) {
         const arr = map.get(tag) ?? [];
         if (!arr.some((x) => x.id === t.id)) arr.push(t);
@@ -1058,7 +1061,7 @@ function render(tracks: Track[]): void {
     },
     onMode: paintModes,
   });
-  player.setQueue(tracks);
+  player.setQueue(originals);
   player.setVolume(Number(volEl.value) / 100);
   paintModes(false, "off");
 
@@ -1073,7 +1076,7 @@ function render(tracks: Track[]): void {
     await beat.connect(player.media);
   }
 
-  const listScope = (): Track[] => browseList ?? tracks;
+  const listScope = (): Track[] => browseList ?? originals;
   const filtered = (): Track[] => listScope().filter((t) => matchesQuery(t, query));
   const queueScope = (): Track[] => {
     const items = filtered();
@@ -1081,7 +1084,7 @@ function render(tracks: Track[]): void {
   };
 
   const currentTrack = (): Track | undefined =>
-    tracks.find((t) => t.id === (activeId ?? focusId)) ?? tracks[0];
+    tracks.find((t) => t.id === (activeId ?? focusId)) ?? originals[0] ?? tracks[0];
 
   function paintHero(): void {
     const track = currentTrack();
@@ -1351,12 +1354,12 @@ function render(tracks: Track[]): void {
   }
 
   function paintList(): void {
-    const homeItems = tracks.filter((t) => matchesQuery(t, query));
+    const homeItems = originals.filter((t) => matchesQuery(t, query));
     const musicItems = filtered();
     const scope = listScope();
-    const musicTotal = browseList ? scope.length : tracks.length;
+    const musicTotal = browseList ? scope.length : originals.length;
 
-    countEl.textContent = listCountLabel(homeItems, tracks.length);
+    countEl.textContent = listCountLabel(homeItems, originals.length);
     countEl.title = "Треков в списке · общая длительность";
     if (musicTitleEl) {
       musicTitleEl.textContent = browseTitle ?? "Вся музыка";
@@ -1548,7 +1551,21 @@ function render(tracks: Track[]): void {
     if (deepTrack) {
       focusId = deepTrack.id;
       activeId = deepTrack.id;
-      player.setQueue(tracks);
+      const deepQueue = isAltVersion(deepTrack) ? alts : originals;
+      if (isAltVersion(deepTrack)) {
+        browseList = alts;
+        browseTitle = "Другие версии";
+        viewId = "music";
+        app.querySelectorAll<HTMLElement>("[data-view]").forEach((el) => {
+          const on = el.dataset.view === "music";
+          el.classList.toggle("is-on", on);
+          el.hidden = !on;
+        });
+        app.querySelectorAll<HTMLButtonElement>("[data-nav]").forEach((btn) => {
+          btn.classList.toggle("is-on", btn.dataset.nav === "music");
+        });
+      }
+      player.setQueue(deepQueue);
       nowTitle.textContent = deepTrack.title;
       nowArtist.textContent = deepTrack.artist;
       nowCover.src = assetUrl(deepTrack.cover);
@@ -1565,7 +1582,7 @@ function render(tracks: Track[]): void {
               ?.isActive,
           );
         if (canAuto) {
-          void playTrack(deepTrack, { queue: tracks });
+          void playTrack(deepTrack, { queue: deepQueue });
         } else {
           showToast("Нажми Play, чтобы слушать");
         }
