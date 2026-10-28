@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="640" viewBox="0 0 640 640">
+  <defs>
+    <radialGradient id="bg" cx="48%" cy="40%" r="80%">
+      <stop offset="0%" stop-color="#1a120c"/>
+      <stop offset="50%" stop-color="#0c0805"/>
+      <stop offset="100%" stop-color="#030201"/>
+    </radialGradient>
+  </defs>
+  <rect width="640" height="640" fill="url(#bg)"/>
+  <circle cx="220" cy="250" r="90" fill="none" stroke="#e10600" stroke-width="4" opacity="0.35"/>
+  <circle cx="220" cy="250" r="28" fill="#e10600" opacity="0.25"/>
+  <circle cx="420" cy="250" r="90" fill="none" stroke="#c45a00" stroke-width="4" opacity="0.3"/>
+  <circle cx="420" cy="250" r="28" fill="#c45a00" opacity="0.2"/>
+  <rect x="300" y="220" width="40" height="60" rx="4" fill="#e10600" opacity="0.4"/>
+  <path d="M160 420 Q320 360 480 420" fill="none" stroke="#e10600" stroke-width="3" opacity="0.35"/>
+  <rect x="160" y="500" width="16" height="70" rx="3" fill="#e10600" opacity="0.45"/>
+  <rect x="210" y="480" width="16" height="90" rx="3" fill="#c45a00" opacity="0.4"/>
+  <rect x="260" y="510" width="16" height="60" rx="3" fill="#e10600" opacity="0.35"/>
+  <rect x="310" y="460" width="16" height="110" rx="3" fill="#e10600" opacity="0.5"/>
+  <rect x="360" y="490" width="16" height="80" rx="3" fill="#c45a00" opacity="0.38"/>
+  <rect x="410" y="470" width="16" height="100" rx="3" fill="#e10600" opacity="0.42"/>
+  <rect x="460" y="520" width="16" height="50" rx="3" fill="#e10600" opacity="0.3"/>
+</svg>
