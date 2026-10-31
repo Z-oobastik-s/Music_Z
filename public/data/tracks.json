@@ -3674,5 +3674,61 @@
       "Но мы идем через дворы,",
       "Где все друг другу до горы!"
     ]
+  },
+  {
+    "id": "opera-voice",
+    "title": "Opera Voice",
+    "artist": "Zoobastiks",
+    "description": "Ultra heavy slow dark trap — deep 808, operatic contralto chops, car-audio bass.",
+    "durationSec": 163,
+    "bpm": 105,
+    "tags": [
+      "dark trap",
+      "opera trap",
+      "bass",
+      "car audio",
+      "105 bpm",
+      "slow trap",
+      "808",
+      "female opera",
+      "instrumental"
+    ],
+    "cover": "covers/opera-voice.svg",
+    "src": "tracks/opera-voice.mp3",
+    "style": "105 BPM, ultra heavy slow dark trap, car audio bass music, original opera trap fusion, massive deep 808 sub bass, extremely hard punchy kicks, heavy snare backbeat, slow hypnotic head nodding groove, aggressive distorted 808 slides, deep female operatic contralto vocal, dark powerful classical opera phrases, short chopped opera vocal hooks, immediate bass drop after 4 seconds, nonstop heavy bass groove, minimal orchestral stabs, gritty bass texture, huge low frequency impact, powerful clean mix, slow crushing rhythm, dramatic half second silences, three massive drops, minimal melody, bass focused production, no long intro, no long buildup, no cinematic soundtrack, no epic trailer music, no fast tempo, no high pitched screaming, no EDM, no dubstep, no rap, no pop vocals, 90 seconds.",
+    "prompt": "[BPM: 105]\n[Duration: 90 seconds]\n[No long intro]\n[Heavy bass from the beginning]\n\n[INTRO: 0-4s]\n[Dark female contralto opera voice]\n[One powerful dramatic vocal phrase]\nOh... Ah...\n[Sudden silence for half a second]\n\n[DROP 1: 4-25s]\n[IMMEDIATE MASSIVE TRAP DROP]\n[Monstrous deep 808 sub bass]\n[Slow crushing kick and snare groove]\n[Heavy distorted bass slides]\n[Dark operatic vocal chops]\n[Minimal melody, maximum bass]\n[No singing]\n\n[BREAK: 25-28s]\n[All drums stop]\n[Deep female operatic voice]\nAh... Oh...\n\n[DROP 2: 28-49s]\n[EVEN HEAVIER BASS DROP]\n[Slow aggressive trap bounce]\n[Massive sustained 808 notes]\n[Hard punchy kick]\n[Sharp snare on every backbeat]\n[Short chopped opera vocals]\n[Dirty bass variations]\n[No buildup]\n\n[SHORT BREAK: 49-52s]\n[One dramatic operatic vocal phrase]\n[Instant silence]\n\n[FINAL DROP: 52-83s]\n[MAXIMUM BASS INTENSITY]\n[Extremely heavy slow trap]\n[Deep vibrating sub bass]\n[Distorted sliding 808]\n[Hard syncopated kick pattern]\n[Powerful snare hits]\n[Dark female opera vocal chops]\n[Minimal orchestral stabs]\n[Massive bass groove]\n[No buildup, no breakdown]\n\n[OUTRO: 83-90s]\n[Heavy bass continues]\n[One final operatic vocal hit]\n[Sudden hard stop]",
+    "lyrics": [
+      "Oh... Ah...",
+      "",
+      "Ah... Oh..."
+    ]
+  },
+  {
+    "id": "opera-voice-v2",
+    "title": "Opera Voice (v2)",
+    "artist": "Zoobastiks",
+    "description": "Ultra heavy slow dark trap — deep 808, operatic contralto chops (v2).",
+    "durationSec": 183,
+    "bpm": 105,
+    "tags": [
+      "dark trap",
+      "opera trap",
+      "bass",
+      "car audio",
+      "105 bpm",
+      "slow trap",
+      "808",
+      "female opera",
+      "instrumental"
+    ],
+    "cover": "covers/opera-voice.svg",
+    "src": "tracks/opera-voice-v2.mp3",
+    "style": "105 BPM, ultra heavy slow dark trap, car audio bass music, original opera trap fusion, massive deep 808 sub bass, extremely hard punchy kicks, heavy snare backbeat, slow hypnotic head nodding groove, aggressive distorted 808 slides, deep female operatic contralto vocal, dark powerful classical opera phrases, short chopped opera vocal hooks, immediate bass drop after 4 seconds, nonstop heavy bass groove, minimal orchestral stabs, gritty bass texture, huge low frequency impact, powerful clean mix, slow crushing rhythm, dramatic half second silences, three massive drops, minimal melody, bass focused production, no long intro, no long buildup, no cinematic soundtrack, no epic trailer music, no fast tempo, no high pitched screaming, no EDM, no dubstep, no rap, no pop vocals, 90 seconds.",
+    "prompt": "[BPM: 105]\n[Duration: 90 seconds]\n[No long intro]\n[Heavy bass from the beginning]\n\n[INTRO: 0-4s]\n[Dark female contralto opera voice]\n[One powerful dramatic vocal phrase]\nOh... Ah...\n[Sudden silence for half a second]\n\n[DROP 1: 4-25s]\n[IMMEDIATE MASSIVE TRAP DROP]\n[Monstrous deep 808 sub bass]\n[Slow crushing kick and snare groove]\n[Heavy distorted bass slides]\n[Dark operatic vocal chops]\n[Minimal melody, maximum bass]\n[No singing]\n\n[BREAK: 25-28s]\n[All drums stop]\n[Deep female operatic voice]\nAh... Oh...\n\n[DROP 2: 28-49s]\n[EVEN HEAVIER BASS DROP]\n[Slow aggressive trap bounce]\n[Massive sustained 808 notes]\n[Hard punchy kick]\n[Sharp snare on every backbeat]\n[Short chopped opera vocals]\n[Dirty bass variations]\n[No buildup]\n\n[SHORT BREAK: 49-52s]\n[One dramatic operatic vocal phrase]\n[Instant silence]\n\n[FINAL DROP: 52-83s]\n[MAXIMUM BASS INTENSITY]\n[Extremely heavy slow trap]\n[Deep vibrating sub bass]\n[Distorted sliding 808]\n[Hard syncopated kick pattern]\n[Powerful snare hits]\n[Dark female opera vocal chops]\n[Minimal orchestral stabs]\n[Massive bass groove]\n[No buildup, no breakdown]\n\n[OUTRO: 83-90s]\n[Heavy bass continues]\n[One final operatic vocal hit]\n[Sudden hard stop]",
+    "lyrics": [
+      "Oh... Ah...",
+      "",
+      "Ah... Oh..."
+    ]
   }
 ]
