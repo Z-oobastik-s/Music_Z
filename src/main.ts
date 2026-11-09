@@ -358,7 +358,7 @@ function render(tracks: Track[]): void {
                     <article class="info-card">
                       <h3>Технологии</h3>
                       <p>Клиентский плеер на Vite. Аудио и изображения кэшируются локально в браузере. Deep-link API: <code>?track=id&amp;play=1</code>.</p>
-                      <p>Треки созданы через AI: <a class="info-link" href="https://musichero.ai/ru/app" target="_blank" rel="noopener noreferrer">MusicHero</a>, <a class="info-link" href="https://brev.ai/ru/app" target="_blank" rel="noopener noreferrer">Brev AI</a> и <a class="info-link" href="https://aisong.io/ai-music-generator" target="_blank" rel="noopener noreferrer">AISong</a>: ссылка у каждого трека в списке.</p>
+                      <p>Треки созданы через AI: <a class="info-link" href="https://musichero.ai/ru/app" target="_blank" rel="noopener noreferrer">MusicHero</a>, <a class="info-link" href="https://brev.ai/ru/app" target="_blank" rel="noopener noreferrer">Brev AI</a>, <a class="info-link" href="https://aisong.io/ai-music-generator" target="_blank" rel="noopener noreferrer">AISong</a> и <a class="info-link" href="https://musicgeneratorai.com/ru/create" target="_blank" rel="noopener noreferrer">MusicGeneratorAI</a>: ссылка у каждого трека в списке.</p>
                     </article>
                   </div>
                 </section>
